@@ -22,6 +22,8 @@ SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException
 import json
+import hmac
+import hashlib
 
 
 class User(Admin):
@@ -30,6 +32,8 @@ class User(Admin):
 
     Reference:
     https://github.com/matrix-org/synapse/blob/master/docs/admin_api/user_admin_api.rst
+    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/account_validity.rst
+    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/room_membership.md
     """
 
     def __init__(self):
@@ -38,7 +42,9 @@ class User(Admin):
 
     def lists(self):
         self.connection.request(
-            "GET", self.admin_patterns("/users", 2), headers=self.header)
+            "GET", self.admin_patterns("/users", 2),
+            headers=self.header
+        )
         resp = self.connection.get_response()
         data = json.loads(resp.read().decode())
         if resp.status == 200:
@@ -52,8 +58,11 @@ class User(Admin):
     def creates(self, user, *args, **kwargs):
         user = self.validate_username(user)
         self.connection.request(
-            "PUT", self.admin_patterns(f"/users/{user}", 2),
-            body=json.dumps(kwargs), headers=self.header)
+            "PUT",
+            self.admin_patterns(f"/users/{user}", 2),
+            body=json.dumps(kwargs),
+            headers=self.header
+        )
         resp = self.connection.get_response()
         if resp.status == 200:
             return True
@@ -72,7 +81,8 @@ class User(Admin):
         self.connection.request(
             "GET",
             self.admin_patterns(f"/users/{user}", 2),
-            headers=self.header)
+            headers=self.header
+        )
         resp = self.connection.get_response()
         return json.loads(resp.read())
 
@@ -182,8 +192,7 @@ class User(Admin):
         room = self.validate_room(room)
         self.connection.request(
             "POST",
-            self.admin_patterns(
-                f"/join/{room}", 1),
+            self.admin_patterns(f"/join/{room}", 1),
             body=json.dumps({"user_id": user}),
             headers=self.header
         )
@@ -198,6 +207,77 @@ class User(Admin):
             else:
                 return SynapseException(data["errcode"], data["error"])
 
+    # Not yet tested
+
+    def validity(self, user, expiration=None, enable_renewal_emails=True):
+        if expiration is not None and not isinstance(expiration, int):
+            raise TypeError(
+                "Argument 'expiration' only accept "
+                f"int but not {type(expiration)}."
+            )
+
+        user = self.validate_username(user)
+        data = {"user_id": user, "enable_renewal_emails": True}
+        if expiration is not None:
+            data["expiration_ts"] = expiration
+        
+        self.connection.request(
+            "POST",
+            self.admin_patterns("/account_validity/validity", 1),
+            body=json.dumps(data),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        return json.loads(resp.read())
+    
+    def register(self, username, password, displayname, shared_secret, admin=False):
+        self.connection.request(
+            "GET",
+            self.admin_patterns("/register", 1)
+        )
+        resp = self.connection.get_response()
+        nonce = json.loads(resp.read())["nonce"]
+        data = {
+            "nonce": nonce,
+            "username": username,
+            "display_name": displayname,
+            "password": password,
+            "admin": admin,
+            "mac": self._generate_mac(nonce, username, password, admin)
+        }
+        self.connection.request(
+            "POST",
+            self.admin_patterns("/register", 1),
+            body=json.dumps(data),
+            headers=self.header
+        )
+
+        resp = self.connection.get_response()
+        return json.loads(resp.read())
+
+    def _generate_mac(self, nonce, user, password, shared_secret, admin=False, user_type=None):
+        """
+        Adapted from:
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
+        """
+        mac = hmac.new(
+          key=shared_secret,
+          digestmod=hashlib.sha1,
+        )
+
+        mac.update(nonce.encode('utf8'))
+        mac.update(b"\x00")
+        mac.update(user.encode('utf8'))
+        mac.update(b"\x00")
+        mac.update(password.encode('utf8'))
+        mac.update(b"\x00")
+        mac.update(b"admin" if admin else b"notadmin")
+        if user_type:
+            mac.update(b"\x00")
+            mac.update(user_type.encode('utf8'))
+
+        return mac.hexdigest()
+        
 
 class _Device(Admin):
     def lists(self, user):
