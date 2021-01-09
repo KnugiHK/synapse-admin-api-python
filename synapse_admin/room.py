@@ -56,10 +56,10 @@ class Room(Admin):
             optional_str = "dir=b"
         else:
             optional_str = "dir=f"
-        
+
         if _from is not None:
             optional_str += f"&from={_from}"
-        
+
         if limit is not None:
             optional_str += f"&limit={limit}"
 
@@ -121,7 +121,7 @@ class Room(Admin):
         purge=True
     ):
         roomid = self.validate_room(roomid)
-        
+
         data = {"block": block, "purge": purge}
         if new_room_userid is not None:
             new_room_userid = self.validate_username(new_room_userid)

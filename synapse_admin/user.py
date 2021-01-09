@@ -220,7 +220,7 @@ class User(Admin):
         data = {"user_id": user, "enable_renewal_emails": True}
         if expiration is not None:
             data["expiration_ts"] = expiration
-        
+
         self.connection.request(
             "POST",
             self.admin_patterns("/account_validity/validity", 1),
@@ -229,8 +229,15 @@ class User(Admin):
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())
-    
-    def register(self, username, password, displayname, shared_secret, admin=False):
+
+    def register(
+        self,
+        username,
+        password,
+        displayname,
+        shared_secret,
+        admin=False
+    ):
         self.connection.request(
             "GET",
             self.admin_patterns("/register", 1)
@@ -255,7 +262,15 @@ class User(Admin):
         resp = self.connection.get_response()
         return json.loads(resp.read())
 
-    def _generate_mac(self, nonce, user, password, shared_secret, admin=False, user_type=None):
+    def _generate_mac(
+        self,
+        nonce,
+        user,
+        password,
+        shared_secret,
+        admin=False,
+        user_type=None
+    ):
         """
         Adapted from:
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
@@ -277,7 +292,7 @@ class User(Admin):
             mac.update(user_type.encode('utf8'))
 
         return mac.hexdigest()
-        
+
 
 class _Device(Admin):
     def lists(self, user):
