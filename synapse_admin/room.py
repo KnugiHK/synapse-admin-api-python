@@ -30,6 +30,8 @@ class Room(Admin):
 
     Reference:
     https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md
+    https://github.com/matrix-org/synapse/blob/master/docs/admin_api/shutdown_room.md
+    https://github.com/matrix-org/synapse/blob/master/docs/admin_api/purge_room.md
     """
 
     order = {
@@ -147,6 +149,42 @@ class Room(Admin):
             "POST",
             self.admin_patterns(f"/rooms/{roomid}/make_room_admin", 1),
             body=json.dumps({"user_id": userid}),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        return json.loads(resp.read())
+
+    def purge_room(self, roomid): # Deprecated in the future
+        roomid = self.validate_room(roomid)
+        self.connection.request(
+            "POST",
+            self.admin_patterns(f"/purge_room", 1),
+            body=json.dumps({"room_id": roomid}),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        return json.loads(resp.read())
+
+    def shutdown_room(
+        self,
+        roomid,
+        new_room_userid,
+        new_room_name=None,
+        message=None
+    ): # Deprecated in the future
+        roomid = self.validate_room(roomid)
+        new_room_userid = self.validate_username(new_room_userid)
+        data = {"new_room_user_id": new_room_userid}
+
+        if new_room_name is not None:
+            data["room_name"] = new_room_name
+        if message is not None:
+            data["message"] = message
+
+        self.connection.request(
+            "POST",
+            self.admin_patterns(f"/shutdown_room/{roomid}", 1),
+            body=json.dumps(data),
             headers=self.header
         )
         resp = self.connection.get_response()
