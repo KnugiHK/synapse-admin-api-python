@@ -82,7 +82,7 @@ class Room(Admin):
         self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms?{optional_str}", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -93,7 +93,7 @@ class Room(Admin):
         self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -104,7 +104,7 @@ class Room(Admin):
         self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/members", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()

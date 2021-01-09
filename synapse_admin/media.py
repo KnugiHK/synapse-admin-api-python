@@ -67,7 +67,7 @@ class Media(Admin):
             self.admin_patterns(
                 f"/media/quarantine/"
                 f"{server_name}/{mediaid}", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -80,7 +80,7 @@ class Media(Admin):
         self.connection.request(
             "POST",
             self.admin_patterns(f"/room/{roomid}/media/quarantine", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -91,7 +91,7 @@ class Media(Admin):
         self.connection.request(
             "POST",
             self.admin_patterns(f"/user/{userid}/media/quarantine", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -104,7 +104,7 @@ class Media(Admin):
         self.connection.request(
             "DELETE",
             self.admin_patterns(f"/media/{server_name}/{mediaid}", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -139,7 +139,7 @@ class Media(Admin):
                 f"/media/{server_name}/delete?before_ts="
                 f"{timestamp}{optional_str}", 1
             ),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -157,7 +157,7 @@ class Media(Admin):
             self.admin_patterns(
                 "/purge_media_cache?"
                 f"before_ts={timestamp}", 1),
-            body=json.dumps({}),
+            body="{}",
             headers=self.header
         )
         resp = self.connection.get_response()
