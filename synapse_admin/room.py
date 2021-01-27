@@ -154,11 +154,11 @@ class Room(Admin):
         resp = self.connection.get_response()
         return json.loads(resp.read())
 
-    def purge_room(self, roomid): # Deprecated in the future
+    def purge_room(self, roomid):  # Deprecated in the future
         roomid = self.validate_room(roomid)
         self.connection.request(
             "POST",
-            self.admin_patterns(f"/purge_room", 1),
+            self.admin_patterns("/purge_room", 1),
             body=json.dumps({"room_id": roomid}),
             headers=self.header
         )
@@ -171,7 +171,7 @@ class Room(Admin):
         new_room_userid,
         new_room_name=None,
         message=None
-    ): # Deprecated in the future
+    ):  # Deprecated in the future
         roomid = self.validate_room(roomid)
         new_room_userid = self.validate_username(new_room_userid)
         data = {"new_room_user_id": new_room_userid}

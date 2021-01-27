@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException
+from synapse_admin import User
 import json
 
 
@@ -39,6 +40,7 @@ class Management(Admin):
 
     def __init__(self):
         super().__init__()
+        self.user = User()
 
     def announce(self, user, announcement):
         user = self.validate_username(user)
@@ -64,7 +66,13 @@ class Management(Admin):
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
-
+                
+    def announce_all(self, announcement):
+        # Not a standard API
+        users, _ = self.user.lists()
+        for user in users:
+            self.announce(user["name"], announcement)
+        
     def version(self):
         self.connection.request(
             "GET",
