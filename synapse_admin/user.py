@@ -55,11 +55,11 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def creates(self, user, *args, **kwargs):
-        user = self.validate_username(user)
+    def creates(self, userid, *args, **kwargs):
+        userid = self.validate_username(userid)
         self.connection.request(
             "PUT",
-            self.admin_patterns(f"/users/{user}", 2),
+            self.admin_patterns(f"/users/{userid}", 2),
             body=json.dumps(kwargs),
             headers=self.header
         )
@@ -76,21 +76,21 @@ class User(Admin):
     def modify(self, user, *args, **kwargs):
         return self.creates(user, *args, **kwargs)
 
-    def query(self, user):
-        user = self.validate_username(user)
+    def query(self, userid):
+        userid = self.validate_username(userid)
         self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{user}", 2),
+            self.admin_patterns(f"/users/{userid}", 2),
             headers=self.header
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())
 
-    def active_sessions(self, user):
-        user = self.validate_username(user)
+    def active_sessions(self, userid):
+        userid = self.validate_username(userid)
         self.connection.request(
             "GET",
-            self.admin_patterns(f"/whois/{user}", 1),
+            self.admin_patterns(f"/whois/{userid}", 1),
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -98,31 +98,31 @@ class User(Admin):
         resp = resp["sessions"][0]["connections"]
         return resp
 
-    def deactivate(self, user, erase=True):
-        user = self.validate_username(user)
+    def deactivate(self, userid, erase=True):
+        userid = self.validate_username(userid)
         self.connection.request(
             "POST",
-            self.admin_patterns(f"/deactivate/{user}", 1),
+            self.admin_patterns(f"/deactivate/{userid}", 1),
             body=json.dumps({"erase": erase}),
             headers=self.header
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())["id_server_unbind_result"] == "success"
 
-    def reactivate(self, user, password):
+    def reactivate(self, userid, password):
         if not isinstance(password, str):
             raise TypeError(
                 "Argument 'password' should be a "
                 f"string but not {type(password)}"
             )
-        user = self.validate_username(user)
-        return self.modify(user, password=password, deactivated=False)
+        userid = self.validate_username(userid)
+        return self.modify(userid, password=password, deactivated=False)
 
-    def reset_password(self, user, password, logout=True):
-        user = self.validate_username(user)
+    def reset_password(self, userid, password, logout=True):
+        userid = self.validate_username(userid)
         self.connection.request(
             "POST",
-            self.admin_patterns(f"/reset_password/{user}", 1),
+            self.admin_patterns(f"/reset_password/{userid}", 1),
             body=json.dumps(
                 {"new_password": password, "logout_devices": logout}),
             headers=self.header
@@ -137,18 +137,18 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def is_admin(self, user):
-        user = self.validate_username(user)
+    def is_admin(self, userid):
+        userid = self.validate_username(userid)
         self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{user}/admin", 1),
+            self.admin_patterns(f"/users/{userid}/admin", 1),
             headers=self.header
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())["admin"]
 
-    def set_admin(self, user, activate):
-        user = self.validate_username(user)
+    def set_admin(self, userid, activate):
+        userid = self.validate_username(userid)
         if not isinstance(activate, bool):
             raise TypeError(
                 "Argument 'activate' only accept "
@@ -156,7 +156,7 @@ class User(Admin):
             )
         self.connection.request(
             "PUT",
-            self.admin_patterns(f"/users/{user}/admin", 1),
+            self.admin_patterns(f"/users/{userid}/admin", 1),
             body=json.dumps({"admin": activate}),
             headers=self.header
         )
@@ -170,11 +170,11 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def joined_room(self, user):
-        user = self.validate_username(user)
+    def joined_room(self, userid):
+        userid = self.validate_username(userid)
         self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{user}/joined_rooms", 1),
+            self.admin_patterns(f"/users/{userid}/joined_rooms", 1),
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -187,13 +187,13 @@ class User(Admin):
             else:
                 return SynapseException(data["errcode"], data["error"])
 
-    def join_room(self, user, room):
-        user = self.validate_username(user)
+    def join_room(self, userid, room):
+        userid = self.validate_username(userid)
         room = self.validate_room(room)
         self.connection.request(
             "POST",
             self.admin_patterns(f"/join/{room}", 1),
-            body=json.dumps({"user_id": user}),
+            body=json.dumps({"user_id": userid}),
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -209,15 +209,15 @@ class User(Admin):
 
     # Not yet tested
 
-    def validity(self, user, expiration=None, enable_renewal_emails=True):
+    def validity(self, userid, expiration=None, enable_renewal_emails=True):
         if expiration is not None and not isinstance(expiration, int):
             raise TypeError(
                 "Argument 'expiration' only accept "
                 f"int but not {type(expiration)}."
             )
 
-        user = self.validate_username(user)
-        data = {"user_id": user, "enable_renewal_emails": True}
+        userid = self.validate_username(userid)
+        data = {"user_id": userid, "enable_renewal_emails": True}
         if expiration is not None:
             data["expiration_ts"] = expiration
 
@@ -295,11 +295,11 @@ class User(Admin):
 
 
 class _Device(Admin):
-    def lists(self, user):
-        user = self.validate_username(user)
+    def lists(self, userid):
+        userid = self.validate_username(userid)
         self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{user}/devices", 2),
+            self.admin_patterns(f"/users/{userid}/devices", 2),
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -312,16 +312,16 @@ class _Device(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def delete(self, user, device):
+    def delete(self, userid, device):
         if isinstance(device, list) and len(device) > 1:
-            return self._deletes(user, device)
+            return self._deletes(userid, device)
         elif isinstance(device, list) and len(device) == 1:
             device = device[0]
 
-        user = self.validate_username(user)
+        userid = self.validate_username(userid)
         self.connection.request(
             "DELETE", self.admin_patterns(
-                f"/users/{user}/devices/{device}", 2),
+                f"/users/{userid}/devices/{device}", 2),
             headers=self.header)
         resp = self.connection.get_response()
         if resp.status == 200:
@@ -329,11 +329,11 @@ class _Device(Admin):
         else:
             return False
 
-    def _deletes(self, user, devices):
-        user = self.validate_username(user)
+    def _deletes(self, userid, devices):
+        userid = self.validate_username(userid)
         self.connection.request(
             "POST",
-            self.admin_patterns(f"/users/{user}/delete_devices", 2),
+            self.admin_patterns(f"/users/{userid}/delete_devices", 2),
             body=json.dumps({"devices": devices}),
             headers=self.header
         )
@@ -343,11 +343,11 @@ class _Device(Admin):
         else:
             return False
 
-    def show(self, user, device):
-        user = self.validate_username(user)
+    def show(self, userid, device):
+        userid = self.validate_username(userid)
         self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{user}/devices/{device}", 2),
+            self.admin_patterns(f"/users/{userid}/devices/{device}", 2),
             headers=self.header
         )
         resp = self.connection.get_response()
@@ -360,11 +360,11 @@ class _Device(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def update(self, user, device, display_name):
-        user = self.validate_username(user)
+    def update(self, userid, device, display_name):
+        userid = self.validate_username(userid)
         self.connection.request(
             "PUT",
-            self.admin_patterns(f"/users/{user}/devices/{device}", 2),
+            self.admin_patterns(f"/users/{userid}/devices/{device}", 2),
             body=json.dumps({"display_name": display_name}),
             headers=self.header
         )

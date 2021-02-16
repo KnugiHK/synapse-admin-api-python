@@ -66,13 +66,13 @@ class Management(Admin):
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
-                
+
     def announce_all(self, announcement):
         # Not a standard API
         users, _ = self.user.lists()
         for user in users:
             self.announce(user["name"], announcement)
-        
+
     def version(self):
         self.connection.request(
             "GET",
