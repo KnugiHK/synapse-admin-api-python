@@ -162,3 +162,16 @@ class Media(Admin):
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())["deleted"]
+
+    def protect_media(self, mediaid):
+        self.connection.request(
+            "POST",
+            self.admin_patterns(f"/media/protect/{mediaid}", 1),
+            body="{}",
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        if len(json.loads(resp.read())) == 0:
+            return True
+        else:
+            ...

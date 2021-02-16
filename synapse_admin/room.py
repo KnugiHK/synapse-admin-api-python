@@ -189,3 +189,49 @@ class Room(Admin):
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())
+
+    def forward_extremities_check(self, roomid):
+        roomid = self.validate_room(roomid)
+        self.connection.request(
+            "GET",
+            self.admin_patterns(f"/rooms/{roomid}/forward_extremities", 1),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        return data["results"], data["count"]
+
+    def forward_extremities_delete(self, roomid):
+        roomid = self.validate_room(roomid)
+        self.connection.request(
+            "DELETE",
+            self.admin_patterns(f"/rooms/{roomid}/forward_extremities", 1),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        return data["deleted"]
+
+    def get_state(self, roomid):
+        roomid = self.validate_room(roomid)
+        self.connection.request(
+            "GET",
+            self.admin_patterns(f"/rooms/{roomid}/state", 1),
+            body="{}",
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        return data["state"]
+
+    def event_context(self, roomid, event_id):
+        roomid = self.validate_room(roomid)
+        self.connection.request(
+            "GET",
+            self.admin_patterns(f"/rooms/{roomid}/context/{event_id}", 1),
+            body="{}",
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        return data
