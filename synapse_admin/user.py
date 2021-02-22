@@ -40,9 +40,30 @@ class User(Admin):
         super().__init__()
         self.devices = _Device()
 
-    def lists(self):
+    def lists(
+        self,
+        offset=0,
+        limit=100,
+        userid=None,
+        name=None,
+        guests=True,
+        deactivated=False
+    ):
+        optional_str = ""
+        if userid is not None:
+            userid = self.validate_username(userid)
+            optional_str += f"&user_id={userid}"
+        if name is not None:
+            optional_str += f"&name={name}"
+
         self.connection.request(
-            "GET", self.admin_patterns("/users", 2),
+            "GET",
+            self.admin_patterns(
+                f"/users?from={offset}&limit={limit}&guests="
+                f"{self.get_bool(guests)}&deactivated="
+                f"{self.get_bool(deactivated)}{optional_str}",
+                2
+            ),
             headers=self.header
         )
         resp = self.connection.get_response()
