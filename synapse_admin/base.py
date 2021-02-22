@@ -143,3 +143,12 @@ class Admin():
         if path[0] != "/":
             path = "/" + path
         return f"{base}v{version}{path}"
+
+    def get_bool(self, boolean):
+        if not isinstance(boolean, bool):
+            raise TypeError("Argument 'boolean' must be a "
+                            f"bool not a {type(boolean)}")
+        if boolean:
+            return "true"
+        else:
+            return "false"
