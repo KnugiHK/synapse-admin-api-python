@@ -314,6 +314,28 @@ class User(Admin):
 
         return mac.hexdigest()
 
+    def list_media(self, userid):
+        userid = self.validate_username(userid)
+        self.connection.request(
+            "GET",
+            self.admin_patterns(f"/users/{userid}/media", 1)
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        return data["media"], data["next_token"], data["total"]
+
+    def login(self, userid):
+        userid = self.validate_username(userid)
+        self.connection.request(
+            "POST",
+            self.admin_patterns(f"/users/{userid}/login", 1),
+            body="{}",
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        return data["access_token"]
+
 
 class _Device(Admin):
     def lists(self, userid):
