@@ -297,8 +297,8 @@ class User(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
         """
         mac = hmac.new(
-          key=shared_secret,
-          digestmod=hashlib.sha1,
+            key=shared_secret,
+            digestmod=hashlib.sha1,
         )
 
         mac.update(nonce.encode('utf8'))
