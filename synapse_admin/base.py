@@ -78,16 +78,17 @@ class Admin():
         self.connection = HTTPConnection(self.server_addr, self.server_port)
         self.supress_exception = suppress_exception
 
-    def create(self):
-        while True:
-            try:
-                url, port = input(
-                    "Enter the homeserver URL with port: ").split(":")
-            except ValueError:
-                continue
-            else:
-                break
-        access_token = input("Enter the access token: ")
+    def create(self, url=None, port=None, access_token=None):
+        if url is None or port is None or access_token is None:
+            while True:
+                try:
+                    url, port = input(
+                        "Enter the homeserver URL with port: ").split(":")
+                except ValueError:
+                    continue
+                else:
+                    break
+            access_token = input("Enter the access token: ")
         return self._create(url, port, access_token)
 
     def _create(self, url, port, token):
