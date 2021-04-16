@@ -31,5 +31,8 @@ setuptools.setup(
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators"
     ],
-    python_requires='>=3.6'
+    python_requires='>=3.6',
+    install_requires=[
+       'hyper>=0.7.0'
+    ]
 )
