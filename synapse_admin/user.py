@@ -58,7 +58,8 @@ class User(Admin):
         userid=None,
         name=None,
         guests=True,
-        deactivated=False
+        deactivated=False,
+        order_by=None
     ):
         optional_str = ""
         if userid is not None:
@@ -66,6 +67,8 @@ class User(Admin):
             optional_str += f"&user_id={userid}"
         if name is not None:
             optional_str += f"&name={name}"
+        if order_by is not None:
+            optional_str += f"&order_by={order_by}"
 
         self.connection.request(
             "GET",
