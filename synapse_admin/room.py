@@ -41,8 +41,19 @@ class Room(Admin):
         "join_rules", "guest_access", "history_visibility", "state_events"
     }
 
-    def __init__(self):
-        super().__init__()
+    def __init__(
+        self,
+        server_addr=None,
+        server_port=443,
+        access_token=None,
+        suppress_exception=False
+    ):
+        super().__init__(
+            server_addr,
+            server_port,
+            access_token,
+            suppress_exception
+        )
 
     # Not yet tested
 

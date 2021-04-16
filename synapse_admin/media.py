@@ -33,8 +33,19 @@ class Media(Admin):
     https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(
+        self,
+        server_addr=None,
+        server_port=443,
+        access_token=None,
+        suppress_exception=False
+    ):
+        super().__init__(
+            server_addr,
+            server_port,
+            access_token,
+            suppress_exception
+        )
 
     def statistics(self):
         self.connection.request(
