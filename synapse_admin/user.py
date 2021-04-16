@@ -350,6 +350,62 @@ class User(Admin):
         data = json.loads(resp.read())
         return data["access_token"]
 
+    def get_ratelimit(self, userid):
+        userid = self.validate_username(userid)
+        self.connection.request(
+            "GET",
+            self.admin_patterns(
+                f"/users/{userid}/"
+                "override_ratelimit",
+                1
+            )
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        if data == {}:
+            return True
+        return data["messages_per_second"], data["burst_count"]
+
+    def set_ratelimit(self, userid, mps, bc):
+        userid = self.validate_username(userid)
+        data = {"messages_per_second": mps, "burst_count": bc}
+        self.connection.request(
+            "POST",
+            self.admin_patterns(
+                f"/users/{userid}/"
+                "override_ratelimit",
+                1
+            ),
+            body=json.dumps(data),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        return data["messages_per_second"], data["burst_count"]
+
+    def disable_ratelimit(self, userid):
+        return self.set_ratelimit(userid, 0, 0)
+
+    def delete_ratelimit(self, userid):
+        userid = self.validate_username(userid)
+        self.connection.request(
+            "DELETE",
+            self.admin_patterns(
+                f"/users/{userid}/"
+                "override_ratelimit",
+                1
+            )
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        if data == {}:
+            return True
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                return SynapseException(data["errcode"], data["error"])
+
 
 class _Device(Admin):
     def lists(self, userid):
