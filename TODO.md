@@ -9,3 +9,5 @@ This document describes what need to be changed or added due to the changes made
 ## Synapse 1.32.0
 1. Add order_by to list user admin API ([#9691](https://github.com/matrix-org/synapse/pull/9691)) -> Test needed
 2. Add an admin API to manage ratelimit for a specific user ([#9648](https://github.com/matrix-org/synapse/pull/9648)) -> Test needed
+## Synapse 1.34.0
+1. Add support for DELETE /_synapse/admin/v1/rooms/<room_id>. ([#9889](https://github.com/matrix-org/synapse/issues/9889))
