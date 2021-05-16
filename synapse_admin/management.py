@@ -94,8 +94,6 @@ class Management(Admin):
         data = json.loads(resp.read())
         return data["server_version"], data["python_version"]
 
-    # Not yet tested
-
     def purge_history(self, roomid, event_id_ts, include_local_event=False):
         roomid = self.validate_room(roomid)
         data = {"delete_local_events": include_local_event}
@@ -103,15 +101,21 @@ class Management(Admin):
             data["purge_up_to_event_id"] = event_id_ts
         elif isinstance(event_id_ts, int):
             data["purge_up_to_ts"] = event_id_ts
-
         self.connection.request(
             "POST",
             self.admin_patterns(f"/purge_history/{roomid}", 1),
-            body=data,
+            body=json.dumps(data),
             headers=self.header
         )
         resp = self.connection.get_response()
-        return json.loads(resp.read())["purge_id"]
+        data = json.loads(resp.read())["purge_id"]
+        if resp.status == 200:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def purge_history_status(self, purge_id):
         self.connection.request(
@@ -120,7 +124,14 @@ class Management(Admin):
             headers=self.header
         )
         resp = self.connection.get_response()
-        return json.loads(resp.read())["status"]
+        data = json.loads(resp.read())
+        if resp.status == 200:
+            return data["status"]
+        else:
+            if self.supress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def event_reports(
         self,
