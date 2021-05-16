@@ -234,8 +234,6 @@ class Room(Admin):
         resp = self.connection.get_response()
         return json.loads(resp.read())
 
-    # Not yet tested
-
     def forward_extremities_check(self, roomid):
         roomid = self.validate_room(roomid)
         self.connection.request(
@@ -256,7 +254,15 @@ class Room(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data["deleted"]
+        if resp.status == 200:
+            return data["deleted"]
+        else:
+            # Synapse bug: Internal server error 
+            # raise if the room does not exist
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def get_state(self, roomid):
         roomid = self.validate_room(roomid)
@@ -268,7 +274,13 @@ class Room(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data["state"]
+        if resp.status == 200:
+            return data["state"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def event_context(self, roomid, event_id):
         roomid = self.validate_room(roomid)
@@ -280,4 +292,10 @@ class Room(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data
+        if resp.status == 200:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])

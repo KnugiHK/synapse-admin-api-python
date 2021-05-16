@@ -459,7 +459,7 @@ class User(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        
+
         if resp.status == 200:
             return data["pushers"], data["total"]
         else:
@@ -485,6 +485,7 @@ class User(Admin):
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
+
 
 class _Device(Admin):
     def lists(self, userid):
