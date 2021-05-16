@@ -242,9 +242,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    # Not yet tested
-
-    def validity(self, userid, expiration=None, enable_renewal_emails=True):
+    def validity(self, userid, expiration=0, enable_renewal_emails=True):
         if expiration is not None and not isinstance(expiration, int):
             raise TypeError(
                 "Argument 'expiration' only accept "
@@ -252,9 +250,10 @@ class User(Admin):
             )
 
         userid = self.validate_username(userid)
-        data = {"user_id": userid, "enable_renewal_emails": True}
-        if expiration is not None:
-            data["expiration_ts"] = expiration
+        data = {"user_id": userid,
+                "enable_renewal_emails": enable_renewal_emails,
+                "expiration_ts": expiration
+        }
 
         self.connection.request(
             "POST",
@@ -263,7 +262,14 @@ class User(Admin):
             headers=self.header
         )
         resp = self.connection.get_response()
-        return json.loads(resp.read())
+        data = json.loads(resp.read())
+        if resp.status == 200:
+                return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def register(
         self,
@@ -285,7 +291,7 @@ class User(Admin):
             "display_name": displayname,
             "password": password,
             "admin": admin,
-            "mac": self._generate_mac(nonce, username, password, admin)
+            "mac": self._generate_mac(nonce, username, password, shared_secret)
         }
         self.connection.request(
             "POST",
@@ -311,7 +317,7 @@ class User(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
         """
         mac = hmac.new(
-            key=shared_secret,
+            key=shared_secret.encode(),
             digestmod=hashlib.sha1,
         )
 
@@ -354,7 +360,6 @@ class User(Admin):
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
-        
 
     def login(self, userid):
         userid = self.validate_username(userid)
@@ -366,7 +371,13 @@ class User(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data["access_token"]
+        if resp.status == 200:
+            return data["access_token"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def get_ratelimit(self, userid):
         userid = self.validate_username(userid)
@@ -376,13 +387,20 @@ class User(Admin):
                 f"/users/{userid}/"
                 "override_ratelimit",
                 1
-            )
+            ),
+            headers=self.header
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
         if data == {}:
-            return True
-        return data["messages_per_second"], data["burst_count"]
+            return data
+        if resp.status == 200:
+            return data["messages_per_second"], data["burst_count"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def set_ratelimit(self, userid, mps, bc):
         userid = self.validate_username(userid)
@@ -399,7 +417,13 @@ class User(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data["messages_per_second"], data["burst_count"]
+        if resp.status == 200:
+            return data["messages_per_second"], data["burst_count"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def disable_ratelimit(self, userid):
         return self.set_ratelimit(userid, 0, 0)
@@ -412,7 +436,8 @@ class User(Admin):
                 f"/users/{userid}/"
                 "override_ratelimit",
                 1
-            )
+            ),
+            headers=self.header
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
