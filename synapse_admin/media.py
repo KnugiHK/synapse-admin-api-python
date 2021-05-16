@@ -68,8 +68,8 @@ class Media(Admin):
         data = json.loads(resp.read())
         return data["local"], data["remote"]
 
+    # Not yet tested
 
-# Not yet tested
     def quarantine_id(self, mediaid, server_name=None):
         if server_name is None:
             server_name = self.server_addr

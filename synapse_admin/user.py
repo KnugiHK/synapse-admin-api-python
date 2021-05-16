@@ -250,9 +250,10 @@ class User(Admin):
             )
 
         userid = self.validate_username(userid)
-        data = {"user_id": userid,
-                "enable_renewal_emails": enable_renewal_emails,
-                "expiration_ts": expiration
+        data = {
+            "user_id": userid,
+            "enable_renewal_emails": enable_renewal_emails,
+            "expiration_ts": expiration
         }
 
         self.connection.request(
@@ -264,7 +265,7 @@ class User(Admin):
         resp = self.connection.get_response()
         data = json.loads(resp.read())
         if resp.status == 200:
-                return data
+            return data
         else:
             if self.supress_exception:
                 return False, data
@@ -351,7 +352,7 @@ class User(Admin):
         data = json.loads(resp.read())
         if resp.status == 200:
             if "next_token" not in data:
-                next_token = 0 
+                next_token = 0
             else:
                 next_token = data["next_token"]
             return data["media"], next_token, data["total"]
