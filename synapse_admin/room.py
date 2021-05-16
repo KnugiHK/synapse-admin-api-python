@@ -257,7 +257,7 @@ class Room(Admin):
         if resp.status == 200:
             return data["deleted"]
         else:
-            # Synapse bug: Internal server error 
+            # Synapse bug: Internal server error
             # raise if the room does not exist
             if self.supress_exception:
                 return False, data
