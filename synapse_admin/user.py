@@ -220,7 +220,7 @@ class User(Admin):
             if self.supress_exception:
                 return False, data
             else:
-                return SynapseException(data["errcode"], data["error"])
+                raise SynapseException(data["errcode"], data["error"])
 
     def join_room(self, userid, room):
         userid = self.validate_username(userid)
@@ -240,7 +240,7 @@ class User(Admin):
             if self.supress_exception:
                 return False, data
             else:
-                return SynapseException(data["errcode"], data["error"])
+                raise SynapseException(data["errcode"], data["error"])
 
     # Not yet tested
 
@@ -328,15 +328,33 @@ class User(Admin):
 
         return mac.hexdigest()
 
-    def list_media(self, userid):
+    def list_media(self, userid, limit=100, _from=0, order_by=None, _dir="f"):
         userid = self.validate_username(userid)
+        optional_str = ""
+        if order_by is not None:
+            optional_str += f"&order_by={order_by}"
         self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{userid}/media", 1)
+            self.admin_patterns(
+                f"/users/{userid}/media?"
+                f"limit={limit}&from={_from}"
+                f"&dir={_dir}{optional_str}", 1),
+            headers=self.header
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data["media"], data["next_token"], data["total"]
+        if resp.status == 200:
+            if "next_token" not in data:
+                next_token = 0 
+            else:
+                next_token = data["next_token"]
+            return data["media"], next_token, data["total"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+        
 
     def login(self, userid):
         userid = self.validate_username(userid)
@@ -404,7 +422,7 @@ class User(Admin):
             if self.supress_exception:
                 return False, data
             else:
-                return SynapseException(data["errcode"], data["error"])
+                raise SynapseException(data["errcode"], data["error"])
 
 
 class _Device(Admin):

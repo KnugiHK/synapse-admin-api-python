@@ -27,7 +27,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Development Status :: Pre-Alpha",
         "Topic :: Communications :: Chat",
-        "Topic :: Utilities"
+        "Topic :: Utilities",
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators"
     ],
