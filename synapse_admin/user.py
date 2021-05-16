@@ -450,6 +450,41 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
+    def pushers(self, userid):
+        userid = self.validate_username(userid)
+        self.connection.request(
+            "GET",
+            self.admin_patterns(f"/users/{userid}/pushers", 1),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        
+        if resp.status == 200:
+            return data["pushers"], data["total"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def shadow_ban(self, userid):
+        print("WARNING! This action may Undermine the TRUST of YOUR USERS.")
+        userid = self.validate_username(userid)
+        self.connection.request(
+            "POST",
+            self.admin_patterns(f"/users/{userid}/shadow_ban", 1),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        if len(data) == 0:
+            return True
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
 class _Device(Admin):
     def lists(self, userid):
@@ -534,29 +569,3 @@ class _Device(Admin):
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
-
-    def pushers(self, userid):
-        userid = self.validate_username(userid)
-        self.connection.request(
-            "GET",
-            self.admin_patterns(f"/users/{userid}/pushers", 1),
-            headers=self.header
-        )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        return data["pushers"], data["total"]
-
-    def shadow_ban(self, userid):
-        print("WARNING! This action may Undermine the TRUST of YOUR USERS.")
-        userid = self.validate_username(userid)
-        self.connection.request(
-            "POST",
-            self.admin_patterns(f"/users/{userid}/shadow_ban", 1),
-            headers=self.header
-        )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if len(data) == 0:
-            return True
-        else:
-            ...

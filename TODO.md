@@ -5,6 +5,5 @@ This document describes what need to be changed or added due to the changes made
 ## Synapse 1.27.0
 1. Add an admin API for getting and deleting forward extremities for a room. ([#9062](https://github.com/matrix-org/synapse/pull/9062)) -> Test needed
 2. Add an admin API for retrieving the current room state of a room. ([#9168](https://github.com/matrix-org/synapse/pull/9168)) -> Test needed
-3. Add an admin API endpoint for shadow-banning users. ([#9209](https://github.com/matrix-org/synapse/pull/9209)) -> Test needed
 ## Synapse 1.34.0
 1. Add support for DELETE /_synapse/admin/v1/rooms/<room_id>. ([#9889](https://github.com/matrix-org/synapse/issues/9889))
