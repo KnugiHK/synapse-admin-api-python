@@ -55,8 +55,6 @@ class Room(Admin):
             suppress_exception
         )
 
-    # Not yet tested
-
     def lists(
         self,
         _from=None,
@@ -99,7 +97,14 @@ class Room(Admin):
             headers=self.header
         )
         resp = self.connection.get_response()
-        return json.loads(resp.read())
+        data = json.loads(resp.read())
+        if resp.status == 200:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def details(self, roomid):
         roomid = self.validate_room(roomid)
@@ -110,7 +115,14 @@ class Room(Admin):
             headers=self.header
         )
         resp = self.connection.get_response()
-        return json.loads(resp.read())
+        data = json.loads(resp.read())
+        if resp.status == 200:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def list_members(self, roomid):
         roomid = self.validate_room(roomid)
@@ -122,7 +134,13 @@ class Room(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data["members"], data["total"]
+        if resp.status == 200:
+            return data["members"], data["total"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def delete(
         self,
@@ -151,7 +169,14 @@ class Room(Admin):
             headers=self.header
         )
         resp = self.connection.get_response()
-        return json.loads(resp.read())
+        data = json.loads(resp.read())
+        if resp.status == 200:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def set_admin(self, roomid, userid):
         roomid = self.validate_room(roomid)
@@ -163,9 +188,17 @@ class Room(Admin):
             headers=self.header
         )
         resp = self.connection.get_response()
-        return json.loads(resp.read())
+        data = json.loads(resp.read())
+        if resp.status == 200:
+            return True
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
-    def purge_room(self, roomid):  # Deprecated in the future
+    def purge_room(self, roomid):
+        # Deprecated in the future (will not be tested)
         roomid = self.validate_room(roomid)
         self.connection.request(
             "POST",
@@ -182,7 +215,7 @@ class Room(Admin):
         new_room_userid,
         new_room_name=None,
         message=None
-    ):  # Deprecated in the future
+    ):  # Deprecated in the future (will not be tested)
         roomid = self.validate_room(roomid)
         new_room_userid = self.validate_username(new_room_userid)
         data = {"new_room_user_id": new_room_userid}
@@ -200,6 +233,8 @@ class Room(Admin):
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())
+
+    # Not yet tested
 
     def forward_extremities_check(self, roomid):
         roomid = self.validate_room(roomid)
