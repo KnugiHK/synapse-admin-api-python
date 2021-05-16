@@ -74,8 +74,8 @@ class User(Admin):
             "GET",
             self.admin_patterns(
                 f"/users?from={offset}&limit={limit}&guests="
-                f"{self.get_bool(guests)}&deactivated="
-                f"{self.get_bool(deactivated)}{optional_str}",
+                f"{Admin.get_bool(guests)}&deactivated="
+                f"{Admin.get_bool(deactivated)}{optional_str}",
                 2
             ),
             headers=self.header

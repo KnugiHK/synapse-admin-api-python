@@ -24,6 +24,7 @@ from pathlib import Path
 import os
 from configparser import ConfigParser
 from hyper import HTTPConnection
+from datetime import datetime
 
 
 class SynapseException(Exception):
@@ -145,7 +146,8 @@ class Admin():
             path = "/" + path
         return f"{base}v{version}{path}"
 
-    def get_bool(self, boolean):
+    @staticmethod
+    def get_bool(boolean):
         if not isinstance(boolean, bool):
             raise TypeError("Argument 'boolean' must be a "
                             f"bool not a {type(boolean)}")
@@ -153,3 +155,7 @@ class Admin():
             return "true"
         else:
             return "false"
+    
+    @staticmethod
+    def get_current_time():
+        return int(datetime.now().timestamp() * 1000)
