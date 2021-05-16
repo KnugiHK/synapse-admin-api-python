@@ -57,8 +57,6 @@ class Media(Admin):
         data = json.loads(resp.read())
         return data["users"], data["total"]
 
-    # Not yet tested
-
     def list_media(self, roomid):
         roomid = self.validate_room(roomid)
         self.connection.request(
@@ -70,6 +68,8 @@ class Media(Admin):
         data = json.loads(resp.read())
         return data["local"], data["remote"]
 
+
+# Not yet tested
     def quarantine_id(self, mediaid, server_name=None):
         if server_name is None:
             server_name = self.server_addr
@@ -124,7 +124,7 @@ class Media(Admin):
 
     def delete_local_media_by_condition(
         self,
-        timestamp,
+        timestamp=Admin.get_current_time(),
         size_gt=None,
         keep_profiles=True,
         server_name=None
