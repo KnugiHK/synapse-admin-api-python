@@ -146,6 +146,41 @@ class Room(Admin):
         self,
         roomid,
         new_room_userid=None,
+        room_name=None,
+        message=None,
+        block=False,
+        purge=True
+    ):
+        roomid = self.validate_room(roomid)
+        data = {"block": block, "purge": purge}
+        if new_room_userid is not None:
+            new_room_userid = self.validate_username(new_room_userid)
+            data["new_room_user_id"] = new_room_userid
+        if room_name is not None:
+            data["room_name"] = room_name
+        if message is not None:
+            data["message"] = message
+
+        self.connection.request(
+            "DELETE",
+            self.admin_patterns(f"/rooms/{roomid}", 1),
+            body=json.dumps(data),
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        if resp.status == 200:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def delete_old(
+        self,
+        roomid,
+        new_room_userid=None,
         new_room_name=None,
         message=None,
         block=False,
