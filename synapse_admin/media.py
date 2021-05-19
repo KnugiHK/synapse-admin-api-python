@@ -68,8 +68,6 @@ class Media(Admin):
         data = json.loads(resp.read())
         return data["local"], data["remote"]
 
-    # Not yet tested
-
     def quarantine_id(self, mediaid, server_name=None):
         if server_name is None:
             server_name = self.server_addr
@@ -98,6 +96,7 @@ class Media(Admin):
         return json.loads(resp.read())["num_quarantined"]
 
     def quarantine_user(self, userid):
+        # Not yet tested
         userid = self.validate_username(userid)
         self.connection.request(
             "POST",
@@ -107,6 +106,23 @@ class Media(Admin):
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())["num_quarantined"]
+
+    def protect_media(self, mediaid):
+        self.connection.request(
+            "POST",
+            self.admin_patterns(f"/media/protect/{mediaid}", 1),
+            body="{}",
+            headers=self.header
+        )
+        resp = self.connection.get_response()
+        data = json.loads(resp.read())
+        if len(data) == 0:
+            return True
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def delete_local_media(self, mediaid, server_name=None):
         if server_name is None:
@@ -120,7 +136,13 @@ class Media(Admin):
         )
         resp = self.connection.get_response()
         data = json.loads(resp.read())
-        return data["deleted_media"], data["total"]
+        if resp.status == 200:
+            return data["deleted_media"], data["total"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def delete_local_media_by_condition(
         self,
@@ -157,7 +179,7 @@ class Media(Admin):
         data = json.loads(resp.read())
         return data["deleted_media"], data["total"]
 
-    def purge_remote_media(self, timestamp):
+    def purge_remote_media(self, timestamp=Admin.get_current_time()):
         if not isinstance(timestamp, int):
             raise TypeError(
                 "Argument 'timestamp' should be a "
@@ -173,16 +195,3 @@ class Media(Admin):
         )
         resp = self.connection.get_response()
         return json.loads(resp.read())["deleted"]
-
-    def protect_media(self, mediaid):
-        self.connection.request(
-            "POST",
-            self.admin_patterns(f"/media/protect/{mediaid}", 1),
-            body="{}",
-            headers=self.header
-        )
-        resp = self.connection.get_response()
-        if len(json.loads(resp.read())) == 0:
-            return True
-        else:
-            ...
