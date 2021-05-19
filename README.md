@@ -3,7 +3,26 @@ A Python wrapper for Matrix Synapse admin API
 
 This library is now support up to Synapse 1.25.0, any Admin API introduced after 1.25.0 may not be included in this version. However, newer chnages of Admin API are planned to be included in this library. For planned update, see [TODO.md](TODO.md). In the future, the version numbering convention will follow the version this library up to, for example, if this library is support up to 1.26.0, then the version number of this library will be 1.26.0.
 ## Get Started
-Todo. 
+Install from PyPi
+```sh
+pip install matrix-synapse-admin
+```
+Provide the connection information and access token in the first time of execution:
+```python
+>>> from synapse_admin import User
+>>> user = User()
+Enter the homeserver URL with port: example.com:443 # Only need to be entered in the first time
+Enter the access token: <access token> # Only need to be entered in the first time
+>>> details_of_users, number_of_users = user.lists()
+>>> print(details_of_users)
+[{'name': '@admin:example.com', 'user_type': None, 'is_guest': 0, 'admin': 1, 'deactivated': 0, 'shadow_banned': False, 'displayname': 'Admin', 'avatar_url': 'mxc://example.com/ABCDEFG'}]
+>>> print(number_of_users)
+1
+```
+
+
+More documentation are coming...
+
 ## Contribution
 If you want to help me to improve the quality of this project, you can submit an issue.
 
