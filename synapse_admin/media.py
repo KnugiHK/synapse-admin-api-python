@@ -96,7 +96,6 @@ class Media(Admin):
         return json.loads(resp.read())["num_quarantined"]
 
     def quarantine_user(self, userid):
-        # Not yet tested
         userid = self.validate_username(userid)
         self.connection.request(
             "POST",

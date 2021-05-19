@@ -86,7 +86,7 @@ class User(Admin):
             return data["users"], data["total"]
         else:
             if self.supress_exception:
-                return False, data["errcode"], data["error"]
+                return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
@@ -104,7 +104,7 @@ class User(Admin):
         else:
             data = json.loads(resp.read())
             if self.supress_exception:
-                return False, data["errcode"], data["error"]
+                return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
@@ -168,7 +168,7 @@ class User(Admin):
         else:
             data = json.loads(resp.read())
             if self.supress_exception:
-                return False, data["errcode"], data["error"]
+                return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
@@ -201,7 +201,7 @@ class User(Admin):
         else:
             data = json.loads(resp.read())
             if self.supress_exception:
-                return False, data["errcode"], data["error"]
+                return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
