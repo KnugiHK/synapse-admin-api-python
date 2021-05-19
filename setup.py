@@ -8,7 +8,7 @@ with open("synapse_admin/__init__.py", encoding="utf8") as f:
     version = search(r'__version__ = "(.*?)"', f.read()).group(1)
 
 setuptools.setup(
-    name="matrix-synapse-admin-api",
+    name="matrix-synapse-admin",
     version=version,
     author="KnugiHK",
     author_email="info@knugi.com",
