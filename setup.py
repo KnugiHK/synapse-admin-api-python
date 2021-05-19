@@ -11,7 +11,7 @@ setuptools.setup(
     name="matrix-synapse-admin-api",
     version=version,
     author="KnugiHK",
-    author_email="info@knugi.xyz",
+    author_email="info@knugi.com",
     description="A Python wrapper for Matrix Synapse admin API",
     long_description=long_description,
     long_description_content_type="text/markdown",
