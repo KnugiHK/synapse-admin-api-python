@@ -99,7 +99,7 @@ class User(Admin):
             headers=self.header
         )
         resp = self.connection.get_response()
-        if resp.status == 200:
+        if resp.status == 200 or resp.status == 201:
             return True
         else:
             data = json.loads(resp.read())
