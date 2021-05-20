@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException
-import json
 
 
 class Room(Admin):
@@ -90,15 +89,14 @@ class Room(Admin):
         if search:
             optional_str += f"&search_term={search}"
 
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms?{optional_str}", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
@@ -108,15 +106,14 @@ class Room(Admin):
 
     def details(self, roomid):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
@@ -126,15 +123,14 @@ class Room(Admin):
 
     def list_members(self, roomid):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/members", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["members"], data["total"]
         else:
             if self.supress_exception:
@@ -161,15 +157,14 @@ class Room(Admin):
         if message is not None:
             data["message"] = message
 
-        self.connection.request(
+        resp = self.connection.request(
             "DELETE",
             self.admin_patterns(f"/rooms/{roomid}", 1),
-            body=json.dumps(data),
+            json=data,
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
@@ -197,15 +192,13 @@ class Room(Admin):
         if message is not None:
             data["message"] = message
 
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/rooms/{roomid}/delete", 1),
-            body=json.dumps(data),
-            headers=self.header
+            json=data
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
@@ -216,15 +209,13 @@ class Room(Admin):
     def set_admin(self, roomid, userid):
         roomid = self.validate_room(roomid)
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/rooms/{roomid}/make_room_admin", 1),
-            body=json.dumps({"user_id": userid}),
-            headers=self.header
+            json={"user_id": userid}
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return True
         else:
             if self.supress_exception:
@@ -235,14 +226,12 @@ class Room(Admin):
     def purge_room(self, roomid):
         # Deprecated in the future (will not be tested)
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns("/purge_room", 1),
-            body=json.dumps({"room_id": roomid}),
-            headers=self.header
+            json={"room_id": roomid}
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())
+        return resp.json()
 
     def shutdown_room(
         self,
@@ -260,36 +249,31 @@ class Room(Admin):
         if message is not None:
             data["message"] = message
 
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/shutdown_room/{roomid}", 1),
-            body=json.dumps(data),
+            json=data,
             headers=self.header
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())
+        return resp.json()
 
     def forward_extremities_check(self, roomid):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/rooms/{roomid}/forward_extremities", 1),
-            headers=self.header
+            self.admin_patterns(f"/rooms/{roomid}/forward_extremities", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         return data["results"], data["count"]
 
     def forward_extremities_delete(self, roomid):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "DELETE",
-            self.admin_patterns(f"/rooms/{roomid}/forward_extremities", 1),
-            headers=self.header
+            self.admin_patterns(f"/rooms/{roomid}/forward_extremities", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["deleted"]
         else:
             # Synapse bug: Internal server error
@@ -301,15 +285,14 @@ class Room(Admin):
 
     def get_state(self, roomid):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/state", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["state"]
         else:
             if self.supress_exception:
@@ -319,15 +302,14 @@ class Room(Admin):
 
     def event_context(self, roomid, event_id):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/context/{event_id}", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
