@@ -446,6 +446,9 @@ class User(Admin):
 
 
 class _Device(Admin):
+    def __init__(self):
+        pass
+
     def lists(self, userid):
         userid = self.validate_username(userid)
         resp = self.connection.request(
