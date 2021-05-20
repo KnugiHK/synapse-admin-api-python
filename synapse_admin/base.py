@@ -178,7 +178,7 @@ class HTTPConnection():
             "PUT": self.conn.put,
             "DELETE": self.conn.delete
         }
-        if port == 443 or 8443:
+        if port == 443 or port == 8443:
             protocol = "https"
         else:
             protocol = "http"
