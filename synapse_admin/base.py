@@ -23,7 +23,7 @@ SOFTWARE."""
 from pathlib import Path
 import os
 from configparser import ConfigParser
-from hyper import HTTPConnection
+import httpx
 from datetime import datetime
 
 
@@ -74,9 +74,14 @@ class Admin():
                 # If configuration file not found, create one
                 self.create()
         self.access_token_header = {
-            "Authorization": f"Bearer {self.access_token}"}
+            "Authorization": f"Bearer {self.access_token}"
+        }
         self.header = {**self.access_token_header}
-        self.connection = HTTPConnection(self.server_addr, self.server_port)
+        self.connection = HTTPConnection(
+            self.server_addr,
+            self.server_port,
+            self.header
+        )
         self.supress_exception = suppress_exception
 
     def create(self, url=None, port=None, access_token=None):
@@ -159,3 +164,28 @@ class Admin():
     @staticmethod
     def get_current_time():
         return int(datetime.now().timestamp() * 1000)
+
+
+class HTTPConnection():
+    def __init__(self, host, port, headers):
+        self.headers = headers
+        self.host = host
+        self.port = port
+        self.conn = httpx.Client(headers=self.headers)
+        self.method_map = {
+            "GET": self.conn.get,
+            "POST": self.conn.post,
+            "PUT": self.conn.put,
+            "DELETE": self.conn.delete
+        }
+        if port == 443 or 8443:
+            protocol = "https"
+        else:
+            protocol = "http"
+        self.base_url = f"{protocol}://{self.host}:{self.port}"
+
+    def request(self, method, path, json=None):
+        url = self.base_url + path
+        if json is not None:
+            return self.method_map[method](url, json=json)
+        return self.method_map[method](url + path)
