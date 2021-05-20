@@ -92,7 +92,6 @@ class Room(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms?{optional_str}", 1),
-            json={},
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -108,7 +107,6 @@ class Room(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}", 1),
-            json={},
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -124,7 +122,6 @@ class Room(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/members", 1),
-            json={},
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -283,7 +280,6 @@ class Room(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/state", 1),
-            json={},
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -299,7 +295,6 @@ class Room(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/context/{event_id}", 1),
-            json={},
         )
         data = resp.json()
         if resp.status_code == 200:
