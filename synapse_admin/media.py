@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException
-import json
 
 
 class Media(Admin):
@@ -48,73 +47,69 @@ class Media(Admin):
         )
 
     def statistics(self):
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns("/statistics/users/media", 1),
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         return data["users"], data["total"]
 
     def list_media(self, roomid):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/room/{roomid}/media", 1),
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         return data["local"], data["remote"]
 
     def quarantine_id(self, mediaid, server_name=None):
         if server_name is None:
             server_name = self.server_addr
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(
                 f"/media/quarantine/"
-                f"{server_name}/{mediaid}", 1),
-            body="{}",
+                f"{server_name}/{mediaid}",
+                1
+            ),
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        if len(json.loads(resp.read())) == 0:
+        if len(resp.json()) == 0:
             return True
         return False
 
     def quarantine_room(self, roomid):
         roomid = self.validate_room(roomid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/room/{roomid}/media/quarantine", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())["num_quarantined"]
+        return resp.json()["num_quarantined"]
 
     def quarantine_user(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/user/{userid}/media/quarantine", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())["num_quarantined"]
+        return resp.json()["num_quarantined"]
 
     def protect_media(self, mediaid):
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/media/protect/{mediaid}", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if len(data) == 0:
             return True
         else:
@@ -127,14 +122,13 @@ class Media(Admin):
         if server_name is None:
             server_name = self.server_addr
 
-        self.connection.request(
+        resp = self.connection.request(
             "DELETE",
             self.admin_patterns(f"/media/{server_name}/{mediaid}", 1),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if resp.status == 200:
             return data["deleted_media"], data["total"]
         else:
@@ -165,17 +159,16 @@ class Media(Admin):
                 )
             optional_str += f"&size_gt={size_gt}"
 
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(
                 f"/media/{server_name}/delete?before_ts="
                 f"{timestamp}{optional_str}", 1
             ),
-            body="{}",
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         return data["deleted_media"], data["total"]
 
     def purge_remote_media(self, timestamp=Admin.get_current_time()):
@@ -184,13 +177,14 @@ class Media(Admin):
                 "Argument 'timestamp' should be a "
                 f"int but not {type(timestamp)}"
             )
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(
                 "/purge_media_cache?"
-                f"before_ts={timestamp}", 1),
-            body="{}",
+                f"before_ts={timestamp}",
+                1
+            ),
+            json={},
             headers=self.header
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())["deleted"]
+        return resp.json()["deleted"]
