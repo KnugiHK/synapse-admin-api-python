@@ -50,7 +50,6 @@ class Media(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns("/statistics/users/media", 1),
-            headers=self.header
         )
         data = resp.json()
         return data["users"], data["total"]
@@ -60,7 +59,6 @@ class Media(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/room/{roomid}/media", 1),
-            headers=self.header
         )
         data = resp.json()
         return data["local"], data["remote"]
@@ -76,7 +74,6 @@ class Media(Admin):
                 1
             ),
             json={},
-            headers=self.header
         )
         if len(resp.json()) == 0:
             return True
@@ -88,7 +85,6 @@ class Media(Admin):
             "POST",
             self.admin_patterns(f"/room/{roomid}/media/quarantine", 1),
             json={},
-            headers=self.header
         )
         return resp.json()["num_quarantined"]
 
@@ -98,7 +94,6 @@ class Media(Admin):
             "POST",
             self.admin_patterns(f"/user/{userid}/media/quarantine", 1),
             json={},
-            headers=self.header
         )
         return resp.json()["num_quarantined"]
 
@@ -107,7 +102,6 @@ class Media(Admin):
             "POST",
             self.admin_patterns(f"/media/protect/{mediaid}", 1),
             json={},
-            headers=self.header
         )
         data = resp.json()
         if len(data) == 0:
@@ -126,7 +120,6 @@ class Media(Admin):
             "DELETE",
             self.admin_patterns(f"/media/{server_name}/{mediaid}", 1),
             json={},
-            headers=self.header
         )
         data = resp.json()
         if resp.status == 200:
@@ -166,7 +159,6 @@ class Media(Admin):
                 f"{timestamp}{optional_str}", 1
             ),
             json={},
-            headers=self.header
         )
         data = resp.json()
         return data["deleted_media"], data["total"]
@@ -185,6 +177,5 @@ class Media(Admin):
                 1
             ),
             json={},
-            headers=self.header
         )
         return resp.json()["deleted"]

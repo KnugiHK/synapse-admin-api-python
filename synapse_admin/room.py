@@ -93,7 +93,6 @@ class Room(Admin):
             "GET",
             self.admin_patterns(f"/rooms?{optional_str}", 1),
             json={},
-            headers=self.header
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -110,7 +109,6 @@ class Room(Admin):
             "GET",
             self.admin_patterns(f"/rooms/{roomid}", 1),
             json={},
-            headers=self.header
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -127,7 +125,6 @@ class Room(Admin):
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/members", 1),
             json={},
-            headers=self.header
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -161,7 +158,6 @@ class Room(Admin):
             "DELETE",
             self.admin_patterns(f"/rooms/{roomid}", 1),
             json=data,
-            headers=self.header
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -253,7 +249,6 @@ class Room(Admin):
             "POST",
             self.admin_patterns(f"/shutdown_room/{roomid}", 1),
             json=data,
-            headers=self.header
         )
         return resp.json()
 
@@ -289,7 +284,6 @@ class Room(Admin):
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/state", 1),
             json={},
-            headers=self.header
         )
         data = resp.json()
         if resp.status_code == 200:
@@ -306,7 +300,6 @@ class Room(Admin):
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/context/{event_id}", 1),
             json={},
-            headers=self.header
         )
         data = resp.json()
         if resp.status_code == 200:
