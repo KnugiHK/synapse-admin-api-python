@@ -22,7 +22,6 @@ SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException
 from synapse_admin import User
-import json
 
 
 class Management(Admin):
@@ -62,14 +61,12 @@ class Management(Admin):
                 "body": announcement
             }
         }
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns("/send_server_notice", 1),
-            body=json.dumps(data),
-            headers=self.header
+            json=data
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if resp.status == 200:
             return data["event_id"]
         else:
@@ -85,13 +82,11 @@ class Management(Admin):
             self.announce(user["name"], announcement)
 
     def version(self):
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns("/server_version", 1),
-            headers=self.header
+            self.admin_patterns("/server_version", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         return data["server_version"], data["python_version"]
 
     def purge_history(self, roomid, event_id_ts, include_local_event=False):
@@ -101,14 +96,12 @@ class Management(Admin):
             data["purge_up_to_event_id"] = event_id_ts
         elif isinstance(event_id_ts, int):
             data["purge_up_to_ts"] = event_id_ts
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/purge_history/{roomid}", 1),
-            body=json.dumps(data),
-            headers=self.header
+            json=data
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())["purge_id"]
+        data = resp.json()["purge_id"]
         if resp.status == 200:
             return data
         else:
@@ -118,13 +111,11 @@ class Management(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def purge_history_status(self, purge_id):
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/purge_history_status/{purge_id}", 1),
-            headers=self.header
+            self.admin_patterns(f"/purge_history_status/{purge_id}", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if resp.status == 200:
             return data["status"]
         else:
@@ -152,28 +143,25 @@ class Management(Admin):
             roomid = self.validate_room(roomid)
             optional_str += f"&room_id={roomid}"
 
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(
                 f"/event_reports?from={_from}"
                 f"&limit={limit}&dir={recent_first}"
-                f"{optional_str}", 1),
-            headers=self.header
+                f"{optional_str}", 1
+            )
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if data["total"] == 0:
             return None
         return data["event_reports"], data["total"]
 
     def specific_event_report(self, reportid):
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/event_reports/{reportid}", 1),
-            headers=self.header
+            self.admin_patterns(f"/event_reports/{reportid}", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if resp.status == 200:
             return data
         else:
@@ -183,10 +171,9 @@ class Management(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def delete_group(self, groupid):
-        self.connection.request(
+        # Not yet tested
+        resp = self.connection.request(
             "POST",
-            self.admin_patterns(f"/delete_group/{groupid}", 1),
-            headers=self.header
+            self.admin_patterns(f"/delete_group/{groupid}", 1)
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())
+        return resp.json()
