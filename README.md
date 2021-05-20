@@ -2,6 +2,9 @@
 A Python wrapper for Matrix Synapse admin API
 
 This library now supports up to Synapse 1.34.0, any Admin API introduced after 1.34.0 may not be included in this version. However, newer changes to Admin API are planned to be included in this library. For planned update, see [TODO.md](TODO.md). In the future, the version numbering convention will follow the version this library up to, for example, if this library supports up to 1.34.0, then the version number of this library will be 1.34.0. And the minor number will be reserved for bug fixes in this repo.
+
+**Releases older than or equal to 0.1.1 are only work with HTTP/2**
+
 ## Get Started
 Install from PyPi
 ```sh
