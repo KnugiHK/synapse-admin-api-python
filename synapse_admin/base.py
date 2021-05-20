@@ -188,4 +188,4 @@ class HTTPConnection():
         url = self.base_url + path
         if json is not None:
             return self.method_map[method](url, json=json)
-        return self.method_map[method](url + path)
+        return self.method_map[method](url)
