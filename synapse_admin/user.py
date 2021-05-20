@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException
-import json
 import hmac
 import hashlib
 
@@ -70,19 +69,17 @@ class User(Admin):
         if order_by is not None:
             optional_str += f"&order_by={order_by}"
 
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(
                 f"/users?from={offset}&limit={limit}&guests="
                 f"{Admin.get_bool(guests)}&deactivated="
                 f"{Admin.get_bool(deactivated)}{optional_str}",
                 2
-            ),
-            headers=self.header
+            )
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read().decode())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["users"], data["total"]
         else:
             if self.supress_exception:
@@ -92,17 +89,15 @@ class User(Admin):
 
     def creates(self, userid, *args, **kwargs):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "PUT",
             self.admin_patterns(f"/users/{userid}", 2),
-            body=json.dumps(kwargs),
-            headers=self.header
+            json=kwargs
         )
-        resp = self.connection.get_response()
-        if resp.status == 200 or resp.status == 201:
+        if resp.status_code == 200 or resp.status_code == 201:
             return True
         else:
-            data = json.loads(resp.read())
+            data = resp.json()
             if self.supress_exception:
                 return False, data
             else:
@@ -113,36 +108,29 @@ class User(Admin):
 
     def query(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{userid}", 2),
-            headers=self.header
+            self.admin_patterns(f"/users/{userid}", 2)
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())
+        return resp.json()
 
     def active_sessions(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/whois/{userid}", 1),
-            headers=self.header
+            self.admin_patterns(f"/whois/{userid}", 1)
         )
-        resp = self.connection.get_response()
-        resp = json.loads(resp.read())["devices"][""]
-        resp = resp["sessions"][0]["connections"]
-        return resp
+        data = resp.json()["devices"][""]
+        return data["sessions"][0]["connections"]
 
     def deactivate(self, userid, erase=True):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/deactivate/{userid}", 1),
-            body=json.dumps({"erase": erase}),
-            headers=self.header
+            json={"erase": erase}
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())["id_server_unbind_result"] == "success"
+        return resp.json()["id_server_unbind_result"] == "success"
 
     def reactivate(self, userid, password):
         if not isinstance(password, str):
@@ -155,18 +143,15 @@ class User(Admin):
 
     def reset_password(self, userid, password, logout=True):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/reset_password/{userid}", 1),
-            body=json.dumps(
-                {"new_password": password, "logout_devices": logout}),
-            headers=self.header
+            json={"new_password": password, "logout_devices": logout}
         )
-        resp = self.connection.get_response()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return True
         else:
-            data = json.loads(resp.read())
+            data = resp.json()
             if self.supress_exception:
                 return False, data
             else:
@@ -174,13 +159,11 @@ class User(Admin):
 
     def is_admin(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{userid}/admin", 1),
-            headers=self.header
+            self.admin_patterns(f"/users/{userid}/admin", 1)
         )
-        resp = self.connection.get_response()
-        return json.loads(resp.read())["admin"]
+        return resp.json()["admin"]
 
     def set_admin(self, userid, activate):
         userid = self.validate_username(userid)
@@ -189,17 +172,15 @@ class User(Admin):
                 "Argument 'activate' only accept "
                 f"boolean but not {type(activate)}."
             )
-        self.connection.request(
+        resp = self.connection.request(
             "PUT",
             self.admin_patterns(f"/users/{userid}/admin", 1),
-            body=json.dumps({"admin": activate}),
-            headers=self.header
+            json={"admin": activate}
         )
-        resp = self.connection.get_response()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return True
         else:
-            data = json.loads(resp.read())
+            data = resp.json()
             if self.supress_exception:
                 return False, data
             else:
@@ -207,14 +188,12 @@ class User(Admin):
 
     def joined_room(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{userid}/joined_rooms", 1),
-            headers=self.header
+            self.admin_patterns(f"/users/{userid}/joined_rooms", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["joined_rooms"], data["total"]
         else:
             if self.supress_exception:
@@ -225,15 +204,13 @@ class User(Admin):
     def join_room(self, userid, room):
         userid = self.validate_username(userid)
         room = self.validate_room(room)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/join/{room}", 1),
-            body=json.dumps({"user_id": userid}),
-            headers=self.header
+            json={"user_id": userid}
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             if "room_id" in data and data["room_id"] == room:
                 return True
         else:
@@ -256,15 +233,13 @@ class User(Admin):
             "expiration_ts": expiration
         }
 
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns("/account_validity/validity", 1),
-            body=json.dumps(data),
-            headers=self.header
+            json=data
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
@@ -280,12 +255,11 @@ class User(Admin):
         shared_secret,
         admin=False
     ):
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns("/register", 1)
         )
-        resp = self.connection.get_response()
-        nonce = json.loads(resp.read())["nonce"]
+        nonce = resp.json()["nonce"]
         data = {
             "nonce": nonce,
             "username": username,
@@ -294,15 +268,13 @@ class User(Admin):
             "admin": admin,
             "mac": self._generate_mac(nonce, username, password, shared_secret)
         }
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns("/register", 1),
-            body=json.dumps(data),
-            headers=self.header
+            json=data
         )
 
-        resp = self.connection.get_response()
-        return json.loads(resp.read())
+        return resp.json()
 
     def _generate_mac(
         self,
@@ -340,17 +312,15 @@ class User(Admin):
         optional_str = ""
         if order_by is not None:
             optional_str += f"&order_by={order_by}"
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(
                 f"/users/{userid}/media?"
                 f"limit={limit}&from={_from}"
-                f"&dir={_dir}{optional_str}", 1),
-            headers=self.header
+                f"&dir={_dir}{optional_str}", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             if "next_token" not in data:
                 next_token = 0
             else:
@@ -364,15 +334,13 @@ class User(Admin):
 
     def login(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/users/{userid}/login", 1),
-            body="{}",
-            headers=self.header
+            json={}
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["access_token"]
         else:
             if self.supress_exception:
@@ -382,20 +350,18 @@ class User(Admin):
 
     def get_ratelimit(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
             self.admin_patterns(
                 f"/users/{userid}/"
                 "override_ratelimit",
                 1
-            ),
-            headers=self.header
+            )
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if data == {}:
             return data
-        if resp.status == 200:
+        if resp.status_code == 200:
             return data["messages_per_second"], data["burst_count"]
         else:
             if self.supress_exception:
@@ -406,19 +372,17 @@ class User(Admin):
     def set_ratelimit(self, userid, mps, bc):
         userid = self.validate_username(userid)
         data = {"messages_per_second": mps, "burst_count": bc}
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(
                 f"/users/{userid}/"
                 "override_ratelimit",
                 1
             ),
-            body=json.dumps(data),
-            headers=self.header
+            json=data
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["messages_per_second"], data["burst_count"]
         else:
             if self.supress_exception:
@@ -431,17 +395,15 @@ class User(Admin):
 
     def delete_ratelimit(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "DELETE",
             self.admin_patterns(
                 f"/users/{userid}/"
                 "override_ratelimit",
                 1
-            ),
-            headers=self.header
+            )
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if data == {}:
             return True
         else:
@@ -452,15 +414,13 @@ class User(Admin):
 
     def pushers(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{userid}/pushers", 1),
-            headers=self.header
+            self.admin_patterns(f"/users/{userid}/pushers", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
 
-        if resp.status == 200:
+        if resp.status_code == 200:
             return data["pushers"], data["total"]
         else:
             if self.supress_exception:
@@ -471,13 +431,11 @@ class User(Admin):
     def shadow_ban(self, userid):
         print("WARNING! This action may Undermine the TRUST of YOUR USERS.")
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
-            self.admin_patterns(f"/users/{userid}/shadow_ban", 1),
-            headers=self.header
+            self.admin_patterns(f"/users/{userid}/shadow_ban", 1)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
+        data = resp.json()
         if len(data) == 0:
             return True
         else:
@@ -490,14 +448,12 @@ class User(Admin):
 class _Device(Admin):
     def lists(self, userid):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{userid}/devices", 2),
-            headers=self.header
+            self.admin_patterns(f"/users/{userid}/devices", 2)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data["devices"]
         else:
             if self.supress_exception:
@@ -512,40 +468,34 @@ class _Device(Admin):
             device = device[0]
 
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "DELETE", self.admin_patterns(
-                f"/users/{userid}/devices/{device}", 2),
-            headers=self.header)
-        resp = self.connection.get_response()
-        if resp.status == 200:
+                f"/users/{userid}/devices/{device}", 2))
+        if resp.status_code == 200:
             return True
         else:
             return False
 
     def _deletes(self, userid, devices):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/users/{userid}/delete_devices", 2),
-            body=json.dumps({"devices": devices}),
-            headers=self.header
+            json={"devices": devices}
         )
-        resp = self.connection.get_response()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return True
         else:
             return False
 
     def show(self, userid, device):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "GET",
-            self.admin_patterns(f"/users/{userid}/devices/{device}", 2),
-            headers=self.header
+            self.admin_patterns(f"/users/{userid}/devices/{device}", 2)
         )
-        resp = self.connection.get_response()
-        data = json.loads(resp.read())
-        if resp.status == 200:
+        data = resp.json()
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
@@ -555,17 +505,15 @@ class _Device(Admin):
 
     def update(self, userid, device, display_name):
         userid = self.validate_username(userid)
-        self.connection.request(
+        resp = self.connection.request(
             "PUT",
             self.admin_patterns(f"/users/{userid}/devices/{device}", 2),
-            body=json.dumps({"display_name": display_name}),
-            headers=self.header
+            json={"display_name": display_name}
         )
-        resp = self.connection.get_response()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return True
         else:
-            data = json.loads(resp.read())
+            data = resp.json()
             if self.supress_exception:
                 return False, data["errcode"], data["error"]
             else:
