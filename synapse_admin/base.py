@@ -95,16 +95,22 @@ class Admin():
                 else:
                     break
             access_token = input("Enter the access token: ")
-        return self._create(url, port, access_token)
+            save = input("Save to a config file?(Y/n)").lower()
+            
+            self.server_addr = url
+            self.server_port = int(port)
+            self.access_token = access_token
+            if save == "n":
+                return True
+            else:
+                return self._save_config(url, port, access_token)
 
-    def _create(self, url, port, token):
+    def _save_config(self, url, port, token):
         config = ConfigParser()
-        self.server_addr = url
-        self.server_port = int(port)
-        self.access_token = token
         config['DEFAULT'] = {'homeserver': url, 'port': port, 'token': token}
         with open(self.config_path, 'w') as configfile:
             config.write(configfile)
+        return True
 
     def modify_config(self, server_addr=None, access_token=None):
         if server_addr is None and access_token is None:
