@@ -49,6 +49,7 @@ class User(Admin):
             suppress_exception
         )
         self.devices = _Device()
+        self.creates = self.create  # For compatibility
 
     def lists(
         self,
@@ -87,7 +88,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def creates(self, userid, *args, **kwargs):
+    def create(self, userid, *args, **kwargs):
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "PUT",

@@ -69,10 +69,10 @@ class Admin():
 
             self.config_path = os.path.join(path, "api.cfg")
             if os.path.isfile(self.config_path):
-                self.read()
+                self.read_config()
             else:
                 # If configuration file not found, create one
-                self.create()
+                self.create_config()
         self.access_token_header = {
             "Authorization": f"Bearer {self.access_token}"
         }
@@ -84,7 +84,7 @@ class Admin():
         )
         self.supress_exception = suppress_exception
 
-    def create(self, url=None, port=None, access_token=None):
+    def create_config(self, url=None, port=None, access_token=None):
         if url is None or port is None or access_token is None:
             while True:
                 try:
@@ -106,7 +106,7 @@ class Admin():
         with open(self.config_path, 'w') as configfile:
             config.write(configfile)
 
-    def modify(self, server_addr=None, access_token=None):
+    def modify_config(self, server_addr=None, access_token=None):
         if server_addr is None and access_token is None:
             return
 
@@ -120,7 +120,7 @@ class Admin():
         with open(self.config_path, 'w') as configfile:
             config.write(configfile)
 
-    def read(self):
+    def read_config(self):
         config = ConfigParser()
         config.sections()
         config.read(self.config_path)
