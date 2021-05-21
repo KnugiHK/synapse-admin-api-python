@@ -25,6 +25,7 @@ import os
 from configparser import ConfigParser
 import httpx
 from datetime import datetime
+import re
 
 
 class SynapseException(Exception):
@@ -50,12 +51,18 @@ class Admin():
         server_addr=None,
         server_port=443,
         access_token=None,
+        server_protocol=None,
         suppress_exception=False
     ):
         if server_addr is not None and access_token is not None:
             self.access_token = access_token
             self.server_addr = server_addr
             self.server_port = server_port
+            if server_protocol is None:
+                self.server_protocol = \
+                    self._parse_protocol_by_port(server_port)
+            else:
+                self.server_protocol = server_protocol
         else:
             # If homeserver address or/and access token are
             # not provided, read from configration file
@@ -78,6 +85,7 @@ class Admin():
         }
         self.header = {**self.access_token_header}
         self.connection = HTTPConnection(
+            self.server_protocol,
             self.server_addr,
             self.server_port,
             self.header
@@ -87,27 +95,80 @@ class Admin():
     def create_config(self, url=None, port=None, access_token=None):
         if url is None or port is None or access_token is None:
             while True:
+                url = input(
+                    "Enter the homeserver URL with port"
+                    "(e.g. https://example.com:443): "
+                )
                 try:
-                    url, port = input(
-                        "Enter the homeserver URL with port: ").split(":")
-                except ValueError:
+                    protocol, host, port = self._parse_homeserver_url(url)
+                except ValueError as e:
+                    print(e)
                     continue
                 else:
                     break
             access_token = input("Enter the access token: ")
             save = input("Save to a config file?(Y/n)").lower()
-            
-            self.server_addr = url
+
+            self.server_protocol = protocol
+            self.server_addr = host
             self.server_port = int(port)
             self.access_token = access_token
             if save == "n":
                 return True
             else:
-                return self._save_config(url, port, access_token)
+                return self._save_config(protocol, host, port, access_token)
 
-    def _save_config(self, url, port, token):
+    def _parse_homeserver_url(self, url):
+        port_re = re.compile(r":[0-9]{1,5}/?$")
+        http_re = re.compile(r"^https?://")
+        port = port_re.search(url)
+        protocol = http_re.search(url)
+        if port is None:
+            if protocol is None:
+                raise ValueError(
+                    "You must specify at least "
+                    "a port or a HTTP protocol"
+                )
+            elif protocol[0] == "https://":
+                port = 443
+            elif protocol[0] == "http://":
+                port = 80
+        else:
+            port = int(port[0][1:].replace("/", ""))
+            if protocol is None:
+                protocol = self._parse_protocol_by_port(port)
+        if protocol is not None and isinstance(protocol, re.Match):
+            protocol = protocol[0]
+
+        host = url
+        if protocol is not None:
+            host = host.replace(protocol, "")
+        if port is not None:
+            host = host.replace(f":{port}", "")
+        if host[-1] == "/":
+            host = host[:-1]
+
+        return protocol, host, port
+
+    def _parse_protocol_by_port(self, port):
+        if port == 80 or port == 8008:
+            return "http://"
+        elif port == 443 or port == 8443:
+            return "https://"
+        else:
+            raise ValueError(
+                "Cannot determine the protocol "
+                f"automatically by the port {port}."
+            )
+
+    def _save_config(self, protocol, host, port, token):
         config = ConfigParser()
-        config['DEFAULT'] = {'homeserver': url, 'port': port, 'token': token}
+        config['DEFAULT'] = {
+            'protocol': protocol,
+            'homeserver': host,
+            'port': port,
+            'token': token
+        }
         with open(self.config_path, 'w') as configfile:
             config.write(configfile)
         return True
@@ -130,6 +191,7 @@ class Admin():
         config = ConfigParser()
         config.sections()
         config.read(self.config_path)
+        self.server_protocol = config.get("DEFAULT", "protocol")
         self.server_addr = config.get("DEFAULT", "homeserver")
         self.access_token = config.get("DEFAULT", "token")
         self.server_port = int(config.get("DEFAULT", "port"))
@@ -173,8 +235,9 @@ class Admin():
 
 
 class HTTPConnection():
-    def __init__(self, host, port, headers):
+    def __init__(self, protocol, host, port, headers):
         self.headers = headers
+        self.protocol = protocol
         self.host = host
         self.port = port
         self.conn = httpx.Client(headers=self.headers)
@@ -184,11 +247,7 @@ class HTTPConnection():
             "PUT": self.conn.put,
             "DELETE": self.conn.delete
         }
-        if port == 443 or port == 8443:
-            protocol = "https"
-        else:
-            protocol = "http"
-        self.base_url = f"{protocol}://{self.host}:{self.port}"
+        self.base_url = f"{self.protocol}{self.host}:{self.port}"
 
     def request(self, method, path, json=None):
         url = self.base_url + path

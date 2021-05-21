@@ -40,12 +40,14 @@ class User(Admin):
         server_addr=None,
         server_port=443,
         access_token=None,
+        server_protocol=None,
         suppress_exception=False
     ):
         super().__init__(
             server_addr,
             server_port,
             access_token,
+            server_protocol,
             suppress_exception
         )
         self.devices = _Device()
