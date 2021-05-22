@@ -265,7 +265,7 @@ class Admin():
 
 
 class Client(httpx.Client):
-    def delete(self, url, json):
+    def delete(self, url, json) -> httpx.Response:
         return self.request("DELETE", url, json=json)
 
 

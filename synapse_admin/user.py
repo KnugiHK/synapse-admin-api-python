@@ -37,11 +37,11 @@ class User(Admin):
 
     def __init__(
         self,
-        server_addr=None,
-        server_port=443,
-        access_token=None,
-        server_protocol=None,
-        suppress_exception=False
+        server_addr: str = None,
+        server_port: int = 443,
+        access_token: str = None,
+        server_protocol: str = None,
+        suppress_exception: bool = False
     ):
         super().__init__(
             server_addr,
@@ -55,13 +55,13 @@ class User(Admin):
 
     def lists(
         self,
-        offset=0,
-        limit=100,
-        userid=None,
-        name=None,
-        guests=True,
-        deactivated=False,
-        order_by=None
+        offset: int = 0,
+        limit: int = 100,
+        userid: str = None,
+        name: str = None,
+        guests: bool = True,
+        deactivated: bool = False,
+        order_by: str = None
     ):
         optional_str = ""
         if userid is not None:
@@ -122,8 +122,8 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def modify(self, user, *args, **kwargs):
-        return self.create(user, *args, **kwargs)
+    def modify(self, userid: str, *args, **kwargs) -> bool:
+        return self.create(userid, *args, **kwargs)
 
     def query(self, userid):
         userid = self.validate_username(userid)
