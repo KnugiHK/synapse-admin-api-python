@@ -264,6 +264,11 @@ class Admin():
         return f"{base}v{version}{path}"
 
 
+class Client(httpx.Client):
+    def delete(self, url, json):
+        return self.request("DELETE", url, json=json)
+
+
 class HTTPConnection():
     def __init__(
         self,
@@ -276,12 +281,12 @@ class HTTPConnection():
         self.protocol = protocol
         self.host = host
         self.port = port
-        self.conn = httpx.Client(headers=self.headers)
+        self.conn = Client(headers=self.headers)
         self.method_map = {
             "GET": self.conn.get,
             "POST": self.conn.post,
             "PUT": self.conn.put,
-            "DELETE": self.delete
+            "DELETE": self.conn.delete,
         }
         self.base_url = f"{self.protocol}{self.host}:{self.port}"
 
@@ -296,6 +301,3 @@ class HTTPConnection():
         if json is not None:
             return request(url, json=json)
         return request(url)
-
-    def delete(self, url, json):
-        return self.conn.request("DELETE", url, json=json)
