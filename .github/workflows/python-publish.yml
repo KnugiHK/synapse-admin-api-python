@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-
+    name: "Upload package release"
     runs-on: ubuntu-latest
 
     steps:
