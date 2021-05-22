@@ -92,8 +92,15 @@ class Admin():
         )
         self.supress_exception = suppress_exception
 
-    def create_config(self, url=None, port=None, access_token=None):
-        if url is None or port is None or access_token is None:
+    def create_config(
+        self,
+        protocol=None,
+        url=None,
+        port=None,
+        access_token=None
+    ):
+        if (protocol is None or url is None or
+                port is None or access_token is None):
             while True:
                 url = input(
                     "Enter the homeserver URL with port"
