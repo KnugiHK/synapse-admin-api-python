@@ -33,6 +33,8 @@ class Room(Admin):
     https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md
     https://github.com/matrix-org/synapse/blob/master/docs/admin_api/shutdown_room.md
     https://github.com/matrix-org/synapse/blob/master/docs/admin_api/purge_room.md
+    https://github.com/matrix-org/matrix-python-sdk/blob/master/matrix_client/api.py#L192
+    https://github.com/matrix-org/matrix-python-sdk/blob/master/matrix_client/api.py#L527
     """
 
     order = {
