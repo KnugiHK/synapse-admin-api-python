@@ -23,10 +23,10 @@ SOFTWARE."""
 import httpx
 import os
 import re
-from typing import Tuple, Any
-from pathlib import Path
 from configparser import ConfigParser
 from datetime import datetime
+from pathlib import Path
+from typing import Tuple, Any
 
 
 class SynapseException(Exception):
@@ -106,7 +106,11 @@ class Admin():
         self.access_token_header = {
             "Authorization": f"Bearer {self.access_token}"
         }
-        self.header = {**self.access_token_header}
+        from .__init__ import __version__
+        self.header = {
+            **self.access_token_header,
+            "User-Agent": f"matrix-synpase-admin-python/{__version__}"
+        }
         self.connection = HTTPConnection(
             self.server_protocol,
             self.server_addr,
@@ -212,7 +216,7 @@ class Admin():
         server_addr: str = None,
         access_token: str = None
     ) -> bool:
-        raise NotImplementedError("This function is temporarily disabled")
+        raise NotImplementedError("This function is temporarily disabled.")
         if server_addr is None and access_token is None:
             return
 
@@ -277,7 +281,7 @@ class HTTPConnection():
             "GET": self.conn.get,
             "POST": self.conn.post,
             "PUT": self.conn.put,
-            "DELETE": self.conn.delete
+            "DELETE": self.delete
         }
         self.base_url = f"{self.protocol}{self.host}:{self.port}"
 
@@ -288,7 +292,10 @@ class HTTPConnection():
         json: Any = None
     ) -> httpx.Response:
         url = self.base_url + path
-        if json is not None:
-            return self.method_map[method](url, json=json)
         request = self.method_map[method]
+        if json is not None:
+            return request(url, json=json)
         return request(url)
+
+    def delete(self, url, json):
+        return self.conn.request("DELETE", url, json=json)
