@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from synapse_admin.base import Admin, SynapseException
 from synapse_admin import User
+from synapse_admin.base import Admin, SynapseException
 
 
 class Management(Admin):

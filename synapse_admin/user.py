@@ -20,9 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from synapse_admin.base import Admin, SynapseException
-import hmac
 import hashlib
+import hmac
+from synapse_admin.base import Admin, SynapseException
 
 
 class User(Admin):
