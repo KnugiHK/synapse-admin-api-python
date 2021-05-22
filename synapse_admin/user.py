@@ -123,7 +123,7 @@ class User(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def modify(self, user, *args, **kwargs):
-        return self.creates(user, *args, **kwargs)
+        return self.create(user, *args, **kwargs)
 
     def query(self, userid):
         userid = self.validate_username(userid)
@@ -485,20 +485,21 @@ class _Device(Admin):
 
     def delete(self, userid, device):
         if isinstance(device, list) and len(device) > 1:
-            return self._deletes(userid, device)
+            return self._delete_multiple(userid, device)
         elif isinstance(device, list) and len(device) == 1:
             device = device[0]
 
         userid = self.validate_username(userid)
         resp = self.connection.request(
-            "DELETE", self.admin_patterns(
-                f"/users/{userid}/devices/{device}", 2))
+            "DELETE",
+            self.admin_patterns(f"/users/{userid}/devices/{device}", 2)
+        )
         if resp.status_code == 200:
             return True
         else:
             return False
 
-    def _deletes(self, userid, devices):
+    def _delete_multiple(self, userid, devices):
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "POST",
