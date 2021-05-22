@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from synapse_admin.base import Admin, SynapseException
+from synapse_admin.base import Admin, SynapseException, Utility
 
 
 class Media(Admin):
@@ -134,7 +134,7 @@ class Media(Admin):
 
     def delete_local_media_by_condition(
         self,
-        timestamp=Admin.get_current_time(),
+        timestamp=Utility.get_current_time(),
         size_gt=None,
         keep_profiles=True,
         server_name=None
@@ -165,7 +165,7 @@ class Media(Admin):
         data = resp.json()
         return data["deleted_media"], data["total"]
 
-    def purge_remote_media(self, timestamp=Admin.get_current_time()):
+    def purge_remote_media(self, timestamp=Utility.get_current_time()):
         if not isinstance(timestamp, int):
             raise TypeError(
                 "Argument 'timestamp' should be a "

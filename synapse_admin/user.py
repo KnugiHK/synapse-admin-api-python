@@ -22,7 +22,7 @@ SOFTWARE."""
 
 import hashlib
 import hmac
-from synapse_admin.base import Admin, SynapseException
+from synapse_admin.base import Admin, SynapseException, Utility
 
 
 class User(Admin):
@@ -76,8 +76,8 @@ class User(Admin):
             "GET",
             self.admin_patterns(
                 f"/users?from={offset}&limit={limit}&guests="
-                f"{Admin.get_bool(guests)}&deactivated="
-                f"{Admin.get_bool(deactivated)}{optional_str}",
+                f"{Utility.get_bool(guests)}&deactivated="
+                f"{Utility.get_bool(deactivated)}{optional_str}",
                 2
             )
         )

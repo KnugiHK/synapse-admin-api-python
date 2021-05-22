@@ -48,6 +48,20 @@ class Utility():
     port_re = re.compile(r":[0-9]{1,5}/?$")
     http_re = re.compile(r"^https?://")
 
+    @staticmethod
+    def get_bool(boolean: bool) -> str:
+        if not isinstance(boolean, bool):
+            raise TypeError("Argument 'boolean' must be a "
+                            f"bool not a {type(boolean)}")
+        if boolean:
+            return "true"
+        else:
+            return "false"
+
+    @staticmethod
+    def get_current_time() -> int:
+        return int(datetime.now().timestamp() * 1000)
+
 
 class Admin():
     """Base class for storing common variable read configuration"""
@@ -244,20 +258,6 @@ class Admin():
         if path[0] != "/":
             path = "/" + path
         return f"{base}v{version}{path}"
-
-    @staticmethod
-    def get_bool(boolean: bool) -> str:
-        if not isinstance(boolean, bool):
-            raise TypeError("Argument 'boolean' must be a "
-                            f"bool not a {type(boolean)}")
-        if boolean:
-            return "true"
-        else:
-            return "false"
-
-    @staticmethod
-    def get_current_time() -> int:
-        return int(datetime.now().timestamp() * 1000)
 
 
 class HTTPConnection():
