@@ -26,6 +26,7 @@ from configparser import ConfigParser
 import httpx
 from datetime import datetime
 import re
+from typing import Tuple, Any
 
 
 class SynapseException(Exception):
@@ -43,16 +44,21 @@ class SynapseAPIError(Exception):
         super().__init__("The API is not ready.")
 
 
+class Utility():
+    port_re = re.compile(r":[0-9]{1,5}/?$")
+    http_re = re.compile(r"^https?://")
+
+
 class Admin():
     """Base class for storing common variable read configuration"""
 
     def __init__(
         self,
-        server_addr=None,
-        server_port=443,
-        access_token=None,
-        server_protocol=None,
-        suppress_exception=False
+        server_addr: str = None,
+        server_port: int = 443,
+        access_token: str = None,
+        server_protocol: str = None,
+        suppress_exception: bool = False
     ):
         if server_addr is not None and access_token is not None:
             self.access_token = access_token
@@ -62,7 +68,10 @@ class Admin():
                 self.server_protocol = \
                     self._parse_protocol_by_port(server_port)
             else:
-                self.server_protocol = server_protocol
+                if "://" not in server_protocol:
+                    self.server_protocol = server_protocol + "://"
+                else:
+                    self.server_protocol = server_protocol
         else:
             # If homeserver address or/and access token are
             # not provided, read from configration file
@@ -94,11 +103,11 @@ class Admin():
 
     def create_config(
         self,
-        protocol=None,
-        url=None,
-        port=None,
-        access_token=None
-    ):
+        protocol: str = None,
+        url: str = None,
+        port: int = None,
+        access_token: str = None
+    ) -> bool:
         if (protocol is None or url is None or
                 port is None or access_token is None):
             while True:
@@ -125,11 +134,9 @@ class Admin():
             else:
                 return self._save_config(protocol, host, port, access_token)
 
-    def _parse_homeserver_url(self, url):
-        port_re = re.compile(r":[0-9]{1,5}/?$")
-        http_re = re.compile(r"^https?://")
-        port = port_re.search(url)
-        protocol = http_re.search(url)
+    def _parse_homeserver_url(self, url: str) -> Tuple[str, str, int]:
+        port = Utility.port_re.search(url)
+        protocol = Utility.http_re.search(url)
         if port is None:
             if protocol is None:
                 raise ValueError(
@@ -168,7 +175,13 @@ class Admin():
                 f"automatically by the port {port}."
             )
 
-    def _save_config(self, protocol, host, port, token):
+    def _save_config(
+        self,
+        protocol: str,
+        host: str,
+        port: int,
+        token: str
+    ) -> bool:
         config = ConfigParser()
         config['DEFAULT'] = {
             'protocol': protocol,
@@ -180,7 +193,12 @@ class Admin():
             config.write(configfile)
         return True
 
-    def modify_config(self, server_addr=None, access_token=None):
+    def modify_config(
+        self,
+        server_addr: str = None,
+        access_token: str = None
+    ) -> bool:
+        raise NotImplementedError("This function is temporarily disabled")
         if server_addr is None and access_token is None:
             return
 
@@ -193,6 +211,7 @@ class Admin():
             'homeserver': self.server_addr, 'token': self.access_token}
         with open(self.config_path, 'w') as configfile:
             config.write(configfile)
+        return True
 
     def read_config(self):
         config = ConfigParser()
@@ -203,31 +222,31 @@ class Admin():
         self.access_token = config.get("DEFAULT", "token")
         self.server_port = int(config.get("DEFAULT", "port"))
 
-    def validate_server(self, string):
+    def validate_server(self, string: str) -> str:
         if f":{self.server_addr}" not in string:
             string = string + f":{self.server_addr}"
         return string
 
-    def validate_username(self, user):
+    def validate_username(self, user: str) -> str:
         user = self.validate_server(user)
         if user[0] != "@":
             user = "@" + user
         return user
 
-    def validate_room(self, room):
+    def validate_room(self, room: str) -> str:
         room = self.validate_server(room)
         if room[0] != "!":
             room = "!" + room
         return room
 
-    def admin_patterns(self, path, version=1):
+    def admin_patterns(self, path: str, version: int = 1) -> str:
         base = "/_synapse/admin/"
         if path[0] != "/":
             path = "/" + path
         return f"{base}v{version}{path}"
 
     @staticmethod
-    def get_bool(boolean):
+    def get_bool(boolean: bool) -> str:
         if not isinstance(boolean, bool):
             raise TypeError("Argument 'boolean' must be a "
                             f"bool not a {type(boolean)}")
@@ -237,12 +256,18 @@ class Admin():
             return "false"
 
     @staticmethod
-    def get_current_time():
+    def get_current_time() -> int:
         return int(datetime.now().timestamp() * 1000)
 
 
 class HTTPConnection():
-    def __init__(self, protocol, host, port, headers):
+    def __init__(
+        self,
+        protocol: str,
+        host: str,
+        port: int,
+        headers: str
+    ):
         self.headers = headers
         self.protocol = protocol
         self.host = host
@@ -256,7 +281,12 @@ class HTTPConnection():
         }
         self.base_url = f"{self.protocol}{self.host}:{self.port}"
 
-    def request(self, method, path, json=None):
+    def request(
+        self,
+        method: str,
+        path: str,
+        json: Any = None
+    ) -> httpx.Response:
         url = self.base_url + path
         if json is not None:
             return self.method_map[method](url, json=json)
