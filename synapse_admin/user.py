@@ -90,7 +90,23 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def create(self, userid, *args, **kwargs):
+    def create(self, userid: str, *args, **kwargs) -> bool:
+        """Create a user
+
+        Args:
+            userid (str): The user id of the user
+
+        Extra Args (use by specifying the argument name):
+            password (str)
+            displayname (str)
+            threepids (list)
+            avatar_url (str)
+            admin (str)
+            deactivated (str)
+
+        Returns:
+            bool: The creation of user is successful or not
+        """
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "PUT",
