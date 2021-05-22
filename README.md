@@ -1,5 +1,6 @@
 # Synapse-admin-api-python
 [![Latest in Pypi](https://img.shields.io/pypi/v/matrix-synapse-admin?label=Latest%20in%20Pypi)](https://pypi.org/project/matrix-synapse-admin/)
+![License MIT](https://img.shields.io/pypi/l/matrix-synapse-admin)
 
 A Python wrapper for Matrix Synapse admin API
 
