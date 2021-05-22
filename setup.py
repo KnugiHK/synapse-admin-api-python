@@ -31,7 +31,7 @@ setuptools.setup(
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators"
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=[
        'httpx>=0.18.1'
     ]
