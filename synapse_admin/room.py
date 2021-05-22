@@ -21,6 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException
+from synapse_admin import User
+from typing import Union
 
 
 class Room(Admin):
@@ -55,6 +57,8 @@ class Room(Admin):
             server_protocol,
             suppress_exception
         )
+
+        self.user = User()
 
     def lists(
         self,
@@ -128,6 +132,92 @@ class Room(Admin):
         data = resp.json()
         if resp.status_code == 200:
             return data["members"], data["total"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def create(
+        self,
+        public=False,
+        alias=None,
+        name=None,
+        members: Union[str, list] = None,
+        federation=None,
+        leave=False
+    ):
+        roomid = self._client_create(
+            public,
+            alias,
+            name,
+            federation=federation
+        )
+        joined = []
+        for member in members:
+            userid = self.validate_username(member)
+            if self.user.join_room(userid, roomid):
+                joined.append(userid)
+        if leave:
+            self._client_leave(roomid)
+        return roomid, joined
+
+    def _client_create(
+        self,
+        public=False,
+        alias=None,
+        name=None,
+        invite: Union[str, list] = None,
+        federation=None
+    ):
+        data = {}
+        if public:
+            data["visibility"] = "public"
+        else:
+            data["visibility"] = "private"
+        if alias is not None:
+            data["roo_alias_name"] = alias
+        if name is not None:
+            data["name"] = name
+        if invite is not None:
+            if isinstance(invite, str):
+                validated_invite = [self.validate_username(invite)]
+            elif isinstance(invite, list):
+                validated_invite = []
+                for user in invite:
+                    validated_invite.append(self.validate_username(user))
+            else:
+                raise TypeError("Argument invite must be str or list.")
+            data["invite"] = validated_invite
+        if federation is not None:
+            data["creation_content"] = {"m.federate": federation}
+        resp = self.connection.request(
+            "POST",
+            "/_matrix/client/r0/createRoom",
+            json=data
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["room_id"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def _client_leave(self, roomid):
+        roomid = self.validate_room(roomid)
+        resp = self.connection.request(
+            "POST",
+            f"/_matrix/client/r0/rooms/{roomid}/leave",
+            json={}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            if len(data) == 0:
+                return True
+            else:
+                return data
         else:
             if self.supress_exception:
                 return False, data
