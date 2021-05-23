@@ -90,7 +90,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def create(self, userid: str, *args, **kwargs) -> bool:
+    def create(self, userid: str, **kwargs) -> bool:
         """Create a user
 
         Args:
