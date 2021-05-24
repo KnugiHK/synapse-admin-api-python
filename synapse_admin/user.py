@@ -125,6 +125,9 @@ class User(Admin):
     def modify(self, userid: str, *args, **kwargs) -> bool:
         return self.create(userid, *args, **kwargs)
 
+    def details(self, userid):
+        return self.query(userid)
+
     def query(self, userid):
         userid = self.validate_username(userid)
         resp = self.connection.request(
