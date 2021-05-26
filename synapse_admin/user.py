@@ -51,7 +51,11 @@ class User(Admin):
             suppress_exception
         )
         self.devices = _Device()
+        self._create_alias()
+
+    def _create_alias(self):
         self.creates = self.create  # For compatibility
+        self.details = self.query
 
     def lists(
         self,
@@ -124,9 +128,6 @@ class User(Admin):
 
     def modify(self, userid: str, *args, **kwargs) -> bool:
         return self.create(userid, *args, **kwargs)
-
-    def details(self, userid):
-        return self.query(userid)
 
     def query(self, userid):
         userid = self.validate_username(userid)
