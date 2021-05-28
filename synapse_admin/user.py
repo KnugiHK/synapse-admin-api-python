@@ -312,8 +312,13 @@ class User(Admin):
         Adapted from:
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
         """
+        if isinstance(shared_secret, str):
+            shared_secret = shared_secret.encode()
+        elif not isinstance(shared_secret, bytes):
+            raise TypeError("Argument shared_secret must be str or bytes")
+
         mac = hmac.new(
-            key=shared_secret.encode(),
+            key=shared_secret,
             digestmod=hashlib.sha1,
         )
 
