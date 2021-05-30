@@ -99,7 +99,7 @@ class Admin():
 
             self.config_path = os.path.join(path, "api.cfg")
             if os.path.isfile(self.config_path):
-                self.read_config()
+                self.read_config(self.config_path)
             else:
                 # If configuration file not found, create one
                 self.create_config()
@@ -182,7 +182,7 @@ class Admin():
 
         return protocol, host, port
 
-    def _parse_protocol_by_port(self, port):
+    def _parse_protocol_by_port(self, port: int) -> str:
         if port == 80 or port == 8008:
             return "http://"
         elif port == 443 or port == 8443:
@@ -231,14 +231,15 @@ class Admin():
             config.write(configfile)
         return True
 
-    def read_config(self):
+    def read_config(self, config_path: str) -> bool:
         config = ConfigParser()
         config.sections()
-        config.read(self.config_path)
+        config.read(config_path)
         self.server_protocol = config.get("DEFAULT", "protocol")
         self.server_addr = config.get("DEFAULT", "homeserver")
         self.access_token = config.get("DEFAULT", "token")
         self.server_port = int(config.get("DEFAULT", "port"))
+        return True
 
     def validate_server(self, string: str) -> str:
         if f":{self.server_addr}" not in string:
