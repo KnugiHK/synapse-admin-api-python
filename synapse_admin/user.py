@@ -159,7 +159,6 @@ class User(Admin):
                 "Argument 'password' should be a "
                 f"string but not {type(password)}"
             )
-        userid = self.validate_username(userid)
         return self.modify(userid, password=password, deactivated=False)
 
     def reset_password(self, userid, password, logout=True):
