@@ -185,13 +185,15 @@ class User(Admin):
         )
         return resp.json()["admin"]
 
-    def set_admin(self, userid, activate):
-        userid = self.validate_username(userid)
-        if not isinstance(activate, bool):
+    def set_admin(self, userid, activate=None):
+        if activate is None:
+            activate = not self.is_admin(userid)
+        elif not isinstance(activate, bool):
             raise TypeError(
                 "Argument 'activate' only accept "
                 f"boolean but not {type(activate)}."
             )
+        userid = self.validate_username(userid)
         resp = self.connection.request(
             "PUT",
             self.admin_patterns(f"/users/{userid}/admin", 1),
