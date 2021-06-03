@@ -50,7 +50,7 @@ class User(Admin):
             server_protocol,
             suppress_exception
         )
-        self.devices = _Device()
+        self.devices = _Device(self.server_addr, self.connection)
         self._create_alias()
 
     def _create_alias(self):
@@ -474,8 +474,9 @@ class User(Admin):
 
 
 class _Device(Admin):
-    def __init__(self):
-        pass
+    def __init__(self, server_addr, conn):
+        self.server_addr = server_addr
+        self.connection = conn
 
     def lists(self, userid):
         userid = self.validate_username(userid)
