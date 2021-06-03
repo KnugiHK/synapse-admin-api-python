@@ -54,10 +54,10 @@ class Management(Admin):
         )
         self.user = User()
 
-    def announce(self, user, announcement):
-        user = self.validate_username(user)
+    def announce(self, userid, announcement):
+        userid = self.validate_username(userid)
         data = {
-            "user_id": user,
+            "user_id": userid,
             "content": {
                 "msgtype": "m.text",
                 "body": announcement
@@ -69,7 +69,7 @@ class Management(Admin):
             json=data
         )
         data = resp.json()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return data["event_id"]
         else:
             if self.supress_exception:
@@ -104,7 +104,7 @@ class Management(Admin):
             json=data
         )
         data = resp.json()["purge_id"]
-        if resp.status == 200:
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
@@ -118,7 +118,7 @@ class Management(Admin):
             self.admin_patterns(f"/purge_history_status/{purge_id}", 1)
         )
         data = resp.json()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return data["status"]
         else:
             if self.supress_exception:
@@ -164,7 +164,7 @@ class Management(Admin):
             self.admin_patterns(f"/event_reports/{reportid}", 1)
         )
         data = resp.json()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return data
         else:
             if self.supress_exception:
