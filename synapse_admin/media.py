@@ -99,6 +99,23 @@ class Media(Admin):
         )
         return resp.json()["num_quarantined"]
 
+    def quarantine_remove(self, mediaid, server_name):
+        raise NotImplementedError("This admin API is not yet released")
+        if server_name is None:
+            server_name = self.server_addr
+        resp = self.connection.request(
+            "POST",
+            self.admin_patterns(
+                f"/media/unquarantine/"
+                f"{server_name}/{mediaid}",
+                1
+            ),
+            json={},
+        )
+        if resp.json() == {}:
+            return True
+        return False
+
     def protect_media(self, mediaid):
         resp = self.connection.request(
             "POST",
@@ -107,6 +124,22 @@ class Media(Admin):
         )
         data = resp.json()
         if len(data) == 0:
+            return True
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def unprotect_media(self, mediaid):
+        raise NotImplementedError("This admin API is not yet released")
+        resp = self.connection.request(
+            "POST",
+            self.admin_patterns(f"/media/unprotect/{mediaid}", 1),
+            json={},
+        )
+        data = resp.json()
+        if data == {}:
             return True
         else:
             if self.supress_exception:
