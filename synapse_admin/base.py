@@ -258,6 +258,12 @@ class Admin():
             room = "!" + room
         return room
 
+    def validate_group(self, group: str) -> str:
+        group = self.validate_server(group)
+        if group[0] != "+":
+            group = "+" + group
+        return group
+
     def admin_patterns(self, path: str, version: int = 1) -> str:
         base = "/_synapse/admin/"
         if path[0] != "/":

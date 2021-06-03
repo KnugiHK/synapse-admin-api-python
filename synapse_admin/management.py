@@ -173,9 +173,16 @@ class Management(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def delete_group(self, groupid):
-        # Not yet tested
+        groupid = self.validate_group(groupid)
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/delete_group/{groupid}", 1)
         )
-        return resp.json()
+        data = resp.json()
+        if resp.status_code == 200:
+            return data == {}
+        else:
+            if self.supress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
