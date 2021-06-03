@@ -56,6 +56,7 @@ class User(Admin):
     def _create_alias(self):
         self.creates = self.create  # For compatibility
         self.details = self.query
+        self.modify = self.create
 
     def lists(
         self,
@@ -125,9 +126,6 @@ class User(Admin):
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
-
-    def modify(self, userid: str, *args, **kwargs) -> bool:
-        return self.create(userid, *args, **kwargs)
 
     def query(self, userid):
         userid = self.validate_username(userid)
