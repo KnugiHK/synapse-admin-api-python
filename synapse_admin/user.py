@@ -275,11 +275,7 @@ class User(Admin):
         shared_secret,
         admin=False
     ):
-        resp = self.connection.request(
-            "GET",
-            self.admin_patterns("/register", 1)
-        )
-        nonce = resp.json()["nonce"]
+        nonce = self._get_register_nonce()
         data = {
             "nonce": nonce,
             "username": username,
@@ -295,6 +291,13 @@ class User(Admin):
         )
 
         return resp.json()
+
+    def _get_register_nonce(self):
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns("/register", 1)
+        )
+        return resp.json()["nonce"]
 
     def _generate_mac(
         self,
