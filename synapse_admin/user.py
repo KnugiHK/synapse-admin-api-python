@@ -360,12 +360,22 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def login(self, userid):
+    def login(self, userid, valid_until_ms=None):
+        if isinstance(valid_until_ms, int):
+            data = {"valid_until_ms": valid_until_ms}
+        elif valid_until_ms is None:
+            data = {}
+        else:
+            raise TypeError(
+                "Argument valid_until_ms must be int "
+                f"but not {type(valid_until_ms)}."
+            )
+
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/users/{userid}/login", 1),
-            json={}
+            json=data
         )
         data = resp.json()
         if resp.status_code == 200:
