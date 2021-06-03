@@ -124,7 +124,7 @@ class Media(Admin):
             json={},
         )
         data = resp.json()
-        if resp.status == 200:
+        if resp.status_code == 200:
             return data["deleted_media"], data["total"]
         else:
             if self.supress_exception:
