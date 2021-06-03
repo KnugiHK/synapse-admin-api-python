@@ -145,7 +145,7 @@ class Room(Admin):
         public=False,
         alias=None,
         name=None,
-        members: Union[str, list] = None,
+        members: list = None,
         federation=None,
         leave=False
     ):
