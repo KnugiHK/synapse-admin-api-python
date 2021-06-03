@@ -266,8 +266,11 @@ class Admin():
 
 
 class Client(httpx.Client):
-    def delete(self, url, json) -> httpx.Response:
-        return self.request("DELETE", url, json=json)
+    def delete(self, url, json=None) -> httpx.Response:
+        if json is not None:
+            return self.request("DELETE", url, json=json)
+        else:
+            return self.request("DELETE", url)
 
 
 class HTTPConnection():
