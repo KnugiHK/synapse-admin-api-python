@@ -111,22 +111,27 @@ class Admin():
             **self.access_token_header,
             "User-Agent": f"matrix-synpase-admin-python/{__version__}"
         }
+        self._create_conn()
+        self.supress_exception = suppress_exception
+
+    def _create_conn(self):
         self.connection = HTTPConnection(
             self.server_protocol,
             self.server_addr,
             self.server_port,
             self.header
         )
-        self.supress_exception = suppress_exception
+        return True
 
     def create_config(
         self,
         protocol: str = None,
-        url: str = None,
+        host: str = None,
         port: int = None,
-        access_token: str = None
+        access_token: str = None,
+        save_to_file: int = False
     ) -> bool:
-        if (protocol is None or url is None or
+        if (protocol is None or host is None or
                 port is None or access_token is None):
             while True:
                 url = input(
@@ -141,16 +146,15 @@ class Admin():
                 else:
                     break
             access_token = input("Enter the access token: ")
-            save = input("Save to a config file?(Y/n)").lower()
+            save_to_file = input("Save to a config file?(Y/n)").lower()
 
-            self.server_protocol = protocol
-            self.server_addr = host
-            self.server_port = int(port)
-            self.access_token = access_token
-            if save == "n":
-                return True
-            else:
-                return self._save_config(protocol, host, port, access_token)
+        self.server_protocol = protocol
+        self.server_addr = host
+        self.server_port = int(port)
+        self.access_token = access_token
+        if save_to_file == "n" or not save_to_file:
+            return True
+        return self._save_config(protocol, host, port, access_token)
 
     def _parse_homeserver_url(self, url: str) -> Tuple[str, str, int]:
         port = Utility.port_re.search(url)
@@ -221,7 +225,8 @@ class Admin():
     ) -> bool:
         if (server_addr is None and server_port is None and
                 access_token is None and server_protocol is None):
-            return self.create_config()
+            self.create_config()
+            return self._create_conn()
 
         if server_addr is not None:
             self.server_addr = server_addr
@@ -231,6 +236,8 @@ class Admin():
             self.server_port = server_port
         if server_protocol is not None:
             self.server_protocol = server_protocol
+
+        self._create_conn()
 
         if save_to_file:
             return self._save_config(
