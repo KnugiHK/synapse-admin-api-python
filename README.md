@@ -17,7 +17,8 @@ Provide the connection information and access token in the first time of executi
 ```python
 >>> from synapse_admin import User
 >>> user = User()
-Enter the homeserver URL with port: example.com:443 # Only need to be entered in the first time
+# The config creator is smart enough to determine the protocol and port by providing either one.
+Enter the homeserver URL with port(e.g. https://example.com:443): https://example.com # Only need to be entered in the first time
 Enter the access token: <access token> # Only need to be entered in the first time
 >>> details_of_users, number_of_users = user.lists()
 >>> print(details_of_users)
