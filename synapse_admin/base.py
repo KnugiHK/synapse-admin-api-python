@@ -214,21 +214,31 @@ class Admin():
     def modify_config(
         self,
         server_addr: str = None,
-        access_token: str = None
+        server_port: int = None,
+        access_token: str = None,
+        server_protocol: str = None,
+        save_to_file: bool = True
     ) -> bool:
-        raise NotImplementedError("This function is temporarily disabled.")
-        if server_addr is None and access_token is None:
-            return
+        if (server_addr is None and server_port is None and
+                access_token is None and server_protocol is None):
+            return self.create_config()
 
         if server_addr is not None:
             self.server_addr = server_addr
         if access_token is not None:
             self.access_token = access_token
-        config = ConfigParser()
-        config['DEFAULT'] = {
-            'homeserver': self.server_addr, 'token': self.access_token}
-        with open(self.config_path, 'w') as configfile:
-            config.write(configfile)
+        if server_port is not None:
+            self.server_port = server_port
+        if server_protocol is not None:
+            self.server_protocol = server_protocol
+
+        if save_to_file:
+            return self._save_config(
+                self.server_protocol,
+                self.server_addr,
+                self.server_port,
+                self.access_token
+            )
         return True
 
     def read_config(self, config_path: str) -> bool:
