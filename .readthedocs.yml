@@ -1,0 +1,8 @@
+site_name: Synapse Admin API Wrapper Docs
+site_author: KnugiHK
+site_url: https://knugi.com
+
+theme: readthedocs
+
+markdown_extensions:
+ - admonition
