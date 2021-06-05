@@ -23,6 +23,7 @@ SOFTWARE."""
 import hashlib
 import hmac
 from synapse_admin.base import Admin, SynapseException, Utility
+from typing import Union, Tuple
 
 
 class User(Admin):
@@ -53,7 +54,7 @@ class User(Admin):
         self.devices = _Device(self.server_addr, self.connection)
         self._create_alias()
 
-    def _create_alias(self):
+    def _create_alias(self) -> None:
         self.creates = self.create  # For compatibility
         self.details = self.query
         self.modify = self.create
@@ -67,7 +68,7 @@ class User(Admin):
         guests: bool = True,
         deactivated: bool = False,
         order_by: str = None
-    ):
+    ) -> Tuple[str, int]:
         optional_str = ""
         if userid is not None:
             userid = self.validate_username(userid)
@@ -127,7 +128,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def query(self, userid):
+    def query(self, userid: str) -> Union[list, dict]:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -135,7 +136,7 @@ class User(Admin):
         )
         return resp.json()
 
-    def active_sessions(self, userid):
+    def active_sessions(self, userid: str) -> list:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -144,7 +145,7 @@ class User(Admin):
         data = resp.json()["devices"][""]
         return data["sessions"][0]["connections"]
 
-    def deactivate(self, userid, erase=True):
+    def deactivate(self, userid: str, erase: bool = True) -> bool:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "POST",
@@ -153,7 +154,7 @@ class User(Admin):
         )
         return resp.json()["id_server_unbind_result"] == "success"
 
-    def reactivate(self, userid, password):
+    def reactivate(self, userid: str, password: str) -> bool:
         if not isinstance(password, str):
             raise TypeError(
                 "Argument 'password' should be a "
@@ -161,7 +162,12 @@ class User(Admin):
             )
         return self.modify(userid, password=password, deactivated=False)
 
-    def reset_password(self, userid, password, logout=True):
+    def reset_password(
+        self,
+        userid: str,
+        password: str,
+        logout: bool = True
+    ) -> bool:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "POST",
@@ -177,7 +183,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def is_admin(self, userid):
+    def is_admin(self, userid: str) -> bool:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -185,7 +191,7 @@ class User(Admin):
         )
         return resp.json()["admin"]
 
-    def set_admin(self, userid, activate=None):
+    def set_admin(self, userid: str, activate: bool = None) -> bool:
         if activate is None:
             activate = not self.is_admin(userid)
         elif not isinstance(activate, bool):
@@ -208,7 +214,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def joined_room(self, userid):
+    def joined_room(self, userid: str) -> Tuple[list, int]:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -223,7 +229,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def join_room(self, userid, room):
+    def join_room(self, userid: str, room: str) -> bool:
         userid = self.validate_username(userid)
         room = self.validate_room(room)
         resp = self.connection.request(
@@ -241,7 +247,12 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def validity(self, userid, expiration=0, enable_renewal_emails=True):
+    def validity(
+        self,
+        userid: str,
+        expiration: int = 0,
+        enable_renewal_emails: bool = True
+    ) -> dict:
         if expiration is not None and not isinstance(expiration, int):
             raise TypeError(
                 "Argument 'expiration' only accept "
@@ -271,12 +282,12 @@ class User(Admin):
 
     def register(
         self,
-        username,
-        password,
-        displayname,
-        shared_secret,
-        admin=False
-    ):
+        username: str,
+        password: str,
+        displayname: str,
+        shared_secret: Union[str, bytes],
+        admin: bool = False
+    ) -> dict:
         nonce = self._get_register_nonce()
         data = {
             "nonce": nonce,
@@ -294,7 +305,7 @@ class User(Admin):
 
         return resp.json()
 
-    def _get_register_nonce(self):
+    def _get_register_nonce(self) -> str:
         resp = self.connection.request(
             "GET",
             self.admin_patterns("/register", 1)
@@ -309,7 +320,7 @@ class User(Admin):
         shared_secret,
         admin=False,
         user_type=None
-    ):
+    ) -> str:
         """
         Adapted from:
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
@@ -337,7 +348,14 @@ class User(Admin):
 
         return mac.hexdigest()
 
-    def list_media(self, userid, limit=100, _from=0, order_by=None, _dir="f"):
+    def list_media(
+        self,
+        userid: str,
+        limit: int = 100,
+        _from: int = 0,
+        order_by: int = None,
+        _dir: str = "f"
+    ) -> Tuple[list, int, int]:
         userid = self.validate_username(userid)
         optional_str = ""
         if order_by is not None:
@@ -362,7 +380,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def login(self, userid, valid_until_ms=None):
+    def login(self, userid: str, valid_until_ms: int = None) -> str:
         if isinstance(valid_until_ms, int):
             data = {"valid_until_ms": valid_until_ms}
         elif valid_until_ms is None:
@@ -388,7 +406,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def get_ratelimit(self, userid):
+    def get_ratelimit(self, userid: str) -> Tuple[int, int]:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -409,7 +427,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def set_ratelimit(self, userid, mps, bc):
+    def set_ratelimit(self, userid: str, mps: int, bc: int) -> Tuple[int, int]:
         userid = self.validate_username(userid)
         data = {"messages_per_second": mps, "burst_count": bc}
         resp = self.connection.request(
@@ -430,10 +448,10 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def disable_ratelimit(self, userid):
+    def disable_ratelimit(self, userid: str) -> Tuple[int, int]:
         return self.set_ratelimit(userid, 0, 0)
 
-    def delete_ratelimit(self, userid):
+    def delete_ratelimit(self, userid: str) -> bool:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "DELETE",
@@ -452,7 +470,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def pushers(self, userid):
+    def pushers(self, userid: str) -> Tuple[list, int]:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -468,7 +486,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def shadow_ban(self, userid):
+    def shadow_ban(self, userid: str) -> bool:
         print("WARNING! This action may Undermine the TRUST of YOUR USERS.")
         userid = self.validate_username(userid)
         resp = self.connection.request(
@@ -490,7 +508,7 @@ class _Device(Admin):
         self.server_addr = server_addr
         self.connection = conn
 
-    def lists(self, userid):
+    def lists(self, userid: str) -> list:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -505,7 +523,7 @@ class _Device(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def delete(self, userid, device):
+    def delete(self, userid: str, device: Union[str, list]) -> bool:
         if isinstance(device, list) and len(device) > 1:
             return self._delete_multiple(userid, device)
         elif isinstance(device, list) and len(device) == 1:
@@ -521,7 +539,7 @@ class _Device(Admin):
         else:
             return False
 
-    def _delete_multiple(self, userid, devices):
+    def _delete_multiple(self, userid: str, devices: list) -> bool:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "POST",
@@ -533,7 +551,7 @@ class _Device(Admin):
         else:
             return False
 
-    def show(self, userid, device):
+    def show(self, userid: str, device: str) -> dict:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "GET",
@@ -548,7 +566,7 @@ class _Device(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def update(self, userid, device, display_name):
+    def update(self, userid: str, device: str, display_name: str) -> bool:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "PUT",
