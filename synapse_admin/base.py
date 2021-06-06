@@ -31,6 +31,7 @@ from typing import Tuple, Any
 
 class SynapseException(Exception):
     """Error returned from the Admin API"""
+
     def __init__(self, code, msg):
         self.code = code
         self.msg = msg
@@ -381,8 +382,7 @@ class Admin():
         """Validate a group ID. If necessary add the group id identifier (+).
 
         Args:
-            group (str): group ID
-                (without + and homeserver address part are also accepted)
+            group (str): group ID (without + and homeserver address part are also accepted)
 
         Returns:
             str: validated group ID
@@ -396,10 +396,8 @@ class Admin():
         """Constructing an admin API endpoint url
 
         Args:
-            path (str): the path after r'/_synapse/admin/v[1-2]/?'.
-                The first slash in path is optional.
-            version (int, optional): the version of the API endpoint.
-                Defaults to 1.
+            path (str): the path after r'/_synapse/admin/v[1-2]/?'. The first slash in path is optional.
+            version (int, optional): the version of the API endpoint. Defaults to 1.
 
         Returns:
             str: admin API endpoint url
@@ -430,7 +428,8 @@ class Client(httpx.Client):
 
 
 class HTTPConnection():
-    """Helper class for the compatibility of old version of synapse_admin"""
+    """A helper class for the compatibility of old version of synapse_admin"""
+
     def __init__(
         self,
         protocol: str,
@@ -461,8 +460,7 @@ class HTTPConnection():
 
         Args:
             method (str): the HTTP method: (GET|POST|PUT|DELETE)
-            path (str): the path of the API endpoint
-                (without the protocol and host part)
+            path (str): the path of the API endpoint (without the protocol and host part)
             json (Any, optional): a JSON body if any. Defaults to None.
 
         Returns:
