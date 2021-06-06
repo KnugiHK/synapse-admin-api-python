@@ -154,7 +154,9 @@ class User(Admin):
         )
         return resp.json()["id_server_unbind_result"] == "success"
 
-    def reactivate(self, userid: str, password: str) -> bool:
+    def reactivate(self, userid: str, password: str = None) -> bool:
+        if password is None:
+            password = Utility.get_password()
         if not isinstance(password, str):
             raise TypeError(
                 "Argument 'password' should be a "
@@ -165,10 +167,12 @@ class User(Admin):
     def reset_password(
         self,
         userid: str,
-        password: str,
+        password: str = None,
         logout: bool = True
     ) -> bool:
         userid = self.validate_username(userid)
+        if password is None:
+            password = Utility.get_password()
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/reset_password/{userid}", 1),
@@ -283,12 +287,15 @@ class User(Admin):
     def register(
         self,
         username: str,
-        password: str,
-        displayname: str,
         shared_secret: Union[str, bytes],
+        *,
+        displayname: str,
+        password: str = None,
         admin: bool = False
     ) -> dict:
         nonce = self._get_register_nonce()
+        if password is None:
+            password = Utility.get_password()
         data = {
             "nonce": nonce,
             "username": username,

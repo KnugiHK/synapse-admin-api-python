@@ -25,6 +25,7 @@ import os
 import re
 from configparser import ConfigParser
 from datetime import datetime
+from getpass import getpass
 from pathlib import Path
 from typing import Tuple, Any
 
@@ -75,6 +76,24 @@ class Utility():
             int: current timestamp in millisecond
         """
         return int(datetime.now().timestamp() * 1000)
+    
+    @staticmethod
+    def get_password(prompt: str = "Enter a password: ") -> str:
+        """Get a password interactively
+
+        Args:
+            prompt (str, optional): String to ask for input. Defaults to "Enter a password: ".
+
+        Returns:
+            str: the password user entered
+        """
+        password = getpass(prompt)
+        again = getpass("Enter the password again: ")
+        if password == again:
+            return password
+        else:
+            print("The passwords you entered are not the same, try again.")
+            return Utility.get_password(prompt)
 
 
 class Admin():
