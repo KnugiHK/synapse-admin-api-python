@@ -48,6 +48,7 @@ class SynapseAPIError(Exception):
 
 class Utility():
     """Some utilities"""
+
     port_re = re.compile(r":[0-9]{1,5}/?$")
     http_re = re.compile(r"^https?://")
 
@@ -126,6 +127,12 @@ class Admin():
         }
         self._create_conn()
         self.supress_exception = suppress_exception
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        ...
 
     def _create_conn(self) -> bool:
         """Create connection to the homeserver"""
