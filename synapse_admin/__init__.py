@@ -3,7 +3,7 @@ if sys.version_info < (3, 7):
     print("Synapse Admin API requires Python 3.7 or above.")
     sys.exit(1)
 
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 
 from synapse_admin.user import User
 from synapse_admin.management import Management
