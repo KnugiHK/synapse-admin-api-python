@@ -30,6 +30,7 @@ from typing import Tuple, Any
 
 
 class SynapseException(Exception):
+    """Error returned from the Admin API"""
     def __init__(self, code, msg):
         self.code = code
         self.msg = msg
@@ -45,11 +46,17 @@ class SynapseAPIError(Exception):
 
 
 class Utility():
+    """Some utilities"""
     port_re = re.compile(r":[0-9]{1,5}/?$")
     http_re = re.compile(r"^https?://")
 
     @staticmethod
     def get_bool(boolean: bool) -> str:
+        """Covert Python bool to str
+
+        Returns:
+            str: string "true" or "false"
+        """
         if not isinstance(boolean, bool):
             raise TypeError("Argument 'boolean' must be a "
                             f"bool not a {type(boolean)}")
@@ -60,6 +67,11 @@ class Utility():
 
     @staticmethod
     def get_current_time() -> int:
+        """Get the current timestamp in millisecond
+
+        Returns:
+            int: current timestamp in millisecond
+        """
         return int(datetime.now().timestamp() * 1000)
 
 
@@ -114,7 +126,8 @@ class Admin():
         self._create_conn()
         self.supress_exception = suppress_exception
 
-    def _create_conn(self):
+    def _create_conn(self) -> bool:
+        """Create connection to the homeserver"""
         self.connection = HTTPConnection(
             self.server_protocol,
             self.server_addr,
@@ -131,6 +144,18 @@ class Admin():
         access_token: str = None,
         save_to_file: int = False
     ) -> bool:
+        """Create configuration (interactively)
+
+        Args:
+            protocol (str, optional): "http://" or "https://". Defaults to None.
+            host (str, optional): homeserver address. Defaults to None.
+            port (int, optional): homeserver listening port. Defaults to None.
+            access_token (str, optional): access token that has admin privilege. Defaults to None.
+            save_to_file (int, optional): whether or not save the configration to a file. Defaults to False.
+
+        Returns:
+            bool: configration saved
+        """
         if (protocol is None or host is None or
                 port is None or access_token is None):
             while True:
@@ -157,6 +182,17 @@ class Admin():
         return self._save_config(protocol, host, port, access_token)
 
     def _parse_homeserver_url(self, url: str) -> Tuple[str, str, int]:
+        """Parse a given URL to three parts.
+
+        Args:
+            url (str): URL that is needed to be parsed
+
+        Raises:
+            ValueError: Raised if neither port or protocol is specified
+
+        Returns:
+            Tuple[str, str, int]: protocol, host, port
+        """
         port = Utility.port_re.search(url)
         protocol = Utility.http_re.search(url)
         if port is None:
@@ -187,6 +223,17 @@ class Admin():
         return protocol, host, port
 
     def _parse_protocol_by_port(self, port: int) -> str:
+        """Parse the given port to protocol automatically
+
+        Args:
+            port (int): port that is needed to be parsed
+
+        Raises:
+            ValueError: raised if the port is not 80 or 8008 or 443 or 8443
+
+        Returns:
+            str: either "http://" or "https://"
+        """
         if port == 80 or port == 8008:
             return "http://"
         elif port == 443 or port == 8443:
@@ -204,6 +251,17 @@ class Admin():
         port: int,
         token: str
     ) -> bool:
+        """Write the configration to a file
+
+        Args:
+            protocol (str): "http://" or "https://". Defaults to None.
+            host (str): homeserver address. Defaults to None.
+            port (int): homeserver listening port. Defaults to None.
+            token (str): access token that has admin privilege. Defaults to None.
+
+        Returns:
+            bool: Success or not
+        """
         config = ConfigParser()
         config['DEFAULT'] = {
             'protocol': protocol,
@@ -223,6 +281,18 @@ class Admin():
         server_protocol: str = None,
         save_to_file: bool = True
     ) -> bool:
+        """Modifying the current configuration
+
+        Args:
+            server_addr (str, optional): homeserver address. Defaults to None.
+            server_port (int, optional): homeserver listening port. Defaults to None.
+            access_token (str, optional): access token that has admin privilege. Defaults to None.
+            server_protocol (str, optional): "http://" or "https://". Defaults to None.
+            save_to_file (bool, optional): whether or not save the configration to a file. Defaults to True.
+
+        Returns:
+            bool: success or not
+        """
         if (server_addr is None and server_port is None and
                 access_token is None and server_protocol is None):
             self.create_config()
@@ -249,6 +319,14 @@ class Admin():
         return True
 
     def read_config(self, config_path: str) -> bool:
+        """Read configuration from given path
+
+        Args:
+            config_path (str): Path to configuration file
+
+        Returns:
+            bool: success or not
+        """
         config = ConfigParser()
         config.sections()
         config.read(config_path)
@@ -259,29 +337,73 @@ class Admin():
         return True
 
     def validate_server(self, string: str) -> str:
+        """Validate the homeserver part of a given ID. If necessary add the homeserver address.
+
+        Args:
+            string (str): User/Room/Media/Group ID
+
+        Returns:
+            str: ID with validated homeserver address part
+        """
         if f":{self.server_addr}" not in string:
             string = string + f":{self.server_addr}"
         return string
 
     def validate_username(self, user: str) -> str:
+        """Validate a user ID. If necessary add the user id identifier (@).
+
+        Args:
+            user (str): User ID (without @ and homeserver address part are also accepted)
+
+        Returns:
+            str: validated user ID
+        """
         user = self.validate_server(user)
         if user[0] != "@":
             user = "@" + user
         return user
 
     def validate_room(self, room: str) -> str:
+        """Validate a room ID. If necessary add the room id identifier (!).
+
+        Args:
+            room (str): room ID (without ! and homeserver address part are also accepted)
+
+        Returns:
+            str: validated room ID
+        """
         room = self.validate_server(room)
         if room[0] != "!":
             room = "!" + room
         return room
 
     def validate_group(self, group: str) -> str:
+        """Validate a group ID. If necessary add the group id identifier (+).
+
+        Args:
+            group (str): group ID
+                (without + and homeserver address part are also accepted)
+
+        Returns:
+            str: validated group ID
+        """
         group = self.validate_server(group)
         if group[0] != "+":
             group = "+" + group
         return group
 
     def admin_patterns(self, path: str, version: int = 1) -> str:
+        """Constructing an admin API endpoint url
+
+        Args:
+            path (str): the path after r'/_synapse/admin/v[1-2]/?'.
+                The first slash in path is optional.
+            version (int, optional): the version of the API endpoint.
+                Defaults to 1.
+
+        Returns:
+            str: admin API endpoint url
+        """
         base = "/_synapse/admin/"
         if path[0] != "/":
             path = "/" + path
@@ -289,7 +411,18 @@ class Admin():
 
 
 class Client(httpx.Client):
-    def delete(self, url, json=None) -> httpx.Response:
+    """Some custom behavior based on httpx.Client"""
+
+    def delete(self, url: str, json: dict = None) -> httpx.Response:
+        """Allow a DELETE request to include a JSON body
+
+        Args:
+            url (str): URL of the API endpoint.
+            json (dict, optional): the JSON body in dict. Defaults to None.
+
+        Returns:
+            httpx.Response
+        """
         if json is not None:
             return self.request("DELETE", url, json=json)
         else:
@@ -297,6 +430,7 @@ class Client(httpx.Client):
 
 
 class HTTPConnection():
+    """Helper class for the compatibility of old version of synapse_admin"""
     def __init__(
         self,
         protocol: str,
@@ -323,6 +457,17 @@ class HTTPConnection():
         path: str,
         json: Any = None
     ) -> httpx.Response:
+        """Determine the correct HTTP method to be used and fire the request
+
+        Args:
+            method (str): the HTTP method: (GET|POST|PUT|DELETE)
+            path (str): the path of the API endpoint
+                (without the protocol and host part)
+            json (Any, optional): a JSON body if any. Defaults to None.
+
+        Returns:
+            httpx.Response
+        """
         url = self.base_url + path
         request = self.method_map[method]
         if json is not None:
