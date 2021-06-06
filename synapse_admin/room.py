@@ -46,11 +46,11 @@ class Room(Admin):
 
     def __init__(
         self,
-        server_addr=None,
-        server_port=443,
-        access_token=None,
-        server_protocol=None,
-        suppress_exception=False
+        server_addr: str = None,
+        server_port: int = 443,
+        access_token: str = None,
+        server_protocol: str = None,
+        suppress_exception: bool = False
     ):
         super().__init__(
             server_addr,
@@ -64,11 +64,11 @@ class Room(Admin):
 
     def lists(
         self,
-        _from=None,
-        limit=None,
-        orderby=None,
-        recent_first=True,
-        search=None
+        _from: int = None,
+        limit: int = None,
+        orderby: str = None,
+        recent_first: bool = True,
+        search: str = None
     ):
         if recent_first:
             optional_str = "dir=b"
@@ -110,7 +110,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def details(self, roomid):
+    def details(self, roomid: str):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -125,7 +125,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def list_members(self, roomid):
+    def list_members(self, roomid: str):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -142,12 +142,12 @@ class Room(Admin):
 
     def create(
         self,
-        public=False,
-        alias=None,
-        name=None,
+        public: bool = False,
+        alias: str = None,
+        name: str = None,
         members: list = None,
-        federation=None,
-        leave=False
+        federation=None,  # todo: type hint
+        leave: bool = False
     ):
         roomid = self._client_create(
             public,
@@ -166,11 +166,11 @@ class Room(Admin):
 
     def _client_create(
         self,
-        public=False,
-        alias=None,
-        name=None,
+        public: bool = False,
+        alias: str = None,
+        name: str = None,
         invite: Union[str, list] = None,
-        federation=None
+        federation=None  # todo: type hint
     ):
         data = {}
         if public:
@@ -207,7 +207,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def _client_leave(self, roomid):
+    def _client_leave(self, roomid: str):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
@@ -228,12 +228,12 @@ class Room(Admin):
 
     def delete(
         self,
-        roomid,
-        new_room_userid=None,
-        room_name=None,
-        message=None,
-        block=False,
-        purge=True
+        roomid: str,
+        new_room_userid: str = None,
+        room_name: str = None,
+        message: str = None,
+        block: bool = False,
+        purge: bool = True
     ):
         roomid = self.validate_room(roomid)
         data = {"block": block, "purge": purge}
@@ -261,12 +261,12 @@ class Room(Admin):
 
     def delete_old(
         self,
-        roomid,
-        new_room_userid=None,
-        new_room_name=None,
-        message=None,
-        block=False,
-        purge=True
+        roomid: str,
+        new_room_userid: str = None,
+        new_room_name: str = None,
+        message: str = None,
+        block: bool = False,
+        purge: bool = True
     ):
         roomid = self.validate_room(roomid)
 
@@ -293,7 +293,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def set_admin(self, roomid, userid):
+    def set_admin(self, roomid: str, userid: str):
         roomid = self.validate_room(roomid)
         userid = self.validate_username(userid)
         resp = self.connection.request(
@@ -310,7 +310,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def purge_room(self, roomid):
+    def purge_room(self, roomid: str):
         # Deprecated in the future (will not be tested)
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
@@ -343,7 +343,7 @@ class Room(Admin):
         )
         return resp.json()
 
-    def forward_extremities_check(self, roomid):
+    def forward_extremities_check(self, roomid: str):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -352,7 +352,7 @@ class Room(Admin):
         data = resp.json()
         return data["results"], data["count"]
 
-    def forward_extremities_delete(self, roomid):
+    def forward_extremities_delete(self, roomid: str):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "DELETE",
@@ -369,7 +369,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def get_state(self, roomid):
+    def get_state(self, roomid: str):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -384,7 +384,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def event_context(self, roomid, event_id):
+    def event_context(self, roomid: str, event_id: str):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
