@@ -1,0 +1,90 @@
+"""MIT License
+
+Copyright (c) 2021 Knugi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE."""
+
+from synapse_admin.base import Admin, SynapseException
+from typing import Union
+
+
+class ClientAPI(Admin):
+    """Matrix client APIs wrapper (Maybe I should use matrix-python-sdk)"""
+
+    def client_create(
+        self,
+        public: bool = False,
+        alias: str = None,
+        name: str = None,
+        invite: Union[str, list] = None,
+        federation=None  # todo: type hint
+    ):
+        data = {}
+        if public:
+            data["visibility"] = "public"
+        else:
+            data["visibility"] = "private"
+        if alias is not None:
+            data["roo_alias_name"] = alias
+        if name is not None:
+            data["name"] = name
+        if invite is not None:
+            if isinstance(invite, str):
+                validated_invite = [self.validate_username(invite)]
+            elif isinstance(invite, list):
+                validated_invite = []
+                for user in invite:
+                    validated_invite.append(self.validate_username(user))
+            else:
+                raise TypeError("Argument invite must be str or list.")
+            data["invite"] = validated_invite
+        if federation is not None:
+            data["creation_content"] = {"m.federate": federation}
+        resp = self.connection.request(
+            "POST",
+            "/_matrix/client/r0/createRoom",
+            json=data
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["room_id"]
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def client_leave(self, roomid: str):
+        roomid = self.validate_room(roomid)
+        resp = self.connection.request(
+            "POST",
+            f"/_matrix/client/r0/rooms/{roomid}/leave",
+            json={}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            if len(data) == 0:
+                return True
+            else:
+                return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
