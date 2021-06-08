@@ -148,7 +148,7 @@ class Room(Admin):
         alias: str = None,
         name: str = None,
         members: list = None,
-        federation=None,  # todo: type hint
+        federation: bool = True,
         leave: bool = False
     ):
         roomid = self.client_api.client_create(

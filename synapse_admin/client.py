@@ -36,7 +36,7 @@ class ClientAPI(Admin):
         alias: str = None,
         name: str = None,
         invite: Union[str, list] = None,
-        federation=None  # todo: type hint
+        federation: bool = True
     ):
         data = {}
         if public:
@@ -57,8 +57,8 @@ class ClientAPI(Admin):
             else:
                 raise TypeError("Argument invite must be str or list.")
             data["invite"] = validated_invite
-        if federation is not None:
-            data["creation_content"] = {"m.federate": federation}
+        data["creation_content"] = {"m.federate": federation}
+
         resp = self.connection.request(
             "POST",
             f"{ClientAPI.base_path}/createRoom",
