@@ -5,8 +5,8 @@ if sys.version_info < (3, 7):
 
 __version__ = "0.2.0rc1"
 
-from synapse_admin.user import User
-from synapse_admin.management import Management
-from synapse_admin.media import Media
-from synapse_admin.room import Room
-import synapse_admin.base as base
+from synapse_admin.user import User  # noqa: F401
+from synapse_admin.management import Management  # noqa: F401
+from synapse_admin.media import Media  # noqa: F401
+from synapse_admin.room import Room  # noqa: F401
+import synapse_admin.base as base  # noqa: F401
