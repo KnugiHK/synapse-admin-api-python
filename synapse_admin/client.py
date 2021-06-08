@@ -20,12 +20,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from synapse_admin.base import Admin, SynapseException
+from synapse_admin.base import Admin, SynapseException, Utility
+from synapse_admin import User
 from typing import Union
 
 
 class ClientAPI(Admin):
     """Matrix client APIs wrapper (Maybe I should use matrix-python-sdk)"""
+
+    base_path = "/_matrix/client/r0"
 
     def client_create(
         self,
@@ -58,7 +61,7 @@ class ClientAPI(Admin):
             data["creation_content"] = {"m.federate": federation}
         resp = self.connection.request(
             "POST",
-            "/_matrix/client/r0/createRoom",
+            f"{ClientAPI.base_path}/createRoom",
             json=data
         )
         data = resp.json()
@@ -74,7 +77,7 @@ class ClientAPI(Admin):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
-            f"/_matrix/client/r0/rooms/{roomid}/leave",
+            f"{ClientAPI.base_path}/rooms/{roomid}/leave",
             json={}
         )
         data = resp.json()
@@ -86,5 +89,52 @@ class ClientAPI(Admin):
         else:
             if self.supress_exception:
                 return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    @staticmethod
+    def admin_login(
+        protocol: str,
+        host: str,
+        port: str,
+        username: str = None,
+        password: str = None,
+        supress_exception: bool = False
+    ):
+        if username is None:
+            username = input("Enter a username: ")
+        if password is None:
+            password = Utility.get_password(validate=False)
+        from httpx import Client
+        login_data = {
+                "identifier": {
+                    "type": "m.id.user",
+                    "user": username
+                },
+                "type": "m.login.password",
+                "password": password,
+                "initial_device_display_name": "matrix-synapse-admin"
+            }
+        http = Client()
+        base_url = f"{protocol}{host}:{port}"
+        resp = http.post(
+            f"{base_url}{ClientAPI.base_path}/login",
+            json=login_data
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            access_token = data["access_token"]
+            resp = User(
+                host,
+                port,
+                access_token,
+                protocol
+            ).query(username)
+            if "errcode" in resp:
+                return False
+            return data["access_token"]
+        else:
+            if supress_exception:
+                return False
             else:
                 raise SynapseException(data["errcode"], data["error"])

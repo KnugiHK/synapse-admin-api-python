@@ -76,24 +76,30 @@ class Utility():
             int: current timestamp in millisecond
         """
         return int(datetime.now().timestamp() * 1000)
-    
+
     @staticmethod
-    def get_password(prompt: str = "Enter a password: ") -> str:
+    def get_password(
+        prompt: str = "Enter a password: ",
+        validate: bool = True
+    ) -> str:
         """Get a password interactively
 
         Args:
-            prompt (str, optional): String to ask for input. Defaults to "Enter a password: ".
+            prompt (str, optional): String to ask for input. Defaults to "Enter a password: ". # noqa: E501
 
         Returns:
             str: the password user entered
         """
         password = getpass(prompt)
-        again = getpass("Enter the password again: ")
-        if password == again:
-            return password
+        if validate:
+            again = getpass("Enter the password again: ")
+            if password == again:
+                return password
+            else:
+                print("The passwords you entered are not the same, try again.")
+                return Utility.get_password(prompt)
         else:
-            print("The passwords you entered are not the same, try again.")
-            return Utility.get_password(prompt)
+            return password
 
 
 class Admin():
@@ -174,11 +180,11 @@ class Admin():
         """Create configuration (interactively)
 
         Args:
-            protocol (str, optional): "http://" or "https://". Defaults to None.
+            protocol (str, optional): "http://" or "https://". Defaults to None. # noqa: E501
             host (str, optional): homeserver address. Defaults to None.
             port (int, optional): homeserver listening port. Defaults to None.
-            access_token (str, optional): access token that has admin privilege. Defaults to None.
-            save_to_file (int, optional): whether or not save the configration to a file. Defaults to False.
+            access_token (str, optional): access token that has admin privilege. Defaults to None. # noqa: E501
+            save_to_file (int, optional): whether or not save the configration to a file. Defaults to False. # noqa: E501
 
         Returns:
             bool: configration saved
@@ -197,7 +203,28 @@ class Admin():
                     continue
                 else:
                     break
-            access_token = input("Enter the access token: ")
+            while True:
+                access_token = input(
+                    "Enter the access token (leave blank "
+                    "to get the access token by logging in): "
+                )
+                if access_token == "":
+                    from synapse_admin.client import ClientAPI
+                    access_token = ClientAPI.admin_login(
+                        protocol,
+                        host,
+                        port,
+                        supress_exception=True
+                    )
+                    if not access_token:
+                        print(
+                            "The account you logged in is not a server admin "
+                            "or you entered an invalid username/password."
+                        )
+                        continue
+                    else:
+                        print("Token retrieved successfully")
+                break
             save_to_file = input("Save to a config file?(Y/n)").lower()
 
         self.server_protocol = protocol
@@ -284,7 +311,7 @@ class Admin():
             protocol (str): "http://" or "https://". Defaults to None.
             host (str): homeserver address. Defaults to None.
             port (int): homeserver listening port. Defaults to None.
-            token (str): access token that has admin privilege. Defaults to None.
+            token (str): access token that has admin privilege. Defaults to None. # noqa: E501
 
         Returns:
             bool: Success or not
@@ -312,10 +339,10 @@ class Admin():
 
         Args:
             server_addr (str, optional): homeserver address. Defaults to None.
-            server_port (int, optional): homeserver listening port. Defaults to None.
-            access_token (str, optional): access token that has admin privilege. Defaults to None.
-            server_protocol (str, optional): "http://" or "https://". Defaults to None.
-            save_to_file (bool, optional): whether or not save the configration to a file. Defaults to True.
+            server_port (int, optional): homeserver listening port. Defaults to None. # noqa: E501
+            access_token (str, optional): access token that has admin privilege. Defaults to None. # noqa: E501
+            server_protocol (str, optional): "http://" or "https://". Defaults to None. # noqa: E501
+            save_to_file (bool, optional): whether or not save the configration to a file. Defaults to True. # noqa: E501
 
         Returns:
             bool: success or not
@@ -364,7 +391,7 @@ class Admin():
         return True
 
     def validate_server(self, string: str) -> str:
-        """Validate the homeserver part of a given ID. If necessary add the homeserver address.
+        """Validate the homeserver part of a given ID. If necessary add the homeserver address. # noqa: E501
 
         Args:
             string (str): User/Room/Media/Group ID
@@ -380,7 +407,7 @@ class Admin():
         """Validate a user ID. If necessary add the user id identifier (@).
 
         Args:
-            user (str): User ID (without @ and homeserver address part are also accepted)
+            user (str): User ID (without @ and homeserver address part are also accepted) # noqa: E501
 
         Returns:
             str: validated user ID
@@ -394,7 +421,7 @@ class Admin():
         """Validate a room ID. If necessary add the room id identifier (!).
 
         Args:
-            room (str): room ID (without ! and homeserver address part are also accepted)
+            room (str): room ID (without ! and homeserver address part are also accepted) # noqa: E501
 
         Returns:
             str: validated room ID
@@ -408,7 +435,7 @@ class Admin():
         """Validate a group ID. If necessary add the group id identifier (+).
 
         Args:
-            group (str): group ID (without + and homeserver address part are also accepted)
+            group (str): group ID (without + and homeserver address part are also accepted) # noqa: E501
 
         Returns:
             str: validated group ID
@@ -422,7 +449,7 @@ class Admin():
         """Constructing an admin API endpoint url
 
         Args:
-            path (str): the path after r'/_synapse/admin/v[1-2]/?'. The first slash in path is optional.
+            path (str): the path after r'/_synapse/admin/v[1-2]/?'. The first slash in path is optional. # noqa: E501
             version (int, optional): the version of the API endpoint. Defaults to 1.
 
         Returns:
@@ -486,7 +513,7 @@ class HTTPConnection():
 
         Args:
             method (str): the HTTP method: (GET|POST|PUT|DELETE)
-            path (str): the path of the API endpoint (without the protocol and host part)
+            path (str): the path of the API endpoint (without the protocol and host part) # noqa: E501
             json (Any, optional): a JSON body if any. Defaults to None.
 
         Returns:
