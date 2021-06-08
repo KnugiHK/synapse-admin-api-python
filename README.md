@@ -2,7 +2,7 @@
 [![Latest in Pypi](https://img.shields.io/pypi/v/matrix-synapse-admin?label=Latest%20in%20Pypi)](https://pypi.org/project/matrix-synapse-admin/)
 ![License MIT](https://img.shields.io/pypi/l/matrix-synapse-admin)
 
-A Python wrapper for Matrix Synapse admin API
+A Python wrapper for [Matrix Synapse admin API](https://github.com/matrix-org/synapse).
 
 This library now supports up to Synapse 1.35.0, any Admin API introduced after 1.35.0 may not be included in this version. However, newer changes to Admin API are planned to be included in this library. For planned update, see [TODO.md](TODO.md). In the future, the version numbering convention will follow the version this library up to, for example, if this library supports up to 1.35.0, then the version number of this library will be 1.35.0. And the minor number will be reserved for bug fixes in this repo.
 
