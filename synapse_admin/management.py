@@ -22,6 +22,7 @@ SOFTWARE."""
 
 from synapse_admin import User
 from synapse_admin.base import Admin, SynapseException
+from typing import Tuple
 
 
 class Management(Admin):
@@ -54,7 +55,7 @@ class Management(Admin):
         )
         self.user = User()
 
-    def announce(self, userid, announcement):
+    def announce(self, userid: str, announcement: str) -> str:
         userid = self.validate_username(userid)
         data = {
             "user_id": userid,
@@ -77,13 +78,13 @@ class Management(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def announce_all(self, announcement):
+    def announce_all(self, announcement: str) -> None:
         # Not a standard API
         users, _ = self.user.lists()
         for user in users:
             self.announce(user["name"], announcement)
 
-    def version(self):
+    def version(self) -> Tuple[str, str]:
         resp = self.connection.request(
             "GET",
             self.admin_patterns("/server_version", 1)
@@ -91,7 +92,12 @@ class Management(Admin):
         data = resp.json()
         return data["server_version"], data["python_version"]
 
-    def purge_history(self, roomid, event_id_ts, include_local_event=False):
+    def purge_history(
+        self,
+        roomid: str,
+        event_id_ts: int,
+        include_local_event: bool = False
+    ) -> str:
         roomid = self.validate_room(roomid)
         data = {"delete_local_events": include_local_event}
         if isinstance(event_id_ts, str):
@@ -112,7 +118,7 @@ class Management(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def purge_history_status(self, purge_id):
+    def purge_history_status(self, purge_id: str) -> str:
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/purge_history_status/{purge_id}", 1)
@@ -128,12 +134,12 @@ class Management(Admin):
 
     def event_reports(
         self,
-        limit=100,
-        _from=0,
-        recent_first=True,
-        userid=None,
-        roomid=None
-    ):
+        limit: int = 100,
+        _from: int = 0,
+        recent_first: bool = True,
+        userid: str = None,
+        roomid: str = None
+    ) -> Tuple[dict, int]:
         if recent_first:
             recent_first = "b"
         else:
@@ -158,7 +164,7 @@ class Management(Admin):
             return None
         return data["event_reports"], data["total"]
 
-    def specific_event_report(self, reportid):
+    def specific_event_report(self, reportid: int) -> dict:
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/event_reports/{reportid}", 1)
@@ -172,7 +178,7 @@ class Management(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def delete_group(self, groupid):
+    def delete_group(self, groupid: str) -> bool:
         groupid = self.validate_group(groupid)
         resp = self.connection.request(
             "POST",

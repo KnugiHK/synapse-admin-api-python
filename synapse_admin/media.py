@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException, Utility
+from typing import Tuple
 
 
 class Media(Admin):
@@ -56,7 +57,7 @@ class Media(Admin):
         data = resp.json()
         return data["users"], data["total"]
 
-    def list_media(self, roomid):
+    def list_media(self, roomid: str) -> Tuple[list, list]:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -65,7 +66,7 @@ class Media(Admin):
         data = resp.json()
         return data["local"], data["remote"]
 
-    def quarantine_id(self, mediaid, server_name=None):
+    def quarantine_id(self, mediaid: str, server_name: str = None) -> bool:
         if server_name is None:
             server_name = self.server_addr
         resp = self.connection.request(
@@ -81,7 +82,7 @@ class Media(Admin):
             return True
         return False
 
-    def quarantine_room(self, roomid):
+    def quarantine_room(self, roomid: str) -> int:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
@@ -90,7 +91,7 @@ class Media(Admin):
         )
         return resp.json()["num_quarantined"]
 
-    def quarantine_user(self, userid):
+    def quarantine_user(self, userid: str) -> int:
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "POST",
@@ -99,7 +100,7 @@ class Media(Admin):
         )
         return resp.json()["num_quarantined"]
 
-    def quarantine_remove(self, mediaid, server_name):
+    def quarantine_remove(self, mediaid: str, server_name: str) -> bool:
         raise NotImplementedError("This admin API is not yet released")
         if server_name is None:
             server_name = self.server_addr
@@ -116,7 +117,7 @@ class Media(Admin):
             return True
         return False
 
-    def protect_media(self, mediaid):
+    def protect_media(self, mediaid: str) -> bool:
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/media/protect/{mediaid}", 1),
@@ -131,7 +132,7 @@ class Media(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def unprotect_media(self, mediaid):
+    def unprotect_media(self, mediaid: str) -> bool:
         raise NotImplementedError("This admin API is not yet released")
         resp = self.connection.request(
             "POST",
@@ -147,7 +148,11 @@ class Media(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def delete_local_media(self, mediaid, server_name=None):
+    def delete_local_media(
+        self,
+        mediaid: str,
+        server_name: str = None
+    ) -> Tuple[list, int]:
         if server_name is None:
             server_name = self.server_addr
 
@@ -167,11 +172,11 @@ class Media(Admin):
 
     def delete_local_media_by_condition(
         self,
-        timestamp=Utility.get_current_time(),
-        size_gt=None,
-        keep_profiles=True,
-        server_name=None
-    ):
+        timestamp: int = Utility.get_current_time(),
+        size_gt: int = None,
+        keep_profiles: bool = True,
+        server_name: str = None
+    ) -> Tuple[list, int]:
         if server_name is None:
             server_name = self.server_addr
 
@@ -198,7 +203,10 @@ class Media(Admin):
         data = resp.json()
         return data["deleted_media"], data["total"]
 
-    def purge_remote_media(self, timestamp=Utility.get_current_time()):
+    def purge_remote_media(
+        self,
+        timestamp: int = Utility.get_current_time()
+    ) -> list:
         if not isinstance(timestamp, int):
             raise TypeError(
                 "Argument 'timestamp' should be a "
