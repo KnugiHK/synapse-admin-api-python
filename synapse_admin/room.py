@@ -23,17 +23,18 @@ SOFTWARE."""
 from synapse_admin.base import Admin, SynapseException
 from synapse_admin import User
 from synapse_admin.client import ClientAPI
+from typing import Tuple
 
 
 class Room(Admin):
     """
     Wapper class for admin API for room management
 
-    Reference:
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md
-    https://github.com/matrix-org/synapse/blob/master/docs/admin_api/shutdown_room.md
-    https://github.com/matrix-org/synapse/blob/master/docs/admin_api/purge_room.md
-    https://github.com/matrix-org/matrix-python-sdk/blob/master/matrix_client/api.py#L192
+    Reference:  
+    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md  
+    https://github.com/matrix-org/synapse/blob/master/docs/admin_api/shutdown_room.md  
+    https://github.com/matrix-org/synapse/blob/master/docs/admin_api/purge_room.md  
+    https://github.com/matrix-org/matrix-python-sdk/blob/master/matrix_client/api.py#L192  
     https://github.com/matrix-org/matrix-python-sdk/blob/master/matrix_client/api.py#L527
     """
 
@@ -70,7 +71,7 @@ class Room(Admin):
         orderby: str = None,
         recent_first: bool = True,
         search: str = None
-    ):
+    ) -> dict:
         if recent_first:
             optional_str = "dir=b"
         else:
@@ -111,7 +112,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def details(self, roomid: str):
+    def details(self, roomid: str) -> dict:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -126,7 +127,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def list_members(self, roomid: str):
+    def list_members(self, roomid: str) -> Tuple[list, int]:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -150,7 +151,7 @@ class Room(Admin):
         members: list = None,
         federation: bool = True,
         leave: bool = False
-    ):
+    ) -> Tuple[str, list]:
         roomid = self.client_api.client_create(
             public,
             alias,
@@ -174,7 +175,7 @@ class Room(Admin):
         message: str = None,
         block: bool = False,
         purge: bool = True
-    ):
+    ) -> dict:
         roomid = self.validate_room(roomid)
         data = {"block": block, "purge": purge}
         if new_room_userid is not None:
@@ -233,7 +234,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def set_admin(self, roomid: str, userid: str):
+    def set_admin(self, roomid: str, userid: str) -> bool:
         roomid = self.validate_room(roomid)
         userid = self.validate_username(userid)
         resp = self.connection.request(
@@ -283,7 +284,7 @@ class Room(Admin):
         )
         return resp.json()
 
-    def forward_extremities_check(self, roomid: str):
+    def forward_extremities_check(self, roomid: str) -> Tuple[list, int]:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -292,7 +293,7 @@ class Room(Admin):
         data = resp.json()
         return data["results"], data["count"]
 
-    def forward_extremities_delete(self, roomid: str):
+    def forward_extremities_delete(self, roomid: str) -> int:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "DELETE",
@@ -309,7 +310,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def get_state(self, roomid: str):
+    def get_state(self, roomid: str) -> str:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -324,7 +325,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def event_context(self, roomid: str, event_id: str):
+    def event_context(self, roomid: str, event_id: str) -> dict:
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
