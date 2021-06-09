@@ -112,7 +112,15 @@ class Admin():
         access_token: str = None,
         server_protocol: str = None,
         suppress_exception: bool = False
-    ):
+    ) -> None:
+        """
+        Args:
+            server_addr (str, optional): homeserver address. Defaults to None.
+            server_port (int, optional): homeserver listening port. Defaults to 443.
+            access_token (str, optional): access token that has admin power. Defaults to None.
+            server_protocol (str, optional): "http://" or "https://". Defaults to None.
+            suppress_exception (bool, optional): supress exception or not, if not return False and the error in dict. Defaults to False. # noqa: E501
+        """
         if server_addr is not None and access_token is not None:
             self.access_token = access_token
             self.server_addr = server_addr

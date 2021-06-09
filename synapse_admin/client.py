@@ -37,7 +37,19 @@ class ClientAPI(Admin):
         name: str = None,
         invite: Union[str, list] = None,
         federation: bool = True
-    ):
+    ) -> str:
+        """Create a room as a client
+
+        Args:
+            public (bool, optional): is the room public. Defaults to False.
+            alias (str, optional): alias of the room. Defaults to None.
+            name (str, optional): name of the room. Defaults to None.
+            invite (Union[str, list], optional): list of members. Defaults to None. # noqa: E501
+            federation (bool, optional): allow federation. Defaults to True.
+
+        Returns:
+            str: created room id
+        """
         data = {}
         if public:
             data["visibility"] = "public"
@@ -73,7 +85,15 @@ class ClientAPI(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def client_leave(self, roomid: str):
+    def client_leave(self, roomid: str) -> bool:
+        """leave a room as a client
+
+        Args:
+            roomid (str): the id of room which the client want to leave
+
+        Returns:
+            bool: succuess or not
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
@@ -100,7 +120,20 @@ class ClientAPI(Admin):
         username: str = None,
         password: str = None,
         supress_exception: bool = False
-    ):
+    ) -> str:
+        """Login and get an access token
+
+        Args:
+            protocol (str): "http://" or "https://". Defaults to None. # noqa: E501
+            host (str): homeserver address. Defaults to None.
+            port (int): homeserver listening port. Defaults to None.
+            username (str, optional): just username. Defaults to None.
+            password (str, optional): just password. Defaults to None.
+            supress_exception (bool, optional): supress exception or not, if not return False and the error in dict. Defaults to False. # noqa: E501
+
+        Returns:
+            str: access token
+        """
         if username is None:
             username = input("Enter a username: ")
         if password is None:
