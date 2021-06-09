@@ -10,3 +10,4 @@ from synapse_admin.management import Management  # noqa: F401
 from synapse_admin.media import Media  # noqa: F401
 from synapse_admin.room import Room  # noqa: F401
 import synapse_admin.base as base  # noqa: F401
+Mgt = Management  # Alias
