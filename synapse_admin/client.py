@@ -130,11 +130,11 @@ class ClientAPI(Admin):
                 access_token,
                 protocol
             ).query(username)
-            if "errcode" in resp:
-                return False
-            return data["access_token"]
-        else:
-            if supress_exception:
-                return False
+            if "errcode" not in resp:
+                return data["access_token"]
             else:
-                raise SynapseException(data["errcode"], data["error"])
+                data = resp
+        if supress_exception:
+            return False, data
+        else:
+            raise SynapseException(data["errcode"], data["error"])
