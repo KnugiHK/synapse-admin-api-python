@@ -29,8 +29,8 @@ class Media(Admin):
     Wapper class for admin API for media management
 
     Reference:
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/statistics.md
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/statistics.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md
     """
 
     def __init__(

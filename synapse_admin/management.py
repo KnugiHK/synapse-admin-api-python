@@ -30,12 +30,12 @@ class Management(Admin):
     Wapper class for admin API for server management
 
     Reference:
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/server_notices.md
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/version_api.rst
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_history_api.rst
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/delete_group.md
-    https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/server_notices.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/version_api.rst
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_history_api.rst
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/delete_group.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md
     """
 
     def __init__(
