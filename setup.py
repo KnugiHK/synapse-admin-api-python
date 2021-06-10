@@ -24,7 +24,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Topic :: Communications :: Chat",
         "Topic :: Utilities",
         "Intended Audience :: Developers",
