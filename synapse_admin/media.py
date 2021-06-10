@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException, Utility
-from typing import Tuple
+from typing import Tuple, Union
 
 
 class Media(Admin):
@@ -146,6 +146,60 @@ class Media(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
+    def delete_media(
+        self,
+        mediaid: str = None,
+        *,
+        timestamp: int = None,
+        size_gt: int = None,
+        keep_profiles: bool = None,
+        server_name: str = None,
+        remote: bool = False
+    ) -> Union[Tuple[list, int], int]:
+        """Helper method for deleting both local and remote media
+
+        Args:
+            mediaid (str, optional): the media id that is intended for deletion. Defaults to None. # noqa: E501
+            timestamp (int, optional): timestamp in millisecond. Defaults to None. # noqa: E501
+            size_gt (int, optional): file size in byte. Defaults to None.
+            keep_profiles (bool, optional): whether to keep media related to profiles. Defaults to None. # noqa: E501
+            server_name (str, optional): designated homeserver address. Defaults to None. # noqa: E501
+            remote (bool, optional): whether to delete remote media cache. Defaults to False. # noqa: E501
+
+        Returns:
+            If remote is True returns int: number of deleted media
+            If remote is False returns Tuple[list, int]: list of deleted media id and their number in total
+        """
+        if mediaid and (timestamp or size_gt or keep_profiles):
+            raise ValueError(
+                "Argument mediaid cannot be mixed with "
+                "timestamp, size_gt and keep_profiles"
+            )
+
+        if remote:
+            if mediaid:
+                print(
+                    "WARNING! argument mediaid is"
+                    "ignored when remote is True"
+                )
+            return self.purge_remote_media(Utility.get_current_time())
+
+        if mediaid:
+            return self.delete_local_media(mediaid, server_name)
+
+        if timestamp or size_gt or keep_profiles:
+            if timestamp is None:
+                timestamp = Utility.get_current_time()
+            if keep_profiles is None:
+                keep_profiles = True
+
+            return self.delete_local_media_by_condition(
+                timestamp,
+                size_gt,
+                keep_profiles,
+                server_name
+            )
+
     def delete_local_media(
         self,
         mediaid: str,
@@ -204,10 +258,18 @@ class Media(Admin):
     def purge_remote_media(
         self,
         timestamp: int = Utility.get_current_time()
-    ) -> list:
+    ) -> int:
+        """Purge remote homeserver media
+
+        Args:
+            timestamp (int, optional): timestamp in millisecond. Defaults to Utility.get_current_time(). # noqa: E501
+
+        Returns:
+            list: number of deleted media
+        """
         if not isinstance(timestamp, int):
             raise TypeError(
-                "Argument 'timestamp' should be a "
+                "Argument 'timestamp' should be an "
                 f"int but not {type(timestamp)}"
             )
         resp = self.connection.request(
