@@ -374,7 +374,7 @@ class User(Admin):
         userid: str,
         expiration: int = 0,
         enable_renewal_emails: bool = True
-    ) -> dict:
+    ) -> int:
         """Set an account validity
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/account_validity.md#account-validity-api
@@ -385,7 +385,7 @@ class User(Admin):
             enable_renewal_emails (bool, optional): enable or disable the renewal email. Defaults to True. # noqa: E501
 
         Returns:
-            dict: the new expiration timestamp in millisecond
+            int: the new expiration timestamp in millisecond
         """
         if expiration is not None and not isinstance(expiration, int):
             raise TypeError(
@@ -407,7 +407,7 @@ class User(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data
+            return data["expiration_ts"]
         else:
             if self.supress_exception:
                 return False, data
