@@ -340,28 +340,28 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def join_room(self, userid: str, room: str) -> bool:
+    def join_room(self, userid: str, roomid: str) -> bool:
         """Force an user to join a room
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/room_membership.md#edit-room-membership-api
 
         Args:
             userid (str): the user you want to add to the room
-            room (str): the room you want to add the user into
+            roomid (str): the room you want to add the user into
 
         Returns:
             bool: success or not
         """
         userid = self.validate_username(userid)
-        room = self.validate_room(room)
+        roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
-            self.admin_patterns(f"/join/{room}", 1),
+            self.admin_patterns(f"/join/{roomid}", 1),
             json={"user_id": userid}
         )
         data = resp.json()
         if resp.status_code == 200:
-            if "room_id" in data and data["room_id"] == room:
+            if "room_id" in data and data["room_id"] == roomid:
                 return True
         else:
             if self.supress_exception:

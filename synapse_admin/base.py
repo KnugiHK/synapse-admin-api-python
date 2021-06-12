@@ -425,19 +425,19 @@ class Admin():
             user = "@" + user
         return user
 
-    def validate_room(self, room: str) -> str:
+    def validate_room(self, roomid: str) -> str:
         """Validate a room ID. If necessary add the room id identifier (!).
 
         Args:
-            room (str): room ID (without ! and homeserver address part are also accepted) # noqa: E501
+            roomid (str): room ID (without ! and homeserver address part are also accepted) # noqa: E501
 
         Returns:
             str: validated room ID
         """
-        room = self.validate_server(room)
-        if room[0] != "!":
-            room = "!" + room
-        return room
+        roomid = self.validate_server(roomid)
+        if roomid[0] != "!":
+            roomid = "!" + roomid
+        return roomid
 
     def validate_group(self, group: str) -> str:
         """Validate a group ID. If necessary add the group id identifier (+).
