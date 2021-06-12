@@ -61,13 +61,14 @@ class User(Admin):
 
     def lists(
         self,
-        offset: int= 0,
+        offset: int = 0,
         limit: int = 100,
         userid: str = None,
         name: str = None,
         guests: bool = True,
         deactivated: bool = False,
-        order_by: str = None
+        order_by: str = None,
+        _dir: str = "f"
     ) -> Tuple[list, int]:
         """List all local users
 
@@ -81,6 +82,7 @@ class User(Admin):
             guests (bool, optional): equivalent to "guests". Defaults to True.
             deactivated (bool, optional): equivalent to "deactivated". Defaults to False. # noqa: E501
             order_by (str, optional): equivalent to "order_by". Defaults to None.
+            _dir (str, optional): equivalent to "dir". Defaults to "f".
 
         Returns:
             Tuple[list, int, str]: list of user, total number of returned users, next token
@@ -99,7 +101,7 @@ class User(Admin):
             self.admin_patterns(
                 f"/users?from={offset}&limit={limit}&guests="
                 f"{Utility.get_bool(guests)}&deactivated="
-                f"{Utility.get_bool(deactivated)}{optional_str}",
+                f"{Utility.get_bool(deactivated)}&dir={_dir}{optional_str}",
                 2
             )
         )
