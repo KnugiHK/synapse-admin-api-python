@@ -61,7 +61,7 @@ class User(Admin):
 
     def lists(
         self,
-        offset: Union[int, str] = 0,
+        offset: int= 0,
         limit: int = 100,
         userid: str = None,
         name: str = None,
@@ -74,7 +74,7 @@ class User(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#list-accounts
 
         Args:
-            offset (Union[int, str], optional): equivalent to "from". Defaults to 0. # noqa: E501
+            offset (int, optional): equivalent to "from". Defaults to 0. # noqa: E501
             limit (int, optional): equivalent to "limit". Defaults to 100.
             userid (str, optional): equivalent to "user_id". Defaults to None.
             name (str, optional): equivalent to "name". Defaults to None.
@@ -83,7 +83,7 @@ class User(Admin):
             order_by (str, optional): equivalent to "order_by". Defaults to None.
 
         Returns:
-            Tuple[list, int]: list of user, total number of returned users
+            Tuple[list, int, str]: list of user, total number of returned users, next token
         """
         optional_str = ""
         if userid is not None:
@@ -105,7 +105,7 @@ class User(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data["users"], data["total"]
+            return data["users"], data["total"], data.get("next_token", None)
         else:
             if self.supress_exception:
                 return False, data
