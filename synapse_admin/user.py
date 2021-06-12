@@ -277,7 +277,11 @@ class User(Admin):
         )
         return resp.json()["admin"]
 
-    def set_admin(self, userid: str, activate: bool = None) -> bool:
+    def set_admin(
+        self,
+        userid: str,
+        activate: bool = None
+    ) -> Tuple[bool, bool]:
         """Set or revoke server admin role for a user
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#change-whether-a-user-is-a-server-administrator-or-not
@@ -287,7 +291,7 @@ class User(Admin):
             activate (bool, optional): True to set as admin, False to revoke their admin, leave None to let the program decide. Defaults to None. # noqa: E501
 
         Returns:
-            bool: success or not
+            Tuple[bool, bool]: success or not, is the user admin or not now
         """
         if activate is None:
             activate = not self.is_admin(userid)
@@ -303,7 +307,7 @@ class User(Admin):
             json={"admin": activate}
         )
         if resp.status_code == 200:
-            return True
+            return True, activate
         else:
             data = resp.json()
             if self.supress_exception:
