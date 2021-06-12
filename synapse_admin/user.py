@@ -114,30 +114,52 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def create(self, userid: str, **kwargs) -> bool:
+    def create(
+        self,
+        userid: str,
+        *,
+        password: str = None,
+        displayname: str = None,
+        threepids: list = None,
+        avatar_url: str = None,
+        admin: bool = None,
+        deactivated: bool = None
+    ) -> bool:
         """Create or modify a user
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#create-or-modify-account
 
         Args:
             userid (str): The user id of the user
-
-        Extra Args (use by specifying the argument name) (all extra args are equivalent to the Synapse docs): # noqa: E501
-            password (str)
-            displayname (str)
-            threepids (list)
-            avatar_url (str)
-            admin (str)
-            deactivated (str)
+            password (str, optional): equivalent to "password". Defaults to None.
+            displayname (str, optional): equivalent to "displayname". Defaults to None.
+            threepids (list, optional): equivalent to "threepids". Defaults to None.
+            avatar_url (str, optional): equivalent to "avatar_url". Defaults to None.
+            admin (bool, optional): equivalent to "admin". Defaults to None.
+            deactivated (bool, optional): equivalent to "deactivated". Defaults to None.
 
         Returns:
             bool: The creation of user is successful or not
         """
+        body = {}
+        if password:
+            body["password"] = password
+        if displayname:
+            body["displayname"] = displayname
+        if threepids:
+            body["threepids"] = threepids
+        if avatar_url:
+            body["avatar_url"] = avatar_url
+        if admin:
+            body["admin"] = admin
+        if deactivated:
+            body["deactivated"] = deactivated
+
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "PUT",
             self.admin_patterns(f"/users/{userid}", 2),
-            json=kwargs
+            json=body
         )
         if resp.status_code == 200 or resp.status_code == 201:
             return True
