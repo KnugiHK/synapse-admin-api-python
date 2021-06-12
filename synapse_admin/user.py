@@ -55,9 +55,10 @@ class User(Admin):
         self._create_alias()
 
     def _create_alias(self) -> None:
-        self.creates = self.create  # For compatibility
+        """Create alias for some methods"""
+        self.creates = self.create = self.create_modify  # For compatibility
+        self.modify = self.create_modify
         self.details = self.query
-        self.modify = self.create
 
     def lists(
         self,
@@ -114,7 +115,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def create(
+    def create_modify(
         self,
         userid: str,
         *,
@@ -131,7 +132,7 @@ class User(Admin):
 
         Args:
             userid (str): The user id of the user
-            password (str, optional): equivalent to "password". Defaults to None.
+            password (str, optional): equivalent to "password". Defaults to None. # noqa: E501
             displayname (str, optional): equivalent to "displayname". Defaults to None.
             threepids (list, optional): equivalent to "threepids". Defaults to None.
             avatar_url (str, optional): equivalent to "avatar_url". Defaults to None.
