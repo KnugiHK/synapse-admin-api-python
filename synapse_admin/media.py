@@ -100,7 +100,7 @@ class Media(Admin):
         )
         return resp.json()["num_quarantined"]
 
-    def quarantine_remove(self, mediaid: str, server_name: str) -> bool:
+    def quarantine_remove(self, mediaid: str, server_name: str = None) -> bool:
         if server_name is None:
             server_name = self.server_addr
         resp = self.connection.request(
