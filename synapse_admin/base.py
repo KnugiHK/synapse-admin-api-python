@@ -233,7 +233,7 @@ class Admin():
                     else:
                         print("Token retrieved successfully")
                 break
-            save_to_file = input("Save to a config file?(Y/n)").lower()
+            save_to_file = input("Save to a config file? (Y/n) ").lower()
 
         self.server_protocol = protocol
         self.server_addr = host
