@@ -38,7 +38,7 @@ More documentation are coming...
 
 ## Known issues
 1. Fail to authenticate the user after invoking Admin.modify_config
-
+    * Workaround: restart the program after invoking Admin.modify_config
 ## Contribution
 If you want to help me to improve the quality of this project, you can submit an issue.
 
