@@ -150,14 +150,7 @@ class Admin():
             else:
                 # If configuration file not found, create one
                 self.create_config()
-        self.access_token_header = {
-            "Authorization": f"Bearer {self.access_token}"
-        }
-        from .__init__ import __version__
-        self.header = {
-            **self.access_token_header,
-            "User-Agent": f"matrix-synpase-admin-python/{__version__}"
-        }
+        self._create_header()
         self._create_conn()
         self.supress_exception = suppress_exception
 
@@ -176,6 +169,14 @@ class Admin():
             self.header
         )
         return True
+
+    def _create_header(self) -> None:
+        """Create header for connection"""
+        from .__init__ import __version__
+        self.header = {
+            "Authorization": f"Bearer {self.access_token}",
+            "User-Agent": f"matrix-synpase-admin-python/{__version__}"
+        }
 
     def create_config(
         self,
@@ -358,12 +359,14 @@ class Admin():
         if (server_addr is None and server_port is None and
                 access_token is None and server_protocol is None):
             self.create_config()
+            self._create_header()
             return self._create_conn()
 
         if server_addr is not None:
             self.server_addr = server_addr
         if access_token is not None:
             self.access_token = access_token
+            self._create_header()
         if server_port is not None:
             self.server_port = server_port
         if server_protocol is not None:
