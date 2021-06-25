@@ -240,7 +240,8 @@ class Admin():
         self.server_addr = host
         self.server_port = int(port)
         self.access_token = access_token
-        if save_to_file == "n" or not save_to_file:
+        if (save_to_file == "n" or
+                isinstance(save_to_file, bool) and not save_to_file):
             return True
         return self._save_config(protocol, host, port, access_token)
 
