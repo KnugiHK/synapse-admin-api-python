@@ -234,7 +234,8 @@ class Admin():
                     else:
                         print("Token retrieved successfully")
                 break
-            save_to_file = input("Save to a config file? (Y/n) ").lower()
+            while save_to_file not in {"y", "n", ""}:
+                save_to_file = input("Save to a config file? (Y/n) ").lower()
 
         self.server_protocol = protocol
         self.server_addr = host
