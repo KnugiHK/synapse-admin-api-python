@@ -36,10 +36,6 @@ Save to a config file? (Y/n)
 Docstrings are being written. If you see r'equivalent to ".*"', it's mean that you may want to refer back to the Synapse Admin API documentation.  
 More documentation are coming...
 
-## Known issues
-1. Fail to authenticate the user after invoking Admin.modify_config
-    * Workaround: restart the program after invoking Admin.modify_config
-    * Fixed: waiting for release
 ## Contribution
 If you want to help me to improve the quality of this project, you can submit an issue.
 
