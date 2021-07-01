@@ -15,7 +15,8 @@ Install from PyPi
 ```sh
 pip install matrix-synapse-admin
 ```
-Provide the connection information and access token in the first time of execution:
+Provide the connection information and access token in the first time of execution. You can either enter the information interactively or as arguments:  
+### Interactively
 ```python
 >>> from synapse_admin import User
 >>> user = User()
@@ -27,6 +28,16 @@ Enter a username: admin
 Enter a password:
 Token retrieved successfully
 Save to a config file? (Y/n)
+>>> details_of_users, number_of_users = user.lists()
+>>> print(details_of_users)
+[{'name': '@admin:example.com', 'user_type': None, 'is_guest': 0, 'admin': 1, 'deactivated': 0, 'shadow_banned': False, 'displayname': 'Admin', 'avatar_url': 'mxc://example.com/ABCDEFG'}]
+>>> print(number_of_users)
+1
+```
+### As arguments
+```python
+>>> from synapse_admin import User
+>>> user = User("example.com", 443, "<access token>")
 >>> details_of_users, number_of_users = user.lists()
 >>> print(details_of_users)
 [{'name': '@admin:example.com', 'user_type': None, 'is_guest': 0, 'admin': 1, 'deactivated': 0, 'shadow_banned': False, 'displayname': 'Admin', 'avatar_url': 'mxc://example.com/ABCDEFG'}]
