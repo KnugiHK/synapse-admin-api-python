@@ -42,11 +42,6 @@ class SynapseException(Exception):
         return f"SynapseException: [{self.code}] {self.msg}"
 
 
-class SynapseAPIError(Exception):
-    def __init__(self):
-        super().__init__("The API is not ready.")
-
-
 class Utility():
     """Some utilities"""
 
