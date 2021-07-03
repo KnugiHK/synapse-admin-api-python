@@ -131,6 +131,16 @@ class Room(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def details(self, roomid: str) -> dict:
+        """Query a room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#room-details-api
+
+        Args:
+            roomid (str): the room you want to query
+
+        Returns:
+            dict: a dict containing the room's details
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -146,6 +156,16 @@ class Room(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def list_members(self, roomid: str) -> Tuple[list, int]:
+        """List all members in the room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#room-members-api
+
+        Args:
+            roomid (str): the room you want to query
+
+        Returns:
+            Tuple[list, int]: a list of members, total number of members
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -170,6 +190,19 @@ class Room(Admin):
         federation: bool = True,
         leave: bool = False
     ) -> Tuple[str, list]:
+        """Create a room and force users to be a member
+
+        Args:
+            public (bool, optional): is the room public? Defaults to False.
+            alias (str, optional): the alias of the room. Defaults to None.
+            name (str, optional): the name of the room. Defaults to None.
+            members (list, optional): a list of user that should be the members of the room. Defaults to None. # noqa: E501
+            federation (bool, optional): can the room be federated. Defaults to True.
+            leave (bool, optional): whether to leave the room yourself after the creation. Defaults to False.
+
+        Returns:
+            Tuple[str, list]: room id, a list of joined users
+        """
         roomid = self.client_api.client_create(
             public,
             alias,
@@ -194,6 +227,21 @@ class Room(Admin):
         block: bool = False,
         purge: bool = True
     ) -> dict:
+        """Delete a room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#delete-room-api
+
+        Args:
+            roomid (str): the room you want to delete
+            new_room_userid (str, optional): equivalent to "new_room_user_id". Defaults to None. # noqa: E501
+            room_name (str, optional): equivalent to "room_name". Defaults to None.
+            message (str, optional): equivalent to "message". Defaults to None.
+            block (bool, optional): equivalent to "block". Defaults to False.
+            purge (bool, optional): whether or not to purge all information of the rooom from the database. Defaults to True.
+
+        Returns:
+            dict: a dict cotaining kicked_users, failed_tokick_users, local_aliases, new_room_id
+        """
         roomid = self.validate_room(roomid)
         data = {"block": block, "purge": purge}
         if new_room_userid is not None:
@@ -227,6 +275,7 @@ class Room(Admin):
         block: bool = False,
         purge: bool = True
     ):
+        """Old room deletion method. Use the new one."""
         roomid = self.validate_room(roomid)
 
         data = {"block": block, "purge": purge}
@@ -253,6 +302,17 @@ class Room(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def set_admin(self, roomid: str, userid: str) -> bool:
+        """Set a member to be the admin in the room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#make-room-admin-api
+
+        Args:
+            roomid (str): the room you want to grant admin privilege to the user # noqa: E501
+            userid (str): the user you wanted them as an admin in the room
+
+        Returns:
+            bool: The modification is successful or not
+        """
         roomid = self.validate_room(roomid)
         userid = self.validate_username(userid)
         resp = self.connection.request(
@@ -269,8 +329,11 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def purge_room(self, roomid: str):
-        # Deprecated in the future (will not be tested)
+    def purge_room(self, roomid):
+        """Purge a room. Deprecated in the future (will not be tested)
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_room.md
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
@@ -285,7 +348,11 @@ class Room(Admin):
         new_room_userid,
         new_room_name=None,
         message=None
-    ):  # Deprecated in the future (will not be tested)
+    ):
+        """Shut down a room. Deprecated in the future (will not be tested)
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/shutdown_room.md
+        """
         roomid = self.validate_room(roomid)
         new_room_userid = self.validate_username(new_room_userid)
         data = {"new_room_user_id": new_room_userid}
@@ -303,6 +370,16 @@ class Room(Admin):
         return resp.json()
 
     def forward_extremities_check(self, roomid: str) -> Tuple[list, int]:
+        """Query forward extremities in a room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#check-for-forward-extremities
+
+        Args:
+            roomid (str): the room you want to query
+
+        Returns:
+            Tuple[list, int]: a list of forward extremities, number of forward extremities # noqa: E501
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -312,6 +389,16 @@ class Room(Admin):
         return data["results"], data["count"]
 
     def forward_extremities_delete(self, roomid: str) -> int:
+        """Delete forward extremities in a room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#deleting-forward-extremities
+
+        Args:
+            roomid (str): the room you want the forward extremities to be deleted # noqa: E501
+
+        Returns:
+            int: number of forward extremities deleted
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "DELETE",
@@ -328,7 +415,17 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def get_state(self, roomid: str) -> str:
+    def get_state(self, roomid: str) -> list:
+        """Query the room state
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#room-state-api
+
+        Args:
+            roomid (str): the room you want to query
+
+        Returns:
+            list: a list of state
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -344,6 +441,17 @@ class Room(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def event_context(self, roomid: str, event_id: str) -> dict:
+        """Query the context of an event
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#event-context-api
+
+        Args:
+            roomid (str): the room where the event exist
+            event_id (str): the event you want to query
+
+        Returns:
+            dict: a dict with event context
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
