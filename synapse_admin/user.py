@@ -70,7 +70,7 @@ class User(Admin):
         deactivated: bool = False,
         order_by: str = None,
         _dir: str = "f"
-    ) -> Tuple[list, int]:
+    ) -> Tuple[list, int, Union[str, None]]:
         """List all local users
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#list-accounts
