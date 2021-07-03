@@ -71,7 +71,21 @@ class Room(Admin):
         orderby: str = None,
         recent_first: bool = True,
         search: str = None
-    ) -> dict:
+    ) -> Tuple[list, int, str]:
+        """List all local rooms
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#list-room-api
+
+        Args:
+            _from (int, optional): equivalent to "from". Defaults to None.
+            limit (int, optional): equivalent to "limit". Defaults to None.
+            orderby (str, optional): equivalent to "order_by". Defaults to None.
+            recent_first (bool, optional): equivalent to "dir", True to f False to b. Defaults to True. # noqa: E501
+            search (str, optional): equivalent to "search_term". Defaults to None.
+
+        Returns:
+            Tuple[list, int, str]: list of room, total number of returned rooms, next token
+        """
         if recent_first:
             optional_str = "dir=b"
         else:
@@ -105,7 +119,11 @@ class Room(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data
+            return (
+                data["rooms"],
+                data["total_rooms"],
+                data.get("next_token", None)
+            )
         else:
             if self.supress_exception:
                 return False, data
