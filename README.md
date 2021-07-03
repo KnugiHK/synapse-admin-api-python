@@ -47,6 +47,12 @@ Save to a config file? (Y/n)
 Docstrings are being written. If you see r'equivalent to ".*"', it's mean that you may want to refer back to the Synapse Admin API documentation.  
 More documentation are coming...
 
+## Additional features
+In addition to the wrapper that wraps the official admin APIs, this wrapper also provides serval unofficial helper methods or admin APIs, they include:
+* Reactivate an deactivated account (User.reactivate)
+* Create a room (Room.create)
+* Send an announcement to everyone (Management.announce_all)
+
 ## Contribution
 If you want to help me to improve the quality of this project, you can submit an issue.
 
