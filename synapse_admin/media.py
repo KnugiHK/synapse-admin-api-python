@@ -234,7 +234,7 @@ class Media(Admin):
         keep_profiles: bool = None,
         server_name: str = None,
         remote: bool = False
-    ) -> Union[Tuple[list, int], int]:
+    ) -> Union[bool, int]:
         """Helper method for deleting both local and remote media
 
         Args:
@@ -246,8 +246,8 @@ class Media(Admin):
             remote (bool, optional): whether to delete remote media cache. Defaults to False. # noqa: E501
 
         Returns:
+            If remote is False returns bool: the deletion is success or not
             If remote is True returns int: number of deleted media
-            If remote is False returns Tuple[list, int]: list of deleted media id and their number in total
         """
         if mediaid and (timestamp or size_gt or keep_profiles):
             raise ValueError(
@@ -283,17 +283,17 @@ class Media(Admin):
         self,
         mediaid: str,
         server_name: str = None
-    ) -> Tuple[list, int]:
+    ) -> bool:
         """Delete a local media
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#delete-a-specific-local-media
 
         Args:
             mediaid (str): the media you want to delete
-            server_name (str, optional): the source of the media. Defaults to your local server name (None).
+            server_name (str, optional): the source of the media. Defaults to your local server name (None). # noqa: E501
 
         Returns:
-            Tuple[list, int]: a list of deleted media, total number of deleted media # noqa: E501
+            str: the deletion is success or not
         """
         if server_name is None:
             server_name = self.server_addr
@@ -305,7 +305,7 @@ class Media(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data["deleted_media"], data["total"]
+            return data["deleted_media"][0] == mediaid
         else:
             if self.supress_exception:
                 return False, data
