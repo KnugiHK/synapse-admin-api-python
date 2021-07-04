@@ -31,8 +31,8 @@ class User(Admin):
     Wapper class for admin API for user management
 
     Reference:
-        https://github.com/matrix-org/synapse/blob/master/docs/admin_api/user_admin_api.rst
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/account_validity.rst
+        https://github.com/matrix-org/synapse/blob/master/docs/admin_api/user_admin_api.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/account_validity.md
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/room_membership.md
     """
 

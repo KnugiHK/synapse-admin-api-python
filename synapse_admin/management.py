@@ -31,9 +31,9 @@ class Management(Admin):
 
     Reference:
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/server_notices.md
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/version_api.rst
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.rst
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_history_api.rst
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/version_api.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.md
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_history_api.md
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/delete_group.md
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md
     """
