@@ -52,6 +52,7 @@ In addition to the wrapper that wraps the official admin APIs, this wrapper also
 * Reactivate an deactivated account (User.reactivate)
 * Create a room (Room.create)
 * Send an announcement to everyone (Management.announce_all)
+* Delete media by id or by condition (Media.delete_media)
 
 ## Contribution
 If you want to help me to improve the quality of this project, you can submit an issue.
