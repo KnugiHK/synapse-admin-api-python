@@ -33,6 +33,8 @@ class Media(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md
     """
 
+    order = {"user_id", "displayname", "media_length", "media_count"}
+
     def __init__(
         self,
         server_addr=None,
@@ -49,20 +51,71 @@ class Media(Admin):
             suppress_exception
         )
 
-    def statistics(self) -> Tuple[list, int]:
+    def statistics(
+        self,
+        _from: int = None,
+        limit: int = None,
+        orderby: str = None,
+        from_ts: int = None,
+        until_ts: int = None,
+        search: str = None,
+        forward: bool = False
+    ) -> Tuple[list, int, int]:
         """Query the media usage statistics
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/statistics.md#users-media-usage-statistics
 
+        Args:
+            _from (int, optional): equivalent to "from". Defaults to None.
+            limit (int, optional): equivalent to "limit". Defaults to None.
+            orderby (str, optional): equivalent to "order_by". Defaults to None.
+            from_ts (int, optional): equivalent to "from_ts". Defaults to None.
+            until_ts (int, optional): equivalent to "until_ts". Defaults to None.
+            search (str, optional): equivalent to "search_term". Defaults to None.
+            forward (bool, optional): equivalent to "dir". True to forward False to backward Defaults to False. # noqa: E501
+
         Returns:
-            Tuple[list, int]: list of media usage per user, total number of returned record # noqa: E501
+            Tuple[list, int, int]: list of media usage per user, total number of returned record, next token if presented
         """
+        if forward:
+            optional_str = "dir=f"
+        else:
+            optional_str = "dir=b"
+
+        if _from is not None:
+            optional_str += f"&from={_from}"
+
+        if limit is not None:
+            optional_str += f"&limit={limit}"
+
+        if orderby is not None:
+            if not isinstance(orderby, str):
+                raise TypeError(
+                    "Argument 'orderby' should be a "
+                    f"str but not {type(orderby)}"
+                )
+            elif orderby not in Media.order:
+                raise ValueError(
+                    "Argument 'orderby' must be included in Media.order, "
+                    "for details please read documentation."
+                )
+            optional_str += f"&orderby={orderby}"
+
+        if from_ts:
+            optional_str += f"&from_ts={from_ts}"
+
+        if until_ts:
+            optional_str += f"&until_ts={until_ts}"
+
+        if search:
+            optional_str += f"&search_term={search}"
+
         resp = self.connection.request(
             "GET",
-            self.admin_patterns("/statistics/users/media", 1),
+            self.admin_patterns(f"/statistics/users/media?{optional_str}", 1),
         )
         data = resp.json()
-        return data["users"], data["total"]
+        return data["users"], data["total"], data.get("next_token", None)
 
     def list_media(self, roomid: str) -> Tuple[list, list]:
         """List all media in a specific room
