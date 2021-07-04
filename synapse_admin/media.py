@@ -49,7 +49,14 @@ class Media(Admin):
             suppress_exception
         )
 
-    def statistics(self):
+    def statistics(self) -> Tuple[list, int]:
+        """Query the media usage statistics
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/statistics.md#users-media-usage-statistics
+
+        Returns:
+            Tuple[list, int]: list of media usage per user, total number of returned record # noqa: E501
+        """
         resp = self.connection.request(
             "GET",
             self.admin_patterns("/statistics/users/media", 1),
@@ -58,6 +65,16 @@ class Media(Admin):
         return data["users"], data["total"]
 
     def list_media(self, roomid: str) -> Tuple[list, list]:
+        """List all media in a specific room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#list-all-media-in-a-room
+
+        Args:
+            roomid (str): the room you want to query
+
+        Returns:
+            Tuple[list, list]: list of local media, list of remote media
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "GET",
@@ -67,6 +84,17 @@ class Media(Admin):
         return data["local"], data["remote"]
 
     def quarantine_id(self, mediaid: str, server_name: str = None) -> bool:
+        """Quarantine a media by its id
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#quarantining-media-by-id
+
+        Args:
+            mediaid (str): the media you want it to be quarantined
+            server_name (str, optional): the source of the media. Defaults to your local server name (None). # noqa: E501
+
+        Returns:
+            bool: the operation is successful or not
+        """
         if server_name is None:
             server_name = self.server_addr
         resp = self.connection.request(
@@ -83,6 +111,16 @@ class Media(Admin):
         return False
 
     def quarantine_room(self, roomid: str) -> int:
+        """Quarantine all media in a room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#quarantining-media-in-a-room
+
+        Args:
+            roomid (str): the room you want its media to be quarantined
+
+        Returns:
+            int: number of quarantined media
+        """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
@@ -92,6 +130,16 @@ class Media(Admin):
         return resp.json()["num_quarantined"]
 
     def quarantine_user(self, userid: str) -> int:
+        """Quarantine all media sent by a specific user
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#quarantining-all-media-of-a-user
+
+        Args:
+            userid (str): the user you want their media to be quarantined
+
+        Returns:
+            int: number of quarantined media
+        """
         userid = self.validate_username(userid)
         resp = self.connection.request(
             "POST",
@@ -101,6 +149,17 @@ class Media(Admin):
         return resp.json()["num_quarantined"]
 
     def quarantine_remove(self, mediaid: str, server_name: str = None) -> bool:
+        """Remove a media from quarantine
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#remove-media-from-quarantine-by-id
+
+        Args:
+            mediaid (str): the media you want to remove from quarantine
+            server_name (str, optional): the source of the media. Defaults to your local server name (None). # noqa: E501
+
+        Returns:
+            bool: the operation is successful or not
+        """
         if server_name is None:
             server_name = self.server_addr
         resp = self.connection.request(
@@ -117,6 +176,16 @@ class Media(Admin):
         return False
 
     def protect_media(self, mediaid: str) -> bool:
+        """Protect a media from being quarantined
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#protecting-media-from-being-quarantined
+
+        Args:
+            mediaid (str): the media you want to protect from quarantine
+
+        Returns:
+            bool: the operation is successful or not
+        """
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/media/protect/{mediaid}", 1),
@@ -132,6 +201,16 @@ class Media(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def unprotect_media(self, mediaid: str) -> bool:
+        """Remove quarantine protection for a media
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#unprotecting-media-from-being-quarantined
+
+        Args:
+            mediaid (str): the media you want to unprotect from quarantine
+
+        Returns:
+            bool: the operation is successful or not
+        """
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/media/unprotect/{mediaid}", 1),
@@ -205,6 +284,17 @@ class Media(Admin):
         mediaid: str,
         server_name: str = None
     ) -> Tuple[list, int]:
+        """Delete a local media
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#delete-a-specific-local-media
+
+        Args:
+            mediaid (str): the media you want to delete
+            server_name (str, optional): the source of the media. Defaults to your local server name (None).
+
+        Returns:
+            Tuple[list, int]: a list of deleted media, total number of deleted media # noqa: E501
+        """
         if server_name is None:
             server_name = self.server_addr
 
@@ -229,6 +319,19 @@ class Media(Admin):
         keep_profiles: bool = True,
         server_name: str = None
     ) -> Tuple[list, int]:
+        """Delete local media with condition
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#delete-local-media-by-date-or-size
+
+        Args:
+            timestamp (int, optional): delete media sent before this timestamp. Defaults to Utility.get_current_time() (current time). # noqa: E501
+            size_gt (int, optional): delete media in which their size are greater than this size in bytes. Defaults to None.
+            keep_profiles (bool, optional): whether to keep profiles media or not. Defaults to True.
+            server_name (str, optional): the source of the media. Defaults to your local server name (None).
+
+        Returns:
+            Tuple[list, int]: a list of deleted media, total number of deleted media
+        """
         if server_name is None:
             server_name = self.server_addr
 
@@ -260,6 +363,8 @@ class Media(Admin):
         timestamp: int = Utility.get_current_time()
     ) -> int:
         """Purge remote homeserver media
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#purge-remote-media-api
 
         Args:
             timestamp (int, optional): timestamp in millisecond. Defaults to Utility.get_current_time(). # noqa: E501
