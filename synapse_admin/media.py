@@ -106,9 +106,7 @@ class Media(Admin):
             ),
             json={},
         )
-        if len(resp.json()) == 0:
-            return True
-        return False
+        return len(resp.json()) == 0
 
     def quarantine_room(self, roomid: str) -> int:
         """Quarantine all media in a room
@@ -171,9 +169,7 @@ class Media(Admin):
             ),
             json={},
         )
-        if resp.json() == {}:
-            return True
-        return False
+        return resp.json() == {}
 
     def protect_media(self, mediaid: str) -> bool:
         """Protect a media from being quarantined
