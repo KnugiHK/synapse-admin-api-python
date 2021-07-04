@@ -22,7 +22,7 @@ SOFTWARE."""
 
 from synapse_admin import User
 from synapse_admin.base import Admin, SynapseException
-from typing import Tuple
+from typing import Tuple, Union
 
 
 class Management(Admin):
@@ -56,6 +56,17 @@ class Management(Admin):
         self.user = User()
 
     def announce(self, userid: str, announcement: str) -> str:
+        """Send an announcement to a specific user
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/server_notices.md#server-notices
+
+        Args:
+            userid (str): the user that the announcement should be delivered to
+            announcement (str): the announcement
+
+        Returns:
+            str: event id of the announcement
+        """
         userid = self.validate_username(userid)
         data = {
             "user_id": userid,
@@ -79,12 +90,23 @@ class Management(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def announce_all(self, announcement: str) -> None:
-        # Not a standard API
+        """Send an announcement to all local users
+
+        Args:
+            announcement (str): the announcement
+        """
         users, _ = self.user.lists()
         for user in users:
             self.announce(user["name"], announcement)
 
     def version(self) -> Tuple[str, str]:
+        """Get the server and python version
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/version_api.md#version-api
+
+        Returns:
+            Tuple[str, str]: server version, python version
+        """
         resp = self.connection.request(
             "GET",
             self.admin_patterns("/server_version", 1)
@@ -95,9 +117,21 @@ class Management(Admin):
     def purge_history(
         self,
         roomid: str,
-        event_id_ts: int,
+        event_id_ts: Union[str, int],
         include_local_event: bool = False
     ) -> str:
+        """Purge old events in a room from database
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_history_api.md#purge-history-api
+
+        Args:
+            roomid (str): the room you want to perform the purging
+            event_id_ts (Union[str, int]): purge up to an event id or timestamp
+            include_local_event (bool, optional): whether to purge local events. Defaults to False. # noqa: E501
+
+        Returns:
+            str: purge id
+        """
         roomid = self.validate_room(roomid)
         data = {"delete_local_events": include_local_event}
         if isinstance(event_id_ts, str):
@@ -119,6 +153,16 @@ class Management(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def purge_history_status(self, purge_id: str) -> str:
+        """Query the purge job status
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_history_api.md#purge-status-query
+
+        Args:
+            purge_id (str): the purge id you want to query
+
+        Returns:
+            str: the status of the purge job
+        """
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/purge_history_status/{purge_id}", 1)
@@ -140,6 +184,20 @@ class Management(Admin):
         userid: str = None,
         roomid: str = None
     ) -> Tuple[dict, int]:
+        """Query all reported events
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md#show-reported-events
+
+        Args:
+            limit (int, optional): equivalent to "limit". Defaults to 100.
+            _from (int, optional): equivalent to "from". Defaults to 0.
+            recent_first (bool, optional): equivalent to "dir". True as "b" False as "f" Defaults to True. # noqa: E501
+            userid (str, optional): equivalent to "user_id". Defaults to None.
+            roomid (str, optional): equivalent to "room_id". Defaults to None.
+
+        Returns:
+            Tuple[dict, int]: list of reported events, total number of returned reports
+        """
         if recent_first:
             recent_first = "b"
         else:
@@ -165,6 +223,16 @@ class Management(Admin):
         return data["event_reports"], data["total"]
 
     def specific_event_report(self, reportid: int) -> dict:
+        """Query specific event report
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md#show-details-of-a-specific-event-report
+
+        Args:
+            reportid (int): the report id
+
+        Returns:
+            dict: a dict with all details of the report
+        """
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/event_reports/{reportid}", 1)
@@ -179,6 +247,16 @@ class Management(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def delete_group(self, groupid: str) -> bool:
+        """Delete a local group
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/delete_group.md#delete-a-local-group
+
+        Args:
+            groupid (str): the group id you want to delete
+
+        Returns:
+            bool: the deletion is successful or not
+        """
         groupid = self.validate_group(groupid)
         resp = self.connection.request(
             "POST",
