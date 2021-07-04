@@ -89,15 +89,20 @@ class Management(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def announce_all(self, announcement: str) -> None:
+    def announce_all(self, announcement: str) -> dict:
         """Send an announcement to all local users
 
         Args:
             announcement (str): the announcement
+
+        Returns:
+            dict: a dict with user id as key and the event id as value
         """
-        users, _ = self.user.lists()
+        users, _= self.user.lists()
+        events = {}
         for user in users:
-            self.announce(user["name"], announcement)
+            events[user["name"]] = self.announce(user["name"], announcement)
+        return events
 
     def version(self) -> Tuple[str, str]:
         """Get the server and python version
@@ -220,7 +225,11 @@ class Management(Admin):
         data = resp.json()
         if data["total"] == 0:
             return None
-        return data["event_reports"], data["total"], data.get("next_token", None)
+        return (
+            data["event_reports"],
+            data["total"],
+            data.get("next_token", None)
+        )
 
     def specific_event_report(self, reportid: int) -> dict:
         """Query specific event report
