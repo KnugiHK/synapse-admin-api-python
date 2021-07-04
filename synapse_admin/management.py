@@ -183,7 +183,7 @@ class Management(Admin):
         recent_first: bool = True,
         userid: str = None,
         roomid: str = None
-    ) -> Tuple[dict, int]:
+    ) -> Tuple[dict, int, int]:
         """Query all reported events
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md#show-reported-events
@@ -196,7 +196,7 @@ class Management(Admin):
             roomid (str, optional): equivalent to "room_id". Defaults to None.
 
         Returns:
-            Tuple[dict, int]: list of reported events, total number of returned reports
+            Tuple[dict, int, int]: list of reported events, total number of returned reports, next token if presented
         """
         if recent_first:
             recent_first = "b"
@@ -220,7 +220,7 @@ class Management(Admin):
         data = resp.json()
         if data["total"] == 0:
             return None
-        return data["event_reports"], data["total"]
+        return data["event_reports"], data["total"], data.get("next_token", None)
 
     def specific_event_report(self, reportid: int) -> dict:
         """Query specific event report
