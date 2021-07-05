@@ -1,6 +1,6 @@
 import sys
 if sys.version_info < (3, 7):
-    print("Synapse Admin API requires Python 3.7 or above.")
+    print("matrix-synapse-admin requires Python 3.7 or above.")
     sys.exit(1)
 
 __version__ = "0.3.0"
