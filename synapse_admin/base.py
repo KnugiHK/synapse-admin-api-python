@@ -453,6 +453,20 @@ class Admin():
             group = "+" + group
         return group
 
+    def validate_alias(self, alias: str) -> str:
+        """Validate an alias. If necessary add the alias identifier (#).
+
+        Args:
+            alias (str): alias (without # and homeserver address part are also accepted) # noqa: E501
+
+        Returns:
+            str: validated alias
+        """
+        alias = self.validate_server(alias)
+        if alias[0] != "#":
+            alias = "#" + alias
+        return alias
+
     def admin_patterns(self, path: str, version: int = 1) -> str:
         """Constructing an admin API endpoint url
 
