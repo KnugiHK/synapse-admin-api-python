@@ -44,7 +44,9 @@ Save to a config file? (Y/n)
 >>> print(number_of_users)
 1
 ```
-Docstrings are being written. If you see r'equivalent to ".*"', it's mean that you may want to refer back to the Synapse Admin API documentation.  
+## Documentation
+Docstrings are present now in most methods and classes. If you see /equivalent to ".*"/, it's mean that you may want to refer back to the Synapse Admin API documentation.
+
 More documentation are coming...
 
 ## Additional features
