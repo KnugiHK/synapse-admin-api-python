@@ -2,7 +2,7 @@
 [![Pypi](https://img.shields.io/pypi/v/matrix-synapse-admin?label=Pypi)](https://pypi.org/project/matrix-synapse-admin/)
 [![License MIT](https://img.shields.io/pypi/l/matrix-synapse-admin)](LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/matrix-synapse-admin)](https://pypi.org/project/matrix-synapse-admin/)
-[![Synapse](https://img.shields.io/badge/Synapse-1.38.0-yellowgreen)](TODO.md)
+[![Synapse](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FKnugiHK%2Fsynapse-admin-api-python%2Fmain%2Fsupported_synapse.json)](TODO.md)
 
 A Python wrapper for [Matrix Synapse admin API](https://github.com/matrix-org/synapse).
 
