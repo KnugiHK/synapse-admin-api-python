@@ -493,42 +493,69 @@ class User(Admin):
 
     def _generate_mac(
         self,
-        nonce,
-        user,
-        password,
-        shared_secret,
-        admin=False,
-        user_type=None
+        nonce: Union[str, bytes],
+        user: Union[str, bytes],
+        password: Union[str, bytes],
+        shared_secret: Union[str, bytes],
+        admin: bool = False,
+        user_type: Union[str, bytes] = None
     ) -> str:
         """Generate a HMAC for register
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/register_api.md#shared-secret-registration
 
+        Args:
+            nonce (Union[str, bytes]): nonce for registation, can be obtained from the homeserver
+            user (Union[str, bytes]): the username
+            password (Union[str, bytes]): the password
+            shared_secret (Union[str, bytes]): shared secret for registation, can be obtained from homeserver.yaml  # noqa: E501
+            admin (bool, optional): whether the user is admin or not. Defaults to False.
+            user_type (Union[str, bytes], optional): the type of the user. Defaults to None.
+
         Returns:
-            str: HMAC-SHA1 value
+            str: HMAC-SHA1 digest in hex
         """
+        if isinstance(nonce, str):
+            nonce = nonce.encode()
+        elif not isinstance(nonce, bytes):
+            raise TypeError("Argument nonce must be str or bytes")
+        if isinstance(user, str):
+            user = user.encode()
+        elif not isinstance(user, bytes):
+            raise TypeError("Argument user must be str or bytes")
+        if isinstance(password, str):
+            password = password.encode()
+        elif not isinstance(password, bytes):
+            raise TypeError("Argument password must be str or bytes")
         if isinstance(shared_secret, str):
             shared_secret = shared_secret.encode()
         elif not isinstance(shared_secret, bytes):
             raise TypeError("Argument shared_secret must be str or bytes")
+        if user_type is not None:
+            if isinstance(user_type, str):
+                user_type = user_type.encode()
+            elif not isinstance(user_type, bytes):
+                raise TypeError(
+                    "Argument user_type must be"
+                    "str or bytes or None"
+                )
 
-        mac = hmac.new(
-            key=shared_secret,
-            digestmod=hashlib.sha1,
-        )
+        if admin:
+            admin = b"admin"
+        else:
+            admin = b"notadmin"
 
-        mac.update(nonce.encode('utf8'))
-        mac.update(b"\x00")
-        mac.update(user.encode('utf8'))
-        mac.update(b"\x00")
-        mac.update(password.encode('utf8'))
-        mac.update(b"\x00")
-        mac.update(b"admin" if admin else b"notadmin")
+        msg = b"%s\x00%s\x00%s\x00%s" % (nonce, user, password, admin)
         if user_type:
-            mac.update(b"\x00")
-            mac.update(user_type.encode('utf8'))
+            msg += b"\x00%s" % (user_type,)
 
-        return mac.hexdigest()
+        digest = hmac.new(
+            shared_secret,
+            msg,
+            digestmod=hashlib.sha1,
+        ).hexdigest()
+
+        return digest
 
     def list_media(
         self,
