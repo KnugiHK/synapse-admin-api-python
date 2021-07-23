@@ -22,7 +22,7 @@ SOFTWARE."""
 
 import hashlib
 import hmac
-from synapse_admin.base import Admin, SynapseException, Utility
+from synapse_admin.base import Admin, SynapseException, Utility, Contents
 from typing import Union, Tuple
 
 
@@ -70,7 +70,7 @@ class User(Admin):
         deactivated: bool = False,
         order_by: str = None,
         _dir: str = "f"
-    ) -> Tuple[list, int, str]:
+    ) -> Contents:
         """List all local users
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#list-accounts
@@ -86,7 +86,7 @@ class User(Admin):
             _dir (str, optional): equivalent to "dir". Defaults to "f".
 
         Returns:
-            Tuple[list, int, str]: list of user, total number of returned users, next token
+            Contents: list of user
         """
         optional_str = ""
         if userid is not None:
@@ -108,7 +108,11 @@ class User(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data["users"], data["total"], data.get("next_token", None)
+            return Contents(
+                data["users"],
+                data["total"],
+                data.get("next_token", None)
+            )
         else:
             if self.supress_exception:
                 return False, data
@@ -338,7 +342,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def joined_room(self, userid: str) -> Tuple[list, int]:
+    def joined_room(self, userid: str) -> Contents:
         """Query the room a user joined
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#list-room-memberships-of-a-user
@@ -347,7 +351,7 @@ class User(Admin):
             userid (str): the user you want to query
 
         Returns:
-            Tuple[list, int]: list of joined_room, total number of joined room
+            Contents: list of joined_room
         """
         userid = self.validate_username(userid)
         resp = self.connection.request(
@@ -356,7 +360,7 @@ class User(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data["joined_rooms"], data["total"]
+            return Contents(data["joined_rooms"], data["total"])
         else:
             if self.supress_exception:
                 return False, data
@@ -564,7 +568,7 @@ class User(Admin):
         _from: int = 0,
         order_by: int = None,
         _dir: str = "f"
-    ) -> Tuple[list, int, int]:
+    ) -> Contents:
         """list all media sent by the user
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#list-media-of-a-user
@@ -577,7 +581,7 @@ class User(Admin):
             _dir (str, optional): equivalent to "dir". Defaults to "f".
 
         Returns:
-            Tuple[list, int, int]: list of media, next token, total number of media # noqa: E501
+            Contents: list of media # noqa: E501
         """
         userid = self.validate_username(userid)
         optional_str = ""
@@ -596,7 +600,7 @@ class User(Admin):
                 next_token = 0
             else:
                 next_token = data["next_token"]
-            return data["media"], next_token, data["total"]
+            return Contents(data["media"], data["total"], next_token)
         else:
             if self.supress_exception:
                 return False, data
@@ -744,7 +748,7 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def pushers(self, userid: str) -> Tuple[list, int]:
+    def pushers(self, userid: str) -> Contents:
         """list pushers of a user
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#list-all-pushers
@@ -753,7 +757,7 @@ class User(Admin):
             userid (str): the user you want to query
 
         Returns:
-            Tuple[list, int]: list of pushers, total number of pushers
+            Contents: list of pushers
         """
         userid = self.validate_username(userid)
         resp = self.connection.request(
@@ -763,7 +767,7 @@ class User(Admin):
         data = resp.json()
 
         if resp.status_code == 200:
-            return data["pushers"], data["total"]
+            return Contents(data["pushers"], data["total"])
         else:
             if self.supress_exception:
                 return False, data

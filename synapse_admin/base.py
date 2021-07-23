@@ -27,7 +27,7 @@ from configparser import ConfigParser
 from datetime import datetime
 from getpass import getpass
 from pathlib import Path
-from typing import Tuple, Any
+from typing import Tuple, Any, Union
 
 
 class SynapseException(Exception):
@@ -95,6 +95,26 @@ class Utility():
                 return Utility.get_password(prompt)
         else:
             return password
+
+
+class Contents(list):
+    """Custom class to handle data with next token and total number of wanted data"""  # noqa: E501
+
+    def __init__(
+        self,
+        data: list,
+        total: int,
+        next_token: Union[str, int] = None
+    ):
+        if not isinstance(total, int):
+            raise TypeError("Argument total must be int")
+        if (next_token is not None and not isinstance(next_token, str) and
+                not isinstance(next_token, int)):
+            raise TypeError("Argument next_token must be str or int")
+
+        super(Contents, self).__init__(data)
+        self.total = total
+        self.next = next_token
 
 
 class Admin():
