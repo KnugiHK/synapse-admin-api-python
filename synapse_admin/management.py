@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin import User
-from synapse_admin.base import Admin, SynapseException
+from synapse_admin.base import Admin, SynapseException, Contents
 from typing import Tuple, Union
 
 
@@ -188,7 +188,7 @@ class Management(Admin):
         recent_first: bool = True,
         userid: str = None,
         roomid: str = None
-    ) -> Tuple[dict, int, int]:
+    ) -> Contents:
         """Query all reported events
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md#show-reported-events
@@ -201,7 +201,7 @@ class Management(Admin):
             roomid (str, optional): equivalent to "room_id". Defaults to None.
 
         Returns:
-            Tuple[dict, int, int]: list of reported events, total number of returned reports, next token if presented
+            Contents: list of reported events
         """
         if recent_first:
             recent_first = "b"
@@ -225,7 +225,7 @@ class Management(Admin):
         data = resp.json()
         if data["total"] == 0:
             return None
-        return (
+        return Contents(
             data["event_reports"],
             data["total"],
             data.get("next_token", None)
