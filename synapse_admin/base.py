@@ -98,6 +98,8 @@ class Utility():
 
 
 class _BaseContents():
+    """Base class for Contents"""
+
     @property
     def total(self):
         return self._total
