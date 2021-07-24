@@ -98,7 +98,9 @@ class Utility():
 
 
 class Contents(list):
-    """Custom class to handle data with next token and total number of wanted data"""  # noqa: E501
+    """Custom list class to handle data with next token and the total number of wanted data  # noqa: E501
+
+    This is basically the same as list plus two more property (total, next). """
 
     def __init__(
         self,
@@ -113,8 +115,16 @@ class Contents(list):
             raise TypeError("Argument next_token must be str or int")
 
         super(Contents, self).__init__(data)
-        self.total = total
-        self.next = next_token
+        self._total = total
+        self._next = next_token
+
+    @property
+    def total(self):
+        return self._total
+
+    @property
+    def next(self):
+        return self._next
 
 
 class Admin():
