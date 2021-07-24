@@ -97,7 +97,17 @@ class Utility():
             return password
 
 
-class Contents(list):
+class _BaseContents():
+    @property
+    def total(self):
+        return self._total
+
+    @property
+    def next(self):
+        return self._next
+
+
+class Contents(list, _BaseContents):
     """Custom list class to handle data with next token and the total number of wanted data  # noqa: E501
 
     This is basically the same as list plus two more property (total, next). """
@@ -114,17 +124,8 @@ class Contents(list):
                 not isinstance(next_token, int)):
             raise TypeError("Argument next_token must be str or int")
 
+        self._total, self._next = total, next_token
         super(Contents, self).__init__(data)
-        self._total = total
-        self._next = next_token
-
-    @property
-    def total(self):
-        return self._total
-
-    @property
-    def next(self):
-        return self._next
 
 
 class Admin():
