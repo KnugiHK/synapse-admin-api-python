@@ -122,8 +122,8 @@ class Contents(list, _BaseContents):
     ):
         if not isinstance(total, int):
             raise TypeError("Argument total must be int")
-        if (next_token is not None and not isinstance(next_token, str) and
-                not isinstance(next_token, int)):
+        if (next_token is not None and not isinstance(next_token, str)
+                and not isinstance(next_token, int)):
             raise TypeError("Argument next_token must be str or int")
 
         self._total, self._next = total, next_token
@@ -226,8 +226,8 @@ class Admin():
         Returns:
             bool: configration saved
         """
-        if (protocol is None or host is None or
-                port is None or access_token is None):
+        if (protocol is None or host is None
+                or port is None or access_token is None):
             while True:
                 url = input(
                     "Enter the homeserver URL with port"
@@ -269,8 +269,8 @@ class Admin():
         self.server_addr = host
         self.server_port = int(port)
         self.access_token = access_token
-        if (save_to_file == "n" or
-                isinstance(save_to_file, bool) and not save_to_file):
+        if (save_to_file == "n" or isinstance(save_to_file, bool)
+                and not save_to_file):
             return True
         return self._save_config(protocol, host, port, access_token)
 
@@ -386,8 +386,8 @@ class Admin():
         Returns:
             bool: success or not
         """
-        if (server_addr is None and server_port is None and
-                access_token is None and server_protocol is None):
+        if (server_addr is None and server_port is None
+                and access_token is None and server_protocol is None):
             self.create_config()
             self._create_header()
             return self._create_conn()

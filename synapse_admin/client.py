@@ -140,14 +140,14 @@ class ClientAPI(Admin):
             password = Utility.get_password(validate=False)
         from httpx import Client
         login_data = {
-                "identifier": {
-                    "type": "m.id.user",
-                    "user": username
-                },
-                "type": "m.login.password",
-                "password": password,
-                "initial_device_display_name": "matrix-synapse-admin"
-            }
+            "identifier": {
+                "type": "m.id.user",
+                "user": username
+            },
+            "type": "m.login.password",
+            "password": password,
+            "initial_device_display_name": "matrix-synapse-admin"
+        }
         http = Client()
         base_url = f"{protocol}{host}:{port}"
         resp = http.post(
