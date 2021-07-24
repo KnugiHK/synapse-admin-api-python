@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from synapse_admin.base import Admin, SynapseException, Utility
+from synapse_admin.base import Admin, SynapseException, Utility, Contents
 from typing import Tuple, Union
 
 
@@ -60,7 +60,7 @@ class Media(Admin):
         until_ts: int = None,
         search: str = None,
         forward: bool = False
-    ) -> Tuple[list, int, int]:
+    ) -> Contents:
         """Query the media usage statistics
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/statistics.md#users-media-usage-statistics
@@ -75,7 +75,7 @@ class Media(Admin):
             forward (bool, optional): equivalent to "dir". True to forward False to backward Defaults to False. # noqa: E501
 
         Returns:
-            Tuple[list, int, int]: list of media usage per user, total number of returned record, next token if presented
+            Contents: list of media usage per user
         """
         if forward:
             optional_str = "dir=f"
@@ -115,7 +115,11 @@ class Media(Admin):
             self.admin_patterns(f"/statistics/users/media?{optional_str}", 1),
         )
         data = resp.json()
-        return data["users"], data["total"], data.get("next_token", None)
+        return Contents(
+            data["users"],
+            data["total"],
+            data.get("next_token", None)
+        )
 
     def list_media(self, roomid: str) -> Tuple[list, list]:
         """List all media in a specific room
@@ -367,7 +371,7 @@ class Media(Admin):
         size_gt: int = None,
         keep_profiles: bool = True,
         server_name: str = None
-    ) -> Tuple[list, int]:
+    ) -> Contents:
         """Delete local media with condition
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#delete-local-media-by-date-or-size
@@ -379,7 +383,7 @@ class Media(Admin):
             server_name (str, optional): the source of the media. Defaults to your local server name (None).
 
         Returns:
-            Tuple[list, int]: a list of deleted media, total number of deleted media
+            Contents: a list of deleted media
         """
         if server_name is None:
             server_name = self.server_addr
@@ -405,7 +409,7 @@ class Media(Admin):
             json={},
         )
         data = resp.json()
-        return data["deleted_media"], data["total"]
+        return Contents(data["deleted_media"], data["total"])
 
     def purge_remote_media(
         self,

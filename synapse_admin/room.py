@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from synapse_admin.base import Admin, SynapseException
+from synapse_admin.base import Admin, SynapseException, Contents
 from synapse_admin import User
 from synapse_admin.client import ClientAPI
 from typing import Tuple
@@ -71,7 +71,7 @@ class Room(Admin):
         orderby: str = None,
         recent_first: bool = True,
         search: str = None
-    ) -> Tuple[list, int, str]:
+    ) -> Contents:
         """List all local rooms
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#list-room-api
@@ -84,7 +84,7 @@ class Room(Admin):
             search (str, optional): equivalent to "search_term". Defaults to None.
 
         Returns:
-            Tuple[list, int, str]: list of room, total number of returned rooms, next token
+            Contents: list of room
         """
         if recent_first:
             optional_str = "dir=b"
@@ -119,7 +119,7 @@ class Room(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return (
+            return Contents(
                 data["rooms"],
                 data["total_rooms"],
                 data.get("next_token", None)
@@ -155,7 +155,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def list_members(self, roomid: str) -> Tuple[list, int]:
+    def list_members(self, roomid: str) -> Contents:
         """List all members in the room
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#room-members-api
@@ -164,7 +164,7 @@ class Room(Admin):
             roomid (str): the room you want to query
 
         Returns:
-            Tuple[list, int]: a list of members, total number of members
+            Contents: a list of members
         """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
@@ -173,7 +173,7 @@ class Room(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data["members"], data["total"]
+            return Contents(data["members"], data["total"])
         else:
             if self.supress_exception:
                 return False, data
@@ -369,7 +369,7 @@ class Room(Admin):
         )
         return resp.json()
 
-    def forward_extremities_check(self, roomid: str) -> Tuple[list, int]:
+    def forward_extremities_check(self, roomid: str) -> Contents:
         """Query forward extremities in a room
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#check-for-forward-extremities
@@ -378,7 +378,7 @@ class Room(Admin):
             roomid (str): the room you want to query
 
         Returns:
-            Tuple[list, int]: a list of forward extremities, number of forward extremities # noqa: E501
+            Contents: a list of forward extremities
         """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
@@ -386,7 +386,7 @@ class Room(Admin):
             self.admin_patterns(f"/rooms/{roomid}/forward_extremities", 1)
         )
         data = resp.json()
-        return data["results"], data["count"]
+        return Contents(data["results"], data["count"])
 
     def forward_extremities_delete(self, roomid: str) -> int:
         """Delete forward extremities in a room
