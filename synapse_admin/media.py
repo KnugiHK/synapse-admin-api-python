@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 from synapse_admin.base import Admin, SynapseException, Utility, Contents
-from typing import Tuple, Union
+from typing import NamedTuple, Union
 
 
 class Media(Admin):
@@ -34,6 +34,10 @@ class Media(Admin):
     """
 
     order = {"user_id", "displayname", "media_length", "media_count"}
+
+    class ListOfMedia(NamedTuple):
+        local: list
+        remote: list
 
     def __init__(
         self,
@@ -121,7 +125,7 @@ class Media(Admin):
             data.get("next_token", None)
         )
 
-    def list_media(self, roomid: str) -> Tuple[list, list]:
+    def list_media(self, roomid: str) -> ListOfMedia:
         """List all media in a specific room
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/media_admin_api.md#list-all-media-in-a-room
@@ -130,7 +134,7 @@ class Media(Admin):
             roomid (str): the room you want to query
 
         Returns:
-            Tuple[list, list]: list of local media, list of remote media
+            ListOfMedia: local: list of local media, remote: list of remote media  # noqa: E501
         """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
@@ -138,7 +142,7 @@ class Media(Admin):
             self.admin_patterns(f"/room/{roomid}/media", 1),
         )
         data = resp.json()
-        return data["local"], data["remote"]
+        return Media.ListOfMedia(data["local"], data["remote"])
 
     def quarantine_id(self, mediaid: str, server_name: str = None) -> bool:
         """Quarantine a media by its id

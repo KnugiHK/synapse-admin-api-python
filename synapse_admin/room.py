@@ -23,7 +23,7 @@ SOFTWARE."""
 from synapse_admin.base import Admin, SynapseException, Contents
 from synapse_admin import User
 from synapse_admin.client import ClientAPI
-from typing import Tuple
+from typing import NamedTuple
 
 
 class Room(Admin):
@@ -44,6 +44,10 @@ class Room(Admin):
         "creator", "encryption", "federatable", "public",
         "join_rules", "guest_access", "history_visibility", "state_events"
     }
+
+    class RoomInformation(NamedTuple):
+        roomid: str
+        joined: list
 
     def __init__(
         self,
@@ -189,7 +193,7 @@ class Room(Admin):
         members: list = None,
         federation: bool = True,
         leave: bool = False
-    ) -> Tuple[str, list]:
+    ) -> RoomInformation:
         """Create a room and force users to be a member
 
         Args:
@@ -201,7 +205,7 @@ class Room(Admin):
             leave (bool, optional): whether to leave the room yourself after the creation. Defaults to False.
 
         Returns:
-            Tuple[str, list]: room id, a list of joined users
+            RoomInformation: roomid: room id, joined: a list of joined users
         """
         roomid = self.client_api.client_create(
             public,
@@ -216,7 +220,7 @@ class Room(Admin):
                 joined.append(userid)
         if leave:
             self.client_api.client_leave(roomid)
-        return roomid, joined
+        return Room.RoomInformation(roomid, joined)
 
     def delete(
         self,

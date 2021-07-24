@@ -334,6 +334,7 @@ class User(Admin):
             json={"admin": activate}
         )
         if resp.status_code == 200:
+            # TBD: whether or not to return both action status and admin status
             return True, activate
         else:
             data = resp.json()

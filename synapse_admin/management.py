@@ -22,7 +22,7 @@ SOFTWARE."""
 
 from synapse_admin import User
 from synapse_admin.base import Admin, SynapseException, Contents
-from typing import Tuple, Union
+from typing import NamedTuple, Union
 
 
 class Management(Admin):
@@ -37,6 +37,10 @@ class Management(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/delete_group.md
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md
     """
+
+    class SynapseVersion(NamedTuple):
+        server: str
+        python: str
 
     def __init__(
         self,
@@ -104,20 +108,23 @@ class Management(Admin):
             events[user["name"]] = self.announce(user["name"], announcement)
         return events
 
-    def version(self) -> Tuple[str, str]:
+    def version(self) -> SynapseVersion:
         """Get the server and python version
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/version_api.md#version-api
 
         Returns:
-            Tuple[str, str]: server version, python version
+            SynapseVersion: server: server version, python: python version  # noqa: E501
         """
         resp = self.connection.request(
             "GET",
             self.admin_patterns("/server_version", 1)
         )
         data = resp.json()
-        return data["server_version"], data["python_version"]
+        return Management.SynapseVersion(
+            data["server_version"],
+            data["python_version"]
+        )
 
     def purge_history(
         self,
