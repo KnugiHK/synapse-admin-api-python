@@ -163,7 +163,7 @@ class Admin():
                     self.server_protocol = server_protocol
         else:
             # If homeserver address or/and access token are
-            # not provided, read from configration file
+            # not provided, read from configuration file
             if os.name == "nt":
                 path = os.path.join(
                     f"{os.environ['APPDATA']}\\Synapse-Admin-API\\")
@@ -221,10 +221,10 @@ class Admin():
             host (str, optional): homeserver address. Defaults to None.
             port (int, optional): homeserver listening port. Defaults to None.
             access_token (str, optional): access token that has admin privilege. Defaults to None. # noqa: E501
-            save_to_file (int, optional): whether or not save the configration to a file. Defaults to False. # noqa: E501
+            save_to_file (int, optional): whether or not save the configuration to a file. Defaults to False. # noqa: E501
 
         Returns:
-            bool: configration saved
+            bool: configuration saved
         """
         if (protocol is None or host is None
                 or port is None or access_token is None):
@@ -344,7 +344,7 @@ class Admin():
         port: int,
         token: str
     ) -> bool:
-        """Write the configration to a file
+        """Write the configuration to a file
 
         Args:
             protocol (str): "http://" or "https://". Defaults to None.
@@ -381,7 +381,7 @@ class Admin():
             server_port (int, optional): homeserver listening port. Defaults to None. # noqa: E501
             access_token (str, optional): access token that has admin privilege. Defaults to None. # noqa: E501
             server_protocol (str, optional): "http://" or "https://". Defaults to None. # noqa: E501
-            save_to_file (bool, optional): whether or not save the configration to a file. Defaults to True. # noqa: E501
+            save_to_file (bool, optional): whether or not save the configuration to a file. Defaults to True. # noqa: E501
 
         Returns:
             bool: success or not
