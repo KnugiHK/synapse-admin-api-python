@@ -180,7 +180,7 @@ class Admin():
                 self.create_config()
         self._create_header()
         self._create_conn()
-        self.supress_exception = suppress_exception
+        self.suppress_exception = suppress_exception
 
     def __enter__(self):
         return self
@@ -251,7 +251,7 @@ class Admin():
                         protocol,
                         host,
                         port,
-                        supress_exception=True
+                        suppress_exception=True
                     )
                     if not access_token:
                         print(

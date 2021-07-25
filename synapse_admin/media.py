@@ -252,7 +252,7 @@ class Media(Admin):
         if len(data) == 0:
             return True
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -277,7 +277,7 @@ class Media(Admin):
         if data == {}:
             return True
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -364,7 +364,7 @@ class Media(Admin):
         if resp.status_code == 200:
             return data["deleted_media"][0] == mediaid
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])

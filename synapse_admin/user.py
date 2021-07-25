@@ -114,7 +114,7 @@ class User(Admin):
                 data.get("next_token", None)
             )
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -170,7 +170,7 @@ class User(Admin):
             return True
         else:
             data = resp.json()
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -195,7 +195,7 @@ class User(Admin):
         if resp.status_code == 200 or resp.status_code == 201:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -241,7 +241,7 @@ class User(Admin):
         if resp.status_code == 200:
             return data["id_server_unbind_result"] == "success"
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -295,7 +295,7 @@ class User(Admin):
             return True
         else:
             data = resp.json()
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -352,7 +352,7 @@ class User(Admin):
             return True, activate
         else:
             data = resp.json()
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -377,7 +377,7 @@ class User(Admin):
         if resp.status_code == 200:
             return Contents(data["joined_rooms"], data["total"])
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -406,7 +406,7 @@ class User(Admin):
             if "room_id" in data and data["room_id"] == roomid:
                 return True
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -451,7 +451,7 @@ class User(Admin):
         if resp.status_code == 200:
             return data["expiration_ts"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -500,7 +500,7 @@ class User(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -624,7 +624,7 @@ class User(Admin):
                 next_token = data["next_token"]
             return Contents(data["media"], data["total"], next_token)
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -661,7 +661,7 @@ class User(Admin):
         if resp.status_code == 200:
             return data["access_token"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -692,7 +692,7 @@ class User(Admin):
         if resp.status_code == 200:
             return data["messages_per_second"], data["burst_count"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -725,7 +725,7 @@ class User(Admin):
         if resp.status_code == 200:
             return data["messages_per_second"], data["burst_count"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -765,7 +765,7 @@ class User(Admin):
         if data == {}:
             return True
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -791,7 +791,7 @@ class User(Admin):
         if resp.status_code == 200:
             return Contents(data["pushers"], data["total"])
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -817,7 +817,7 @@ class User(Admin):
         if len(data) == 0:
             return True
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])

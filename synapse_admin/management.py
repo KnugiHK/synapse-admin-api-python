@@ -97,7 +97,7 @@ class Management(Admin):
         if resp.status_code == 200:
             return data["event_id"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -168,7 +168,7 @@ class Management(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -192,7 +192,7 @@ class Management(Admin):
         if resp.status_code == 200:
             return data["status"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -266,7 +266,7 @@ class Management(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -291,7 +291,7 @@ class Management(Admin):
         if resp.status_code == 200:
             return data == {}
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])

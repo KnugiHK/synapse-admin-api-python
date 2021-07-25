@@ -80,7 +80,7 @@ class ClientAPI(Admin):
         if resp.status_code == 200:
             return data["room_id"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -107,7 +107,7 @@ class ClientAPI(Admin):
             else:
                 return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -119,7 +119,7 @@ class ClientAPI(Admin):
         port: str,
         username: str = None,
         password: str = None,
-        supress_exception: bool = False,
+        suppress_exception: bool = False,
         no_admin: bool = False
     ) -> str:
         """Login and get an access token
@@ -130,7 +130,7 @@ class ClientAPI(Admin):
             port (int): homeserver listening port. Defaults to None.
             username (str, optional): just username. Defaults to None.
             password (str, optional): just password. Defaults to None.
-            supress_exception (bool, optional): supress exception or not, if not return False and the error in dict. Defaults to False. # noqa: E501
+            suppress_exception (bool, optional): supress exception or not, if not return False and the error in dict. Defaults to False. # noqa: E501
 
         Returns:
             str: access token
@@ -171,7 +171,7 @@ class ClientAPI(Admin):
                     data = resp
             else:
                 return access_token
-        if supress_exception:
+        if suppress_exception:
             return False, data
         else:
             raise SynapseException(data["errcode"], data["error"])

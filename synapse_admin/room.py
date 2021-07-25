@@ -144,7 +144,7 @@ class Room(Admin):
                 data.get("next_token", None)
             )
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -169,7 +169,7 @@ class Room(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -194,7 +194,7 @@ class Room(Admin):
         if resp.status_code == 200:
             return Contents(data["members"], data["total"])
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -280,7 +280,7 @@ class Room(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -315,7 +315,7 @@ class Room(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -343,7 +343,7 @@ class Room(Admin):
         if resp.status_code == 200:
             return True
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -429,7 +429,7 @@ class Room(Admin):
         else:
             # Synapse bug: Internal server error
             # raise if the room does not exist
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -454,7 +454,7 @@ class Room(Admin):
         if resp.status_code == 200:
             return data["state"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -480,7 +480,7 @@ class Room(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
