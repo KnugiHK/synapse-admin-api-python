@@ -119,7 +119,8 @@ class ClientAPI(Admin):
         port: str,
         username: str = None,
         password: str = None,
-        supress_exception: bool = False
+        supress_exception: bool = False,
+        no_admin: bool = False
     ) -> str:
         """Login and get an access token
 
@@ -157,16 +158,19 @@ class ClientAPI(Admin):
         data = resp.json()
         if resp.status_code == 200:
             access_token = data["access_token"]
-            resp = User(
-                host,
-                port,
-                access_token,
-                protocol
-            ).query(username)
-            if "errcode" not in resp:
-                return data["access_token"]
+            if not no_admin:
+                resp = User(
+                    host,
+                    port,
+                    access_token,
+                    protocol
+                ).query(username)
+                if "errcode" not in resp:
+                    return data["access_token"]
+                else:
+                    data = resp
             else:
-                data = resp
+                return access_token
         if supress_exception:
             return False, data
         else:
