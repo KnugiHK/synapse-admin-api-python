@@ -879,7 +879,11 @@ class _Device(Admin):
         if resp.status_code == 200:
             return True
         else:
-            return False
+            data = resp.json()
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def _delete_multiple(self, userid: str, devices: list) -> bool:
         """Delete multiple active devices (You should use User.delete)
@@ -902,7 +906,11 @@ class _Device(Admin):
         if resp.status_code == 200:
             return True
         else:
-            return False
+            data = resp.json()
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def show(self, userid: str, device: str) -> dict:
         """Show details of a device
