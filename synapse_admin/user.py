@@ -230,7 +230,14 @@ class User(Admin):
             self.admin_patterns(f"/deactivate/{userid}", 1),
             json={"erase": erase}
         )
-        return resp.json()["id_server_unbind_result"] == "success"
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["id_server_unbind_result"] == "success"
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def reactivate(self, userid: str, password: str = None) -> bool:
         """Reactivate a deactivated account
