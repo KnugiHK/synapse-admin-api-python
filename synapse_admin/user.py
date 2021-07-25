@@ -191,7 +191,14 @@ class User(Admin):
             "GET",
             self.admin_patterns(f"/users/{userid}", 2)
         )
-        return resp.json()
+        data = resp.json()
+        if resp.status_code == 200 or resp.status_code == 201:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def active_sessions(self, userid: str) -> list:
         """Query a user for their current sessions
@@ -488,8 +495,15 @@ class User(Admin):
             self.admin_patterns("/register", 1),
             json=data
         )
-
-        return resp.json()
+        
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.supress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
     def _get_register_nonce(self) -> str:
         """Get a register nonce
