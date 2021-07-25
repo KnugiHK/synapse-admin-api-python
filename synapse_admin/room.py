@@ -64,9 +64,24 @@ class Room(Admin):
             server_protocol,
             suppress_exception
         )
-
-        self.user = User()
-        self.client_api = ClientAPI()
+        if server_addr is not None and access_token is not None:
+            self.user = User(
+                server_addr,
+                server_port,
+                access_token,
+                server_protocol,
+                suppress_exception
+            )
+            self.client_api = ClientAPI(
+                server_addr,
+                server_port,
+                access_token,
+                server_protocol,
+                suppress_exception
+            )
+        else:
+            self.user = User()
+            self.client_api = ClientAPI()
 
     def lists(
         self,
