@@ -230,7 +230,7 @@ class Admin():
                 or port is None or access_token is None):
             while True:
                 url = input(
-                    "Enter the homeserver URL with port"
+                    "Enter the homeserver URL with port "
                     "(e.g. https://example.com:443): "
                 )
                 try:
@@ -242,8 +242,8 @@ class Admin():
                     break
             while True:
                 access_token = input(
-                    "Enter the access token (leave blank "
-                    "to get the access token by logging in): "
+                    "Enter the access token (leave blank to"
+                    "get the access token by logging in): "
                 )
                 if access_token == "":
                     from synapse_admin.client import ClientAPI
