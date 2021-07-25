@@ -51,7 +51,7 @@ class User(Admin):
             server_protocol,
             suppress_exception
         )
-        self.devices = _Device(self.server_addr, self.connection)
+        self.devices = _Device(self.server_addr, self.connection, suppress_exception)
         self._create_alias()
 
     def _create_alias(self) -> None:
@@ -824,9 +824,10 @@ class User(Admin):
 
 
 class _Device(Admin):
-    def __init__(self, server_addr, conn):
+    def __init__(self, server_addr, conn, suppress_exception):
         self.server_addr = server_addr
         self.connection = conn
+        self.suppress_exception = suppress_exception
 
     def lists(self, userid: str) -> list:
         """List all active devices of a user
@@ -848,7 +849,7 @@ class _Device(Admin):
         if resp.status_code == 200:
             return data["devices"]
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -924,7 +925,7 @@ class _Device(Admin):
         if resp.status_code == 200:
             return data
         else:
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
@@ -952,7 +953,7 @@ class _Device(Admin):
             return True
         else:
             data = resp.json()
-            if self.supress_exception:
+            if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
