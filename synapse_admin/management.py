@@ -57,7 +57,16 @@ class Management(Admin):
             server_protocol,
             suppress_exception
         )
-        self.user = User()
+        if server_addr is not None and access_token is not None:
+            self.user = User(
+                server_addr,
+                server_port,
+                access_token,
+                server_protocol,
+                suppress_exception
+            )
+        else:
+            self.user = User()
 
     def announce(self, userid: str, announcement: str) -> str:
         """Send an announcement to a specific user
