@@ -67,6 +67,11 @@ class Management(Admin):
             )
         else:
             self.user = User()
+        self._create_alias()
+
+    def _create_alias(self) -> None:
+        """Create alias for some methods"""
+        self.event_report = self.specific_event_report
 
     def announce(self, userid: str, announcement: str) -> str:
         """Send an announcement to a specific user
