@@ -28,7 +28,7 @@ from typing import Union
 class ClientAPI(Admin):
     """Matrix client APIs wrapper (Maybe I should use matrix-python-sdk)"""
 
-    base_path = "/_matrix/client/r0"
+    BASE_PATH = "/_matrix/client/r0"
     
     def __init__(
         self,
@@ -95,7 +95,7 @@ class ClientAPI(Admin):
 
         resp = self.connection.request(
             "POST",
-            f"{ClientAPI.base_path}/createRoom",
+            f"{ClientAPI.BASE_PATH}/createRoom",
             json=data
         )
         data = resp.json()
@@ -119,7 +119,7 @@ class ClientAPI(Admin):
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
             "POST",
-            f"{ClientAPI.base_path}/rooms/{roomid}/leave",
+            f"{ClientAPI.BASE_PATH}/rooms/{roomid}/leave",
             json={}
         )
         data = resp.json()
@@ -174,7 +174,7 @@ class ClientAPI(Admin):
         http = Client()
         base_url = f"{protocol}{host}:{port}"
         resp = http.post(
-            f"{base_url}{ClientAPI.base_path}/login",
+            f"{base_url}{ClientAPI.BASE_PATH}/login",
             json=login_data
         )
         data = resp.json()
