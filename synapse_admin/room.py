@@ -82,6 +82,11 @@ class Room(Admin):
         else:
             self.user = User()
             self.client_api = ClientAPI()
+        self._create_alias()
+
+    def _create_alias(self) -> None:
+        """Create alias for some methods"""
+        self.members = self.list_members
 
     def lists(
         self,
@@ -408,7 +413,7 @@ class Room(Admin):
         return Contents(data["results"], data["count"])
 
     def forward_extremities_delete(self, roomid: str) -> int:
-        """Delete forward extremities in a room
+        """Delete forward extremities in a room (Do not use this method when writing automated script)
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#deleting-forward-extremities
 
