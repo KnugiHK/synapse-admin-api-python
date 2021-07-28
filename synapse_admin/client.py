@@ -29,6 +29,28 @@ class ClientAPI(Admin):
     """Matrix client APIs wrapper (Maybe I should use matrix-python-sdk)"""
 
     base_path = "/_matrix/client/r0"
+    
+    def __init__(
+        self,
+        server_addr: str = None,
+        server_port: int = 443,
+        access_token: str = None,
+        server_protocol: str = None,
+        suppress_exception: bool = False
+    ):
+        super().__init__(
+            server_addr,
+            server_port,
+            access_token,
+            server_protocol,
+            suppress_exception
+        )
+        self._create_alias()
+
+    def _create_alias(self) -> None:
+        """Create alias for some methods"""
+        self.client_create = self.client_create_room
+        self.client_leave = self.client_leave_room
 
     def client_create_room(
         self,
