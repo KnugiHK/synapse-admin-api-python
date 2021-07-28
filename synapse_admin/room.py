@@ -325,24 +325,28 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def set_admin(self, roomid: str, userid: str) -> bool:
+    def set_admin(self, roomid: str, userid: str = None) -> bool:
         """Set a member to be the admin in the room
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#make-room-admin-api
 
         Args:
             roomid (str): the room you want to grant admin privilege to the user # noqa: E501
-            userid (str): the user you wanted them as an admin in the room
+            userid (str, optional): the user you wanted them as an admin in the room. Defaults to None (self).
 
         Returns:
             bool: The modification is successful or not
         """
         roomid = self.validate_room(roomid)
-        userid = self.validate_username(userid)
+        if userid is not None:
+            userid = self.validate_username(userid)
+            body = {"user_id": userid}
+        else:
+            body = {}
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/rooms/{roomid}/make_room_admin", 1),
-            json={"user_id": userid}
+            json=body
         )
         data = resp.json()
         if resp.status_code == 200:
