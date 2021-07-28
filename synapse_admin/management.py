@@ -164,9 +164,9 @@ class Management(Admin):
             self.admin_patterns(f"/purge_history/{roomid}", 1),
             json=data
         )
-        data = resp.json()["purge_id"]
+        data = resp.json()
         if resp.status_code == 200:
-            return data
+            return data["purge_id"]
         else:
             if self.suppress_exception:
                 return False, data["errcode"], data["error"]
