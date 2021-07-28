@@ -30,7 +30,7 @@ class ClientAPI(Admin):
 
     base_path = "/_matrix/client/r0"
 
-    def client_create(
+    def client_create_room(
         self,
         public: bool = False,
         alias: str = None,
@@ -85,7 +85,7 @@ class ClientAPI(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def client_leave(self, roomid: str) -> bool:
+    def client_leave_room(self, roomid: str) -> bool:
         """leave a room as a client
 
         Args:
