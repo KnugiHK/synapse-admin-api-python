@@ -51,7 +51,11 @@ class User(Admin):
             server_protocol,
             suppress_exception
         )
-        self.devices = _Device(self.server_addr, self.connection, suppress_exception)
+        self.devices = _Device(
+            self.server_addr,
+            self.connection,
+            suppress_exception
+        )
         self._create_alias()
 
     def _create_alias(self) -> None:
@@ -495,7 +499,7 @@ class User(Admin):
             self.admin_patterns("/register", 1),
             json=data
         )
-        
+
         data = resp.json()
         if resp.status_code == 200:
             return data

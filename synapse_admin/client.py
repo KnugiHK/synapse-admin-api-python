@@ -29,7 +29,7 @@ class ClientAPI(Admin):
     """Matrix client APIs wrapper (Maybe I should use matrix-python-sdk)"""
 
     BASE_PATH = "/_matrix/client/r0"
-    
+
     def __init__(
         self,
         server_addr: str = None,
