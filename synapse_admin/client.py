@@ -56,7 +56,7 @@ class ClientAPI(Admin):
         else:
             data["visibility"] = "private"
         if alias is not None:
-            data["roo_alias_name"] = alias
+            data["room_alias_name"] = alias
         if name is not None:
             data["name"] = name
         if invite is not None:
