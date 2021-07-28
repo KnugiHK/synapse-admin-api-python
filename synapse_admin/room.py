@@ -141,7 +141,7 @@ class Room(Admin):
             return Contents(
                 data["rooms"],
                 data["total_rooms"],
-                data.get("next_token", None)
+                data.get("next_batch", None)
             )
         else:
             if self.suppress_exception:
