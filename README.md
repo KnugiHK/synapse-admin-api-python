@@ -38,7 +38,7 @@ Save to a config file? (Y/n)
 ### As arguments
 ```python
 >>> from synapse_admin import User
->>> user = User("example.com", 443, "<access token>")
+>>> user = User("example.com", 443, "<access token>", "https://")
 >>> details_of_users, number_of_users = user.lists()
 >>> print(details_of_users)
 [{'name': '@admin:example.com', 'user_type': None, 'is_guest': 0, 'admin': 1, 'deactivated': 0, 'shadow_banned': False, 'displayname': 'Admin', 'avatar_url': 'mxc://example.com/ABCDEFG'}]
