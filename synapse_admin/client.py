@@ -121,7 +121,7 @@ class ClientAPI(Admin):
             roomid (str): the id of room which the client want to leave
 
         Returns:
-            bool: succuess or not
+            bool: success or not
         """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
@@ -159,7 +159,7 @@ class ClientAPI(Admin):
             port (int): homeserver listening port. Defaults to None.
             username (str, optional): just username. Defaults to None.
             password (str, optional): just password. Defaults to None.
-            suppress_exception (bool, optional): supress exception or not, if not return False and the error in dict. Defaults to False. # noqa: E501
+            suppress_exception (bool, optional): suppress exception or not, if not return False and the error in dict. Defaults to False. # noqa: E501
 
         Returns:
             str: access token
