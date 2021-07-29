@@ -379,7 +379,7 @@ class Media(Admin):
     def delete_local_media_by_condition(
         self,
         timestamp: int = Utility.get_current_time(),
-        size_gt: int = None,
+        size_gt: int = 0,
         keep_profiles: bool = True,
         server_name: str = None
     ) -> Contents:
@@ -403,14 +403,8 @@ class Media(Admin):
         if keep_profiles:
             optional_str += "&keep_profiles=true"
 
-        if size_gt is not None:
-            if size_gt < 0:
-                raise ValueError(
-                    "Argument 'size_gt' must "
-                    "be a positive integer"
-                )
-            optional_str += f"&size_gt={size_gt}"
-
+        if size_gt < 0:
+            raise ValueError("Argument 'size_gt' must be a positive integer")
         if not isinstance(timestamp, int):
             raise TypeError("Argument 'timestamp' must be an integer")
 
@@ -418,7 +412,7 @@ class Media(Admin):
             "POST",
             self.admin_patterns(
                 f"/media/{server_name}/delete?before_ts="
-                f"{timestamp}{optional_str}", 1
+                f"{timestamp}&size_gt={size_gt}{optional_str}", 1
             ),
             json={},
         )
