@@ -310,7 +310,8 @@ class Media(Admin):
             remote (bool, optional): whether to delete remote media cache. Defaults to False. # noqa: E501
 
         Returns:
-            If remote is False returns bool: the deletion is success or not
+            If mediaid is not None return bool: the deletion is success or not
+            If remote is False returns Contents: a list of deleted media
             If remote is True returns int: number of deleted media
         """
         if mediaid and (timestamp or size_gt or keep_profiles):
