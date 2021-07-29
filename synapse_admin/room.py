@@ -236,12 +236,14 @@ class Room(Admin):
             encrypted=encrypted
         )
         joined = []
-        for member in members:
-            userid = self.validate_username(member)
-            if self.user.join_room(userid, roomid):
-                joined.append(userid)
+        if members is not None:
+            for member in members:
+                userid = self.validate_username(member)
+                if self.user.join_room(userid, roomid):
+                    joined.append(userid)
         if leave:
             self.client_api.client_leave(roomid)
+
         return Room.RoomInformation(roomid, joined)
 
     def delete(
