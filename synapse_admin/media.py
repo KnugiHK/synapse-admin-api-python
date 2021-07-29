@@ -335,6 +335,8 @@ class Media(Admin):
                 timestamp = Utility.get_current_time()
             if keep_profiles is None:
                 keep_profiles = True
+            if size_gt is None:
+                size_gt = 0
 
             return self.delete_local_media_by_condition(
                 timestamp,
