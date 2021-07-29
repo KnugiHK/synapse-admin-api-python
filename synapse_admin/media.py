@@ -411,6 +411,9 @@ class Media(Admin):
                 )
             optional_str += f"&size_gt={size_gt}"
 
+        if not isinstance(timestamp, int):
+            raise TypeError("Argument 'timestamp' must be an integer")
+
         resp = self.connection.request(
             "POST",
             self.admin_patterns(
