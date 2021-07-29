@@ -228,6 +228,13 @@ class Room(Admin):
         Returns:
             RoomInformation: roomid: room id, joined: a list of joined users
         """
+        if members is None and leave:
+            raise ValueError(
+                "You cannot create a room and leave"
+                " the room immediately since you"
+                " are the only member of the room"
+            )
+
         roomid = self.client_api.client_create(
             public,
             alias,
