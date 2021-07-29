@@ -54,6 +54,13 @@ class Media(Admin):
             server_protocol,
             suppress_exception
         )
+        self._create_alias()
+
+    def _create_alias(self) -> None:
+        """Create alias for some methods"""
+        self.lists = self.list = self.list_media
+        self.protect = self.protect_media
+        self.unprotect = self.unprotect_media
 
     def statistics(
         self,
