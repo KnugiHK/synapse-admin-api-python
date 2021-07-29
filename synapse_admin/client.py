@@ -58,7 +58,8 @@ class ClientAPI(Admin):
         alias: str = None,
         name: str = None,
         invite: Union[str, list] = None,
-        federation: bool = True
+        federation: bool = True,
+        encrypted: bool = True
     ) -> str:
         """Create a room as a client
 
@@ -92,6 +93,12 @@ class ClientAPI(Admin):
                 raise TypeError("Argument invite must be str or list.")
             data["invite"] = validated_invite
         data["creation_content"] = {"m.federate": federation}
+        if encrypted:
+            data["initial_state"] = [{
+                "type": "m.room.encryption",
+                "state_key": "",
+                "content": {"algorithm": "m.megolm.v1.aes-sha2"}
+            }]
 
         resp = self.connection.request(
             "POST",
