@@ -29,20 +29,20 @@ Enter a username: admin
 Enter a password:
 Token retrieved successfully
 Save to a config file? (Y/n)
->>> details_of_users, number_of_users = user.lists()
+>>> details_of_users = user.lists()
 >>> print(details_of_users)
 [{'name': '@admin:example.com', 'user_type': None, 'is_guest': 0, 'admin': 1, 'deactivated': 0, 'shadow_banned': False, 'displayname': 'Admin', 'avatar_url': 'mxc://example.com/ABCDEFG'}]
->>> print(number_of_users)
+>>> print(details_of_users.total)
 1
 ```
 ### As arguments
 ```python
 >>> from synapse_admin import User
 >>> user = User("example.com", 443, "<access token>", "https://")
->>> details_of_users, number_of_users = user.lists()
+>>> details_of_users = user.lists()
 >>> print(details_of_users)
 [{'name': '@admin:example.com', 'user_type': None, 'is_guest': 0, 'admin': 1, 'deactivated': 0, 'shadow_banned': False, 'displayname': 'Admin', 'avatar_url': 'mxc://example.com/ABCDEFG'}]
->>> print(number_of_users)
+>>> print(details_of_users.total)
 1
 ```
 ## Documentation
