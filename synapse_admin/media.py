@@ -165,6 +165,7 @@ class Media(Admin):
         """
         if server_name is None:
             server_name = self.server_addr
+        mediaid = self.extract_media_id(mediaid)
         resp = self.connection.request(
             "POST",
             self.admin_patterns(
@@ -228,6 +229,7 @@ class Media(Admin):
         """
         if server_name is None:
             server_name = self.server_addr
+        mediaid = self.extract_media_id(mediaid)
         resp = self.connection.request(
             "POST",
             self.admin_patterns(
@@ -250,6 +252,7 @@ class Media(Admin):
         Returns:
             bool: the operation is successful or not
         """
+        mediaid = self.extract_media_id(mediaid)
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/media/protect/{mediaid}", 1),
@@ -275,6 +278,7 @@ class Media(Admin):
         Returns:
             bool: the operation is successful or not
         """
+        mediaid = self.extract_media_id(mediaid)
         resp = self.connection.request(
             "POST",
             self.admin_patterns(f"/media/unprotect/{mediaid}", 1),
@@ -329,6 +333,7 @@ class Media(Admin):
             return self.purge_remote_media(Utility.get_current_time())
 
         if mediaid:
+            mediaid = self.extract_media_id(mediaid)
             return self.delete_local_media(mediaid, server_name)
 
         if timestamp or size_gt or keep_profiles:
@@ -364,6 +369,7 @@ class Media(Admin):
         """
         if server_name is None:
             server_name = self.server_addr
+        mediaid = self.extract_media_id(mediaid)
 
         resp = self.connection.request(
             "DELETE",

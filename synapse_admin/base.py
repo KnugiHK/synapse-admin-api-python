@@ -515,6 +515,19 @@ class Admin():
             path = "/" + path
         return f"{base}v{version}{path}"
 
+    def extract_media_id(self, uri: str) -> str:
+        """Extract media id from mxc media URI
+
+        Args:
+            uri (str): the URI needed to be cleaned
+
+        Returns:
+            str: clean media id
+        """
+        if uri[:6] == "mxc://":
+            uri = uri.split("/")[-1]
+        return uri
+
 
 class Client(httpx.Client):
     """Some custom behavior based on httpx.Client"""
