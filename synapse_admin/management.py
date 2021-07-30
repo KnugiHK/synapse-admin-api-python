@@ -116,9 +116,8 @@ class Management(Admin):
         Returns:
             dict: a dict with user id as key and the event id as value
         """
-        users, _, _ = self.user.lists()
         events = {}
-        for user in users:
+        for user in self.user.lists():
             events[user["name"]] = self.announce(user["name"], announcement)
         return events
 
