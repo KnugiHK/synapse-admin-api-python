@@ -36,6 +36,9 @@ class User(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/room_membership.md
     """
 
+    ORDER = ("name", "is_guest", "admin", "user_type", "deactivated",
+             "shadow_banned", "displayname", "avatar_url", "creation_ts")
+
     def __init__(
         self,
         server_addr: str = None,
@@ -99,6 +102,11 @@ class User(Admin):
         if name is not None:
             optional_str += f"&name={name}"
         if order_by is not None:
+            if order_by not in User.ORDER:
+                raise ValueError(
+                    "Argument 'order_by' must be included in User.ORDER, "
+                    "for details please read the documentation."
+                )
             optional_str += f"&order_by={order_by}"
 
         resp = self.connection.request(
