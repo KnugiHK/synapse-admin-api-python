@@ -112,25 +112,29 @@ class Management(Admin):
 
     def announce(
         self,
-        userid: Union[str, list],
+        userid: Union[str, bool],
         announcement: str = None,
         attachment: Union[str, bytes] = None
     ) -> Union[str, list]:
         """Send an announcement to a user or a batch of users
 
         Args:
-            userid (Union[str, list]): user or users you want to send them annoucement  # noqa: E501
+            userid (Union[str, bool]): user you want to send them annoucement or set True to send the announcement to all users  # noqa: E501
             announcement (str, optional): a text-based announcement. Defaults to None.
             attachment (Union[str, bytes], optional): the media you want to send or to attach. Either provide a path to the file or the stream. Defaults to None.
 
         Returns:
-            Union[str, Tuple[list, list]]: if either announcement or attachment is specified, return the event id
+            Union[str, list]: if either announcement or attachment is specified, return the event id
                 if both announcement and attachment are specified, return a list which contains the event id for the attachment and the text
         """
         if isinstance(userid, str):
             invoking_method = self._announce
-        elif isinstance(userid, list):
+        elif isinstance(userid, bool) and userid:
             invoking_method = self.announce_all
+            raise ValueError(
+                "Argument must be a non-empty "
+                "str or a True of bool"
+            )
         if announcement is None and attachment is None:
             raise ValueError(
                 "You must at least specify"
@@ -155,7 +159,7 @@ class Management(Admin):
                 event_ids.append(invoking_method(userid, announcement))
                 return event_ids
             else:
-                announcement = ""     
+                announcement = ""
         elif announcement is not None:
             data = None
         return invoking_method(userid, announcement, data)
