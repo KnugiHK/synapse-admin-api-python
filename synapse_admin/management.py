@@ -19,10 +19,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
-
+import os
 from synapse_admin import User
 from synapse_admin.base import Admin, SynapseException, Contents
-from typing import NamedTuple, Union
+from synapse_admin.client import ClientAPI
+from typing import NamedTuple, Union, Tuple
 
 
 class Management(Admin):
@@ -65,15 +66,115 @@ class Management(Admin):
                 server_protocol,
                 suppress_exception
             )
+            self.client = ClientAPI(
+                server_addr,
+                server_port,
+                access_token,
+                server_protocol,
+                suppress_exception
+            )
         else:
             self.user = User()
+            self.client = ClientAPI()
         self._create_alias()
 
     def _create_alias(self) -> None:
         """Create alias for some methods"""
         self.event_report = self.specific_event_report
 
-    def announce(self, userid: str, announcement: str) -> str:
+    def _prepare_attachment(
+        self,
+        attachment: Union[str, bytes]
+    ) -> Tuple[str, str, str]:
+        """Upload a media and return its information
+
+        Args:
+            attachment (Union[str, bytes]): the media, either in str or bytes
+
+        Returns:
+            Tuple[str, str, str]: media id, message type defined in matrix, file name  # noqa: E501
+        """
+        mediaid, mime = self.client.client_upload_attachment(attachment)
+        if isinstance(attachment, bytes):
+            filename = "unknown"
+        else:
+            filename = os.path.basename(attachment)
+        if "image/" in mime:
+            msgtype = "m.image"
+        elif "video/" in mime:
+            msgtype = "m.video"
+        elif "audio/" in mime:
+            msgtype = "m.audio"
+        else:
+            msgtype = "m.file"
+
+        return mediaid, msgtype, filename
+
+    def announce(
+        self,
+        userid: Union[str, list],
+        announcement: str = None,
+        attachment: Union[str, bytes] = None
+    ) -> Union[str, list]:
+        """Send an announcement to a user or a batch of users
+
+        Args:
+            userid (Union[str, list]): user or users you want to send them annoucement  # noqa: E501
+            announcement (str, optional): a text-based announcement. Defaults to None.
+            attachment (Union[str, bytes], optional): the media you want to send or to attach. Either provide a path to the file or the stream. Defaults to None.
+
+        Returns:
+            Union[str, Tuple[list, list]]: if either announcement or attachment is specified, return the event id
+                if both announcement and attachment are specified, return a list which contains the event id for the attachment and the text
+        """
+        if isinstance(userid, str):
+            invoking_method = self._announce
+        elif isinstance(userid, list):
+            invoking_method = self.announce_all
+        if announcement is None and attachment is None:
+            raise ValueError(
+                "You must at least specify"
+                "announcement or attachment"
+            )
+        userid = self.validate_username(userid)
+        if attachment is not None:
+            mediaid, msgtype, filename = self._prepare_attachment(
+                userid,
+                attachment
+            )
+        if announcement is not None and attachment is not None:
+            event_ids = []
+            data = {
+                "user_id": userid,
+                "content": {
+                    "body": filename,
+                    "msgtype": msgtype,
+                    "url": mediaid
+                }
+            }
+            event_ids.append(invoking_method(userid, "", data))
+            event_ids.append(invoking_method(userid, announcement))
+            return event_ids
+        elif announcement is not None:
+            data = None
+        elif attachment is not None:
+            data = {
+                "user_id": userid,
+                "content": {
+                    "body": filename,
+                    "msgtype": msgtype,
+                    "url": mediaid
+                }
+            }
+            announcement = ""
+        return invoking_method(userid, announcement, data)
+
+    def _announce(
+        self,
+        userid: str,
+        announcement: str,
+        data: dict = None
+    ) -> str:
         """Send an announcement to a specific user
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/server_notices.md#server-notices
@@ -86,13 +187,15 @@ class Management(Admin):
             str: event id of the announcement
         """
         userid = self.validate_username(userid)
-        data = {
-            "user_id": userid,
-            "content": {
-                "msgtype": "m.text",
-                "body": announcement
+        if data is None:
+            data = {
+                "user_id": userid,
+                "content": {
+                    "msgtype": "m.text",
+                    "body": announcement
+                }
             }
-        }
+
         resp = self.connection.request(
             "POST",
             self.admin_patterns("/send_server_notice", 1),
@@ -107,7 +210,7 @@ class Management(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def announce_all(self, announcement: str) -> dict:
+    def announce_all(self, announcement: str, data: dict = None) -> dict:
         """Send an announcement to all local users
 
         Args:
@@ -118,7 +221,11 @@ class Management(Admin):
         """
         events = {}
         for user in self.user.lists():
-            events[user["name"]] = self.announce(user["name"], announcement)
+            events[user["name"]] = self._announce(
+                user["name"],
+                announcement,
+                data
+            )
         return events
 
     def version(self) -> SynapseVersion:

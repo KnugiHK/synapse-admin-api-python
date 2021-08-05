@@ -20,9 +20,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
+import mimetypes
 from synapse_admin.base import Admin, SynapseException, Utility
 from synapse_admin import User
-from typing import Union
+from typing import Tuple, Union
 
 
 class ClientAPI(Admin):
@@ -135,6 +136,47 @@ class ClientAPI(Admin):
                 return True
             else:
                 return data
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def client_upload_attachment(
+        self,
+        attachment: Union[str, bytes]
+    ) -> Tuple[str, str]:
+        """Upload media as a client
+
+        Args:
+            attachment (Union[str, bytes]): path to the attachment or the attachment in bytes  # noqa: E501
+
+        Returns:
+            Tuple[str, str]: media mxc url, mime type
+        """
+        content_type = "application/octet-stream"
+        if isinstance(attachment, str):
+            guess, _ = mimetypes.guess_type(attachment)
+            if guess:
+                content_type = guess
+            with open(attachment, "rb",) as f:
+                attachment = f.read()
+        elif isinstance(attachment, bytes):
+            guess = Utility.guess_type(attachment)
+            if guess:
+                content_type = guess
+        else:
+            raise TypeError("Argument attachment must be str or bytes")
+
+        resp = self.connection.request(
+            "POST",
+            "/_matrix/media/r0/upload",
+            content=attachment,
+            headers={"Content-Type": content_type}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["content_uri"], content_type
         else:
             if self.suppress_exception:
                 return False, data

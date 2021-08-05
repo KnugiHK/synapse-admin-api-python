@@ -96,6 +96,18 @@ class Utility():
         else:
             return password
 
+    @staticmethod
+    def guess_type(stream: bytes) -> str:
+        """Provide very limited guesses on the mime type base on the magic of the stream  # noqa: E501
+
+        Args:
+            stream (bytes): the stream
+
+        Returns:
+            str: mime type
+        """
+        ...
+
 
 class _BaseContents():
     """Base class for Contents"""
@@ -575,7 +587,8 @@ class HTTPConnection():
         self,
         method: str,
         path: str,
-        json: Any = None
+        json: Any = None,
+        **kwargs: Any
     ) -> httpx.Response:
         """Determine the correct HTTP method to be used and fire the request
 
@@ -590,5 +603,5 @@ class HTTPConnection():
         url = self.base_url + path
         request = self.method_map[method]
         if json is not None:
-            return request(url, json=json)
-        return request(url)
+            return request(url, json=json, **kwargs)
+        return request(url, **kwargs)
