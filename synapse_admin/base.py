@@ -47,6 +47,18 @@ class Utility():
 
     port_re = re.compile(r":[0-9]{1,5}/?$")
     http_re = re.compile(r"^https?://")
+    mime_map = {
+        b"\xff\xd8": "image/jpeg", b"\x42\x4D": "image/bmp",
+        b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A": "image/png",
+        b"\x49\x49\x2A\x00": "image/tiff", b"\x4D\x4D\x00\x2A": "image/tiff",
+        b"\x47\x49\x46\x38\x37\x61": "image/gif",
+        b"\x47\x49\x46\x38\x39\x61": "image/gif",
+        b"\xFF\xFB": "audio/mpeg", b"\xFF\xF3": "audio/mpeg",
+        b"\xFF\xF2": "audio/mpeg", b"\x4F\x67\x67\x53": "audio/ogg",
+        b"\x4F\x70\x75\x73\x48\x65\x61\x64": "audio/opus",
+        b"\x1A\x45\xDF\xA3": "video/webm",
+        b"\x66\x74\x79\x70\x69\x73\x6F\x6D": "video/mp4",
+    }
 
     @staticmethod
     def get_bool(boolean: bool) -> str:
@@ -106,7 +118,11 @@ class Utility():
         Returns:
             str: mime type
         """
-        ...
+        for magic, mime in Utility.mime_map.items():
+            num = len(magic)
+            if stream[:num] == magic:
+                return mime
+        return None
 
 
 class _BaseContents():
