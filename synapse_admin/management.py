@@ -139,11 +139,8 @@ class Management(Admin):
         userid = self.validate_username(userid)
         if attachment is not None:
             mediaid, msgtype, filename = self._prepare_attachment(
-                userid,
                 attachment
             )
-        if announcement is not None and attachment is not None:
-            event_ids = []
             data = {
                 "user_id": userid,
                 "content": {
@@ -152,21 +149,15 @@ class Management(Admin):
                     "url": mediaid
                 }
             }
-            event_ids.append(invoking_method(userid, "", data))
-            event_ids.append(invoking_method(userid, announcement))
-            return event_ids
+            if announcement is not None:
+                event_ids = []
+                event_ids.append(invoking_method(userid, "", data))
+                event_ids.append(invoking_method(userid, announcement))
+                return event_ids
+            else:
+                announcement = ""     
         elif announcement is not None:
             data = None
-        elif attachment is not None:
-            data = {
-                "user_id": userid,
-                "content": {
-                    "body": filename,
-                    "msgtype": msgtype,
-                    "url": mediaid
-                }
-            }
-            announcement = ""
         return invoking_method(userid, announcement, data)
 
     def _announce(
