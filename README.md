@@ -3,6 +3,7 @@
 [![License MIT](https://img.shields.io/pypi/l/matrix-synapse-admin)](https://github.com/KnugiHK/synapse-admin-api-python/blob/main/LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/matrix-synapse-admin)](https://pypi.org/project/matrix-synapse-admin/)
 [![Synapse](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FKnugiHK%2Fsynapse-admin-api-python%2Fmain%2Fsupported_synapse.json)](https://github.com/KnugiHK/synapse-admin-api-python/blob/main/TODO.md)
+[![Tests](https://github.com/KnugiHK/synapse-admin-api-python/actions/workflows/tests.yml/badge.svg)](https://github.com/KnugiHK/synapse-admin-api-python/actions/workflows/tests.yml)
 
 A Python wrapper for [Matrix Synapse admin API](https://github.com/matrix-org/synapse).
 
