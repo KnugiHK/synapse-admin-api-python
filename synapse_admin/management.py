@@ -131,10 +131,7 @@ class Management(Admin):
             invoking_method = self._announce
         elif isinstance(userid, bool) and userid:
             invoking_method = self.announce_all
-            raise ValueError(
-                "Argument must be a non-empty "
-                "str or a True of bool"
-            )
+            raise ValueError("Argument must be a non-empty str or True")
         if announcement is None and attachment is None:
             raise ValueError(
                 "You must at least specify"
