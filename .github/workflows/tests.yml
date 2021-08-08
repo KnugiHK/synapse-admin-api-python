@@ -1,0 +1,80 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  testing:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Setup Synapse and dependencies
+      run: |
+        sudo apt install build-essential python3-dev \
+                         libffi-dev sqlite3 libssl-dev \
+                         libxslt1-dev libjpeg-dev python3-venv
+                     
+        mkdir -p synapse_test
+        python3 -m venv synapse_test/env
+        source synapse_test/env/bin/activate
+        pip install --upgrade pip setuptools flake8 pytest matrix-synapse .
+        cd synapse_test
+        python -m synapse.app.homeserver \
+            --server-name localhost \
+            --config-path homeserver.yaml \
+            --generate-config \
+            --report-stats=no
+
+        # Enable server notices
+        sed -i '/#server_notices:/s/^#//' homeserver.yaml
+        sed -i '/#  system_mxid_localpart: notices/s/^#//' homeserver.yaml
+        sed -i '/#  system_mxid_display_name: "Server Notices"/s/^#//' homeserver.yaml
+        sed -i '/#  system_mxid_avatar_url:.*/s/^#//' homeserver.yaml
+        sed -i '/#  room_name: "Server Notices"/s/^#//' homeserver.yaml
+
+        synctl start
+
+        register_new_matrix_user -c homeserver.yaml -a -u admin1 -p 0123456789 http://localhost:8008
+        register_new_matrix_user -c homeserver.yaml --no-admin -u test1 -p 123456789 http://localhost:8008
+        netstat -ltp
+        wget -O - http://localhost:8008/_matrix/client/versions
+
+        login1=$(curl -s 'http://localhost:8008/_matrix/client/r0/login' --compressed \
+        -H 'Content-Type: application/json' --data-raw '{"type":"m.login.password",
+        "password":"123456789","identifier":{"type":"m.id.user","user":"test1"},
+        "initial_device_display_name":"Testing curl"}')
+        echo "$login1" | grep -oP '(?<="access_token":").*?(?=")' > user.token
+
+        login2=$(curl -s 'http://localhost:8008/_matrix/client/r0/login' --compressed \
+        -H 'Content-Type: application/json' --data-raw '{"type":"m.login.password",
+        "password":"0123456789","identifier":{"type":"m.id.user","user":"admin1"},
+        "initial_device_display_name":"Testing curl"}')
+        echo "$login2" | grep -oP '(?<="access_token":").*?(?=")' > admin.token
+        if [ ! -s admin.token ] | [ ! -s user.token ]; then
+            synctl stop
+            exit 2
+        fi
+    - name: Lint with flake8
+      run: |
+        source synapse_test/env/bin/activate
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 synapse_admin --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 synapse_admin --count --exit-zero --max-complexity=10 --max-line-length=127 --ignore=E402,F401 --statistics
+    - name: Unit test
+      run: |
+        source synapse_test/env/bin/activate
+        pytest -v
