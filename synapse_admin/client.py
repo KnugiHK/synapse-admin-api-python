@@ -28,7 +28,7 @@ from typing import Tuple, Union
 
 class ClientAPI(Admin):
     """Matrix client APIs wrapper (Maybe I should use matrix-python-sdk)
-    
+
     References:
         https://github.com/matrix-org/matrix-python-sdk/blob/master/matrix_client/api.py#L192
         https://github.com/matrix-org/matrix-python-sdk/blob/master/matrix_client/api.py#L527

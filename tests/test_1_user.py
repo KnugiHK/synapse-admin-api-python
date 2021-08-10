@@ -83,13 +83,13 @@ def test_user_deactivate():
 def test_user_reactivate():
     assert user_handler.reactivate("test2", "123456789123456789")
     assert ClientAPI.admin_login(
-            "http://",
-            "localhost",
-            8008,
-            "test2",
-            "123456789123456789",
-            no_admin=True
-        )
+        "http://",
+        "localhost",
+        8008,
+        "test2",
+        "123456789123456789",
+        no_admin=True
+    )
 
 
 def test_user_reset_password():
