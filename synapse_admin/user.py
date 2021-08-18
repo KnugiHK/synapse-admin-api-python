@@ -834,6 +834,28 @@ class User(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
+    def username_available(self, userid: str) -> bool:
+        """Check if provided username is available or not
+
+        Args:
+            userid (str): the username you want to check
+
+        Returns:
+            bool: the username is available or not
+        """
+        resp = self.connection.request(
+            "POST",
+            self.admin_patterns(f"/username_availabile?username={userid}", 1)
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["available"]
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
 
 class _Device(Admin):
     def __init__(self, server_addr, conn, suppress_exception):
