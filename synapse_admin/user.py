@@ -140,7 +140,8 @@ class User(Admin):
         threepids: list = None,
         avatar_url: str = None,
         admin: bool = None,
-        deactivated: bool = None
+        deactivated: bool = None,
+        external_ids: list = None
     ) -> bool:
         """Create or modify a user
 
@@ -154,6 +155,7 @@ class User(Admin):
             avatar_url (str, optional): equivalent to "avatar_url". Defaults to None.
             admin (bool, optional): equivalent to "admin". Defaults to None.
             deactivated (bool, optional): equivalent to "deactivated". Defaults to None.
+            external_ids (list, optional): equivalent to "external_ids". Defaults to None.
 
         Returns:
             bool: The creation of user is successful or not
@@ -171,6 +173,8 @@ class User(Admin):
             body["admin"] = admin
         if deactivated:
             body["deactivated"] = deactivated
+        if external_ids:
+            body["external_ids"] = external_ids
 
         userid = self.validate_username(userid)
         resp = self.connection.request(
