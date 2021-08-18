@@ -428,6 +428,49 @@ class Media(Admin):
         data = resp.json()
         return Contents(data["deleted_media"], data["total"])
 
+    def delete_media_by_user(
+        self,
+        userid: str,
+        limit: int = 100,
+        _from: int = 0,
+        order_by: int = None,
+        _dir: str = "f"
+    ) -> Contents:
+        """Delete local media uploaded by a specific user
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#delete-media-uploaded-by-a-user
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#list-media-uploaded-by-a-user
+
+        Args:
+            userid (str): the user you want to delete their uploaded media
+            limit (int, optional): equivalent to "limit". Defaults to 100.
+            _from (int, optional): equivalent to "from". Defaults to 0.
+            order_by (int, optional): equivalent to "order_by". Defaults to None. # noqa: E501
+            _dir (str, optional): equivalent to "dir". Defaults to "f".
+
+        Returns:
+            Contents: list of media deleted
+        """
+        userid = self.validate_username(userid)
+        optional_str = ""
+        if order_by is not None:
+            optional_str += f"&order_by={order_by}"
+        resp = self.connection.request(
+            "DELETE",
+            self.admin_patterns(
+                f"/users/{userid}/media?"
+                f"limit={limit}&from={_from}"
+                f"&dir={_dir}{optional_str}", 1)
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return Contents(data["deleted_media"], data["total"])
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
     def purge_remote_media(
         self,
         timestamp: int = Utility.get_current_time()
