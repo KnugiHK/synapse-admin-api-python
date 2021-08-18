@@ -841,6 +841,8 @@ class User(Admin):
     def username_available(self, userid: str) -> bool:
         """Check if provided username is available or not
 
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#check-username-availability
+
         Args:
             userid (str): the username you want to check
 
