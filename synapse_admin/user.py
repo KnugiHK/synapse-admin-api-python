@@ -851,7 +851,7 @@ class User(Admin):
         """
         resp = self.connection.request(
             "POST",
-            self.admin_patterns(f"/username_availabile?username={userid}", 1)
+            self.admin_patterns(f"/username_available?username={userid}", 1)
         )
         data = resp.json()
         if resp.status_code == 200:
