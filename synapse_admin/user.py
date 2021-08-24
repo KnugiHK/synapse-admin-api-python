@@ -854,8 +854,10 @@ class User(Admin):
             self.admin_patterns(f"/username_available?username={userid}", 1)
         )
         data = resp.json()
-        if resp.status_code == 200:
+        if "available" in data:
             return data["available"]
+        elif "errcode" in data and data["errcode"] == "M_USER_IN_USE":
+            return False
         else:
             if self.suppress_exception:
                 return False, data
