@@ -850,7 +850,7 @@ class User(Admin):
             bool: the username is available or not
         """
         resp = self.connection.request(
-            "POST",
+            "GET",
             self.admin_patterns(f"/username_available?username={userid}", 1)
         )
         data = resp.json()
