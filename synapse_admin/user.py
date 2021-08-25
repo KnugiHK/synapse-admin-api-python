@@ -847,7 +847,9 @@ class User(Admin):
             userid (str): the username you want to check
 
         Returns:
-            bool: the username is available or not
+            bool:
+                True: the username is available
+                False: the username is used
         """
         resp = self.connection.request(
             "GET",
@@ -859,10 +861,7 @@ class User(Admin):
         elif "errcode" in data and data["errcode"] == "M_USER_IN_USE":
             return False
         else:
-            if self.suppress_exception:
-                return False, data
-            else:
-                raise SynapseException(data["errcode"], data["error"])
+            raise SynapseException(data["errcode"], data["error"])
 
 
 class _Device(Admin):
