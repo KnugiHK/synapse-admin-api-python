@@ -850,7 +850,7 @@ class User(Admin):
             bool:
                 True: the username is available
                 False: the username is used
-        
+
         Please note that this method DOES NOT supress exception
         """
         resp = self.connection.request(
