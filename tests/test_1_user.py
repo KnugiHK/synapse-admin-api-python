@@ -277,3 +277,9 @@ def test_user_device_delete_multiple():
     assert user_handler.devices.delete("test2", delete_devices)
     with pytest.raises(SynapseException):
         user_handler.devices.delete("invalid", ["invalid", "invalid2"])
+
+def test_user_username_available():
+    assert not user_handler.username_available("test2")
+    assert user_handler.username_available("test4")
+    with pytest.raises(SynapseException):
+        user_handler.username_available("invalid@@@#")
