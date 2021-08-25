@@ -49,7 +49,20 @@ def test_user_list():
 
 
 def test_user_create():
-    user_handler.create("test2", password="12345678", displayname="Test 2")
+    user_handler.create(
+        "test2",
+        password="12345678",
+        displayname="Test 2",
+        admin=False,
+        threepids=[{
+            "medium": "email",
+            "address": "test2@example.com"
+        }],
+        external_ids=[{
+            "auth_provider": "https://example.com/test",
+            "external_id": "test2"
+        }]
+    )
     assert user_handler.lists().total == 3
 
 
@@ -61,6 +74,13 @@ def test_user_query():
     test2 = user_handler.query("test2")
     assert test2["name"] == "@test2:localhost"
     assert test2["displayname"] == "This is a test"
+    assert test2["admin"] == 0
+    assert test2["threepids"][0]["medium"] == "email"
+    assert test2["threepids"][0]["address"] == "test2@example.com"
+    assert test2["external_ids"] == [{
+            "auth_provider": "https://example.com/test",
+            "external_id": "test2"
+        }]
 
 
 def test_user_active_session():
@@ -277,6 +297,7 @@ def test_user_device_delete_multiple():
     assert user_handler.devices.delete("test2", delete_devices)
     with pytest.raises(SynapseException):
         user_handler.devices.delete("invalid", ["invalid", "invalid2"])
+
 
 def test_user_username_available():
     assert not user_handler.username_available("test2")
