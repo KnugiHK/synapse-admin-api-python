@@ -25,7 +25,7 @@ import httpx
 import mimetypes
 import os
 import pytest
-from synapse_admin import Media, Room
+from synapse_admin import Media, Room, User
 from synapse_admin.base import HTTPConnection, SynapseException, Utility
 from uuid import uuid4
 
@@ -39,6 +39,7 @@ with open("synapse_test/user.token", "r") as f:
 
 conn = ("localhost", 8008, admin_access_token, "http://")
 media_handler = Media(*conn)
+user_handler = User(*conn)
 test1_conn = HTTPConnection(
     "http://",
     "localhost",
@@ -67,6 +68,7 @@ def get_testing_media():
 
 def upload_media():
     global media_id
+    media_id = []
     http_client = httpx.Client()
     endpoint = "http://localhost:8008/_matrix/media/r0/upload"
     testing_media = get_testing_media()
@@ -259,3 +261,33 @@ def test_media_delete_local_media_by_condition():
     assert deletion.total == 2
     for media in media_id:
         assert query_media(media).status_code == 404
+
+
+def test_media_delete_media_by_user():
+    """TODO: order_by"""
+    assert upload_media()
+    admin_media = []
+    test_media = []
+    for i in user_handler.list_media("admin1"):
+        admin_media.append(i["media_id"])
+    for i in user_handler.list_media("test1"):
+        test_media.append(i["media_id"])
+    assert len(admin_media) == 3
+    assert len(test_media) == 2
+    assert media_handler.delete_media_by_user(
+        "admin1",
+        1,
+        2
+    ) == [admin_media[2]]
+    assert media_handler.delete_media_by_user(
+        "admin1",
+        1,
+        _dir="b"
+    ) == [admin_media[1]]
+    assert media_handler.delete_media_by_user("test1") == test_media
+    assert media_handler.delete_media_by_user("admin1") == [admin_media[0]]
+    assert user_handler.list_media("test1") == []
+    assert user_handler.list_media("admin1") == []
+
+    with pytest.raises(SynapseException):
+        media_handler.delete_media_by_user("invalid")
