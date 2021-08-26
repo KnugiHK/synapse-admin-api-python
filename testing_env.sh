@@ -2,7 +2,7 @@
 
 sudo apt install build-essential python3-dev libffi-dev \
                  sqlite3 libssl-dev libjpeg-dev libxslt1-dev \
-                 python3-venv
+                 python3-venv libyaml-dev
 
 mkdir -p synapse_test
 pip3 install --upgrade virtualenv
