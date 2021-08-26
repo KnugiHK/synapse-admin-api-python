@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 import mimetypes
+import time
 from synapse_admin.base import Admin, SynapseException, Utility
 from synapse_admin import User
 from typing import Tuple, Union
@@ -75,6 +76,7 @@ class ClientAPI(Admin):
             name (str, optional): name of the room. Defaults to None.
             invite (Union[str, list], optional): list of members. Defaults to None. # noqa: E501
             federation (bool, optional): allow federation. Defaults to True.
+            encrypted (bool, optional): create encrypted room or not. Defaults to True
 
         Returns:
             str: created room id
@@ -106,19 +108,23 @@ class ClientAPI(Admin):
                 "content": {"algorithm": "m.megolm.v1.aes-sha2"}
             }]
 
-        resp = self.connection.request(
-            "POST",
-            f"{ClientAPI.BASE_PATH}/createRoom",
-            json=data
-        )
-        data = resp.json()
-        if resp.status_code == 200:
-            return data["room_id"]
-        else:
-            if self.suppress_exception:
-                return False, data
+        while True:
+            resp = self.connection.request(
+                "POST",
+                f"{ClientAPI.BASE_PATH}/createRoom",
+                json=data
+            )
+            data = resp.json()
+            if "errcode" in data and data["errcode"] == "M_LIMIT_EXCEEDED":
+                time.sleep(data["retry_after_ms"] / 1000)
+                continue
+            if resp.status_code == 200:
+                return data["room_id"]
             else:
-                raise SynapseException(data["errcode"], data["error"])
+                if self.suppress_exception:
+                    return False, data
+                else:
+                    raise SynapseException(data["errcode"], data["error"])
 
     def client_leave_room(self, roomid: str) -> bool:
         """leave a room as a client
