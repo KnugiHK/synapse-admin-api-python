@@ -30,7 +30,7 @@ jobs:
         mkdir -p synapse_test
         python3 -m venv synapse_test/env
         source synapse_test/env/bin/activate
-        pip install --upgrade pip setuptools flake8 pytest matrix-synapse .
+        pip install --upgrade pip setuptools wheel flake8 pytest matrix-synapse .
         cd synapse_test
         python -m synapse.app.homeserver \
             --server-name localhost \
@@ -38,12 +38,21 @@ jobs:
             --generate-config \
             --report-stats=no
 
+        latest_yq=$(wget -qO- https://github.com/mikefarah/yq/releases/latest | egrep -o 'v[0-9]\.[0-9]{2}\.[0-9]' | uniq)
+        sudo wget "https://github.com/mikefarah/yq/releases/download/$latest_yq/yq_linux_amd64" -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+
         # Enable server notices
         sed -i '/#server_notices:/s/^#//' homeserver.yaml
         sed -i '/#  system_mxid_localpart: notices/s/^#//' homeserver.yaml
         sed -i '/#  system_mxid_display_name: "Server Notices"/s/^#//' homeserver.yaml
         sed -i '/#  system_mxid_avatar_url:.*/s/^#//' homeserver.yaml
         sed -i '/#  room_name: "Server Notices"/s/^#//' homeserver.yaml
+        yq e -i '.rc_login.address.per_second = 0.1' homeserver.yaml
+        yq e -i '.rc_login.address.burst_count = 20' homeserver.yaml
+        yq e -i '.rc_login.account.per_second = 0.1' homeserver.yaml
+        yq e -i '.rc_login.account.burst_count = 20' homeserver.yaml
+        yq e -i '.rc_login.failed_attempts.per_second = 0.1' homeserver.yaml
+        yq e -i '.rc_login.failed_attempts.burst_count = 20' homeserver.yaml
 
         synctl start
 

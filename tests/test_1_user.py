@@ -123,7 +123,6 @@ def test_user_reset_password():
             "123456789123456789",
             no_admin=True
         )
-    time.sleep(3)
     assert ClientAPI.admin_login(
         "http://",
         "localhost",
@@ -253,7 +252,6 @@ def test_user_device_lists():
             "12345678",
             no_admin=True
         )
-        time.sleep(3)
 
     devices = user_handler.devices.lists("test2")
     assert len(devices) == 4
