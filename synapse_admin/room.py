@@ -367,9 +367,9 @@ class Room(Admin):
                 raise SynapseException(data["errcode"], data["error"])
 
     def purge_room(self, roomid):
-        """Purge a room. Deprecated in the future (will not be tested)
+        """Purge a room. Removed in Synapse 1.42.0
 
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/purge_room.md
+        https://github.com/matrix-org/synapse/blob/3bcd525b46678ff228c4275acad47c12974c9a33/docs/admin_api/purge_room.md
         """
         roomid = self.validate_room(roomid)
         resp = self.connection.request(
@@ -377,7 +377,10 @@ class Room(Admin):
             self.admin_patterns("/purge_room", 1),
             json={"room_id": roomid}
         )
-        return resp.json()
+        data = resp.json()
+        if "errcode" in data and data["errcode"] == "M_UNRECOGNIZED":
+            raise NotImplementedError("This admin API has been removed in your homeserver")
+        return data
 
     def shutdown_room(
         self,
@@ -386,9 +389,9 @@ class Room(Admin):
         new_room_name=None,
         message=None
     ):
-        """Shut down a room. Deprecated in the future (will not be tested)
+        """Shut down a room. Removed in Synapse 1.42.0
 
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/shutdown_room.md
+        https://github.com/matrix-org/synapse/blob/3bcd525b46678ff228c4275acad47c12974c9a33/docs/admin_api/shutdown_room.md
         """
         roomid = self.validate_room(roomid)
         new_room_userid = self.validate_username(new_room_userid)
@@ -404,7 +407,10 @@ class Room(Admin):
             self.admin_patterns(f"/shutdown_room/{roomid}", 1),
             json=data,
         )
-        return resp.json()
+        data = resp.json()
+        if "errcode" in data and data["errcode"] == "M_UNRECOGNIZED":
+            raise NotImplementedError("This admin API has been removed in your homeserver")
+        return data
 
     def forward_extremities_check(self, roomid: str) -> Contents:
         """Query forward extremities in a room
