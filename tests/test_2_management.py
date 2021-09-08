@@ -58,7 +58,7 @@ def test_management_announce():
     """TODO: media announcement"""
     assert isinstance(mgt_handler.announce("test1", "This is a test"), str)
     assert isinstance(mgt_handler.announce("test1", "This is a test2"), str)
-    assert isinstance(mgt_handler.announce("admin", "This is a test"), str)
+    assert isinstance(mgt_handler.announce("admin1", "This is a test"), str)
 
 
 def test_management_announce_all():
