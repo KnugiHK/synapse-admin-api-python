@@ -499,4 +499,11 @@ class Media(Admin):
             ),
             json={},
         )
-        return resp.json()["deleted"]
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["deleted"]
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
