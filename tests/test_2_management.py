@@ -158,3 +158,9 @@ def test_management_delete_group():
     ).status_code == 404
     with pytest.raises(SynapseException):
         mgt_handler.delete_group("+invalid:localhost")
+
+def test_management_background_updates_get():
+    ...
+
+def test_management_background_updates_set():
+    ...

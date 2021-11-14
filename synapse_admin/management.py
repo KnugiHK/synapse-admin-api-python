@@ -398,3 +398,45 @@ class Management(Admin):
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
+
+    def background_updates_get(self) -> dict:
+        """Get the current status of background updates
+
+        Returns:
+            dict: a dict with all current_updates
+        """
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns("/background_updates/status", 1)
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def background_updates_set(self, enabled: bool) -> bool:
+        """Pause or resume background updates
+
+        Args:
+            enabled (bool, optional): True to enable, False to disable background updates.  # noqa: E501
+
+        Returns:
+            bool: whether the background updates are now enabled or disabled. True means enabled, False means disabled.
+        """
+        resp = self.connection.request(
+            "POST",
+            self.admin_patterns("/background_updates/enabled", 1),
+            json={"enabled": enabled}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["enabled"]
+        else:
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
