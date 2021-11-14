@@ -141,7 +141,8 @@ class User(Admin):
         avatar_url: str = None,
         admin: bool = None,
         deactivated: bool = None,
-        external_ids: list = None
+        external_ids: list = None,
+        user_type: Union[str, None] = ""
     ) -> bool:
         """Create or modify a user
 
@@ -156,6 +157,7 @@ class User(Admin):
             admin (bool, optional): equivalent to "admin". Defaults to None.
             deactivated (bool, optional): equivalent to "deactivated". Defaults to None.
             external_ids (list, optional): equivalent to "external_ids". Defaults to None.
+            user_type (Union[str, None], optional): equivalent to "user_type", empty str to leave this value unchange. Defaults to "".
 
         Returns:
             bool: The creation of user is successful or not
@@ -175,6 +177,8 @@ class User(Admin):
             body["deactivated"] = deactivated
         if external_ids:
             body["external_ids"] = external_ids
+        if user_type != "":
+            body["user_type"] = user_type
 
         userid = self.validate_username(userid)
         resp = self.connection.request(
