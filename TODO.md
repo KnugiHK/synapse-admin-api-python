@@ -5,4 +5,6 @@ This document describes what need to be changed or added due to the changes made
 1. More tests for CI
 
 ## Synapse
+1. Operation about [Registration Tokens](https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/registration_tokens.md#registration-tokens) -> Test needed
+### 1.47.0
 1. Add admin APIs to pause, start and check the status of background updates. ([#11263](https://github.com/matrix-org/synapse/issues/11263)) -> Test needed

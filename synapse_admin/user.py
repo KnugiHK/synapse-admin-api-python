@@ -59,6 +59,11 @@ class User(Admin):
             self.connection,
             suppress_exception
         )
+        self.registration_tokens = _RegistrationTokens(
+            self.server_addr,
+            self.connection,
+            suppress_exception
+        )
         self._create_alias()
 
     def _create_alias(self) -> None:
@@ -807,7 +812,6 @@ class User(Admin):
             self.admin_patterns(f"/users/{userid}/pushers", 1)
         )
         data = resp.json()
-
         if resp.status_code == 200:
             return Contents(data["pushers"], data["total"])
         else:
@@ -1010,5 +1014,170 @@ class _Device(Admin):
             data = resp.json()
             if self.suppress_exception:
                 return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+
+class _RegistrationTokens(Admin):
+    def __init__(self, server_addr, conn, suppress_exception):
+        self.server_addr = server_addr
+        self.connection = conn
+        self.suppress_exception = suppress_exception
+
+    def lists(self, valid: bool = None) -> list:
+        """List all registration tokens
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/registration_tokens.md#list-all-tokens
+
+        Args:
+            valid (bool, optional): filter returned tokens based on their validity. Defaults to None (return all tokens).  # noqa: E501
+
+        Returns:
+            list: a list of registration tokens and their details
+        """
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns("/registration_tokens", 1),
+            params={"valid": valid} if isinstance(valid, bool) else {}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["registration_tokens"]
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def query(self, token: str) -> dict:
+        """Get the details of a registration token
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/registration_tokens.md#get-one-token
+
+        Args:
+            token (str): the token to query
+
+        Returns:
+            dict: details of the token
+        """
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns(f"/registration_tokens/{token}", 1),
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def create(
+        self,
+        token: str = None,
+        uses_allowed: int = None,
+        expiry_time: int = None,
+        length: int = None
+    ) -> dict:
+        """Create a registration token
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/registration_tokens.md#create-token
+
+        Args:
+            token (str, optional): equivalent to "token". Defaults to None (randomly generated).  # noqa: E501
+            uses_allowed (int, optional): equivalent to "uses_allowed". Defaults to None.
+            expiry_time (int, optional): equivalent to "expiry_time". Defaults to None.
+            length (int, optional): equivalent to "length". Defaults to None.
+
+        Returns:
+            dict: details of created token
+        """
+        body = {}
+        if token:
+            body["token"] = token
+        if uses_allowed:
+            body["uses_allowed"] = uses_allowed
+        if expiry_time:
+            body["expiry_time"] = expiry_time
+        if length:
+            body["length"] = length
+
+        resp = self.connection.request(
+            "POST",
+            self.admin_patterns("registration_tokens/new", 1),
+            json=body
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def update(
+        self,
+        token: str,
+        uses_allowed: int = None,
+        expiry_time: int = None
+    ) -> dict:
+        """Update a registration token
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/registration_tokens.md#update-token
+
+        Args:
+            token (str): equivalent to "token".
+            uses_allowed (int, optional): equivalent to "uses_allowed". Defaults to None.  # noqa: E501
+            expiry_time (int, optional): equivalent to "expiry_time". Defaults to None.  # noqa: E501
+
+        Returns:
+            dict: new details of the token
+        """
+        body = {}
+        if uses_allowed:
+            body["uses_allowed"] = uses_allowed
+        if expiry_time:
+            body["expiry_time"] = expiry_time
+
+        resp = self.connection.request(
+            "PUT",
+            self.admin_patterns(f"registration_tokens/{token}", 1),
+            json=body
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def delete(
+        self,
+        token: str
+    ) -> bool:
+        """Delete a registration token
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/registration_tokens.md#delete-token
+
+        Args:
+            token (str): the token needed to be deleted
+
+        Returns:
+            bool: whether the deletion is successful or not
+        """
+        resp = self.connection.request(
+            "DELETE",
+            self.admin_patterns(f"registration_tokens/{token}", 1),
+        )
+        if resp.status_code == 200:
+            return True
+        else:
+            data = resp.json()
+            if self.suppress_exception:
+                return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
