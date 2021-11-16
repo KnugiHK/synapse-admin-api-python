@@ -46,6 +46,12 @@ Save to a config file? (Y/n)
 >>> print(details_of_users.total)
 1
 ```
+### Unit Testing
+Simply run the testing script
+```shell
+chmod +x testing_env.sh
+./testing_env.sh
+```
 ## Documentation
 Docstrings are present now in most methods and classes. If you see /equivalent to ".*"/, it's mean that you may want to refer back to the Synapse Admin API documentation.
 
