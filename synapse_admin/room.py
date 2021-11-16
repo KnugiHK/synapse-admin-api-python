@@ -379,7 +379,9 @@ class Room(Admin):
         )
         data = resp.json()
         if "errcode" in data and data["errcode"] == "M_UNRECOGNIZED":
-            raise NotImplementedError("This admin API has been removed in your homeserver")
+            raise NotImplementedError(
+                "This admin API has been removed in your homeserver"
+            )
         return data
 
     def shutdown_room(
@@ -409,7 +411,9 @@ class Room(Admin):
         )
         data = resp.json()
         if "errcode" in data and data["errcode"] == "M_UNRECOGNIZED":
-            raise NotImplementedError("This admin API has been removed in your homeserver")
+            raise NotImplementedError(
+                "This admin API has been removed in your homeserver"
+            )
         return data
 
     def forward_extremities_check(self, roomid: str) -> Contents:
