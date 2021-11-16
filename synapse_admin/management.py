@@ -402,6 +402,8 @@ class Management(Admin):
     def background_updates_get(self) -> dict:
         """Get the current status of background updates
 
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/background_updates.md#status
+
         Returns:
             dict: a dict with all current_updates
         """
@@ -420,6 +422,8 @@ class Management(Admin):
 
     def background_updates_set(self, enabled: bool) -> bool:
         """Pause or resume background updates
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/background_updates.md#enabled
 
         Args:
             enabled (bool, optional): True to enable, False to disable background updates.  # noqa: E501
