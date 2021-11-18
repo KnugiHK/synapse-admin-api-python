@@ -233,27 +233,31 @@ class ClientAPI(Admin):
         }
         http = Client()
         base_url = f"{protocol}{host}:{port}"
-        resp = http.post(
-            f"{base_url}{ClientAPI.BASE_PATH}/login",
-            json=login_data
-        )
-        data = resp.json()
-        if resp.status_code == 200:
-            access_token = data["access_token"]
-            if not no_admin:
-                resp = User(
-                    host,
-                    port,
-                    access_token,
-                    protocol
-                ).query(username)
-                if "errcode" not in resp:
-                    return data["access_token"]
+        while True:
+            resp = http.post(
+                f"{base_url}{ClientAPI.BASE_PATH}/login",
+                json=login_data
+            )
+            data = resp.json()
+            if "errcode" in data and data["errcode"] == "M_LIMIT_EXCEEDED":
+                time.sleep(data["retry_after_ms"] / 1000)
+                continue
+            if resp.status_code == 200:
+                access_token = data["access_token"]
+                if not no_admin:
+                    resp = User(
+                        host,
+                        port,
+                        access_token,
+                        protocol
+                    ).query(username)
+                    if "errcode" not in resp:
+                        return data["access_token"]
+                    else:
+                        data = resp
                 else:
-                    data = resp
+                    return access_token
+            if suppress_exception:
+                return False, data
             else:
-                return access_token
-        if suppress_exception:
-            return False, data
-        else:
-            raise SynapseException(data["errcode"], data["error"])
+                raise SynapseException(data["errcode"], data["error"])
