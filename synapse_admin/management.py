@@ -399,13 +399,13 @@ class Management(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def background_updates_get(self) -> dict:
+    def background_updates_get(self) -> Tuple[bool, dict]:
         """Get the current status of background updates
 
         https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/background_updates.md#status
 
         Returns:
-            dict: a dict with all current_updates
+            Tuple[bool, dict]: whether background updates is enabled, details of current updates
         """
         resp = self.connection.request(
             "GET",
@@ -413,7 +413,7 @@ class Management(Admin):
         )
         data = resp.json()
         if resp.status_code == 200:
-            return data
+            return data["enabled"], data["current_updates"]
         else:
             if self.suppress_exception:
                 return False, data["errcode"], data["error"]
