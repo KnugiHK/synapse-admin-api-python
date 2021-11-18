@@ -405,7 +405,7 @@ class Management(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/background_updates.md#status
 
         Returns:
-            Tuple[bool, dict]: whether background updates is enabled, details of current updates
+            Tuple[bool, dict]: whether background updates is enabled, details of current updates  # noqa: E501
         """
         resp = self.connection.request(
             "GET",
