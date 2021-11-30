@@ -444,3 +444,31 @@ class Management(Admin):
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
+
+    def background_updates_run(self, job_name: str):
+        """Run a background update
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/background_updates.md#run
+
+        Args:
+            job_name (str): job name of the background update.  # noqa: E501
+        """
+        jobs = {"populate_stats_process_rooms", "regenerate_directory"}
+        if job_name not in jobs:
+            raise ValueError(
+                "Value of job_name can only be either"
+                "populate_stats_process_rooms or regenerate_directory"
+            )
+        resp = self.connection.request(
+            "POST",
+            self.admin_patterns("/background_updates/start_job", 1),
+            json={"job_name": job_name}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
