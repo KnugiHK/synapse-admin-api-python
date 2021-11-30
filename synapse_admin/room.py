@@ -262,7 +262,7 @@ class Room(Admin):
     ) -> dict:
         """Delete a room
 
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#delete-room-api
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#version-1-old-version
 
         Args:
             roomid (str): the room you want to delete
@@ -503,6 +503,130 @@ class Room(Admin):
         resp = self.connection.request(
             "GET",
             self.admin_patterns(f"/rooms/{roomid}/context/{event_id}", 1),
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def delete_async(
+        self,
+        roomid: str,
+        new_room_userid: str = None,
+        room_name: str = None,
+        message: str = None,
+        block: bool = False,
+        purge: bool = True,
+        force_purge: bool = None
+    ) -> str:
+        """Delete a room asynchronously
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#version-2-new-version
+
+        Args:
+            roomid (str): the room you want to delete
+            new_room_userid (str, optional): equivalent to "new_room_user_id". Defaults to None. # noqa: E501
+            room_name (str, optional): equivalent to "room_name". Defaults to None.
+            message (str, optional): equivalent to "message". Defaults to None.
+            block (bool, optional): equivalent to "block". Defaults to False.
+            purge (bool, optional): whether or not to purge all information of the rooom from the database. Defaults to True.
+            force_purge (bool, optional): equivalent to "force_purge". Defaults to None.
+
+        Returns:
+            dict: a dict cotaining kicked_users, failed_tokick_users, local_aliases, new_room_id
+        """
+        roomid = self.validate_room(roomid)
+        data = {"block": block, "purge": purge}
+        if new_room_userid is not None:
+            new_room_userid = self.validate_username(new_room_userid)
+            data["new_room_user_id"] = new_room_userid
+        if room_name is not None:
+            data["room_name"] = room_name
+        if message is not None:
+            data["message"] = message
+        if force_purge is not None:
+            data["force_purge"] = force_purge
+
+        resp = self.connection.request(
+            "DELETE",
+            self.admin_patterns(f"/rooms/{roomid}", 2),
+            json=data,
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["delete_id"]
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def delete_status(self, *, roomid: str, deleteid: str) -> dict:
+        """Query the deletion of room(s)
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#status-of-deleting-rooms
+
+        Args:
+            roomid (str): the room to be queried
+            deleteid (str): the delete id to be queried
+
+        Returns:
+            dict: a dict with room deletion status
+        """
+        if roomid is not None and deleteid is not None:
+            raise ValueError(
+                "roomid and deleteid cannot "
+                "be presented at the same time"
+            )
+        if roomid is not None:
+            return self.delete_status_room(roomid)
+        if deleteid is not None:
+            return self.delete_status_id(deleteid)
+        raise ValueError("Either roomid or deleteid should be specified")
+
+    def delete_status_room(self, roomid: str) -> dict:
+        """Query the deletion of room by room id
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#query-by-room_id
+
+        Args:
+            roomid (str): the room to be queried
+
+        Returns:
+            dict: a dict with room deletion status
+        """
+        roomid = self.validate_room(roomid)
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns(f"/rooms/{roomid}/delete_status", 2),
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["results"]
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def delete_status_id(self, deleteid: str) -> dict:
+        """Query the deletion of room by id
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#query-by-delete_id
+
+        Args:
+            deleteid (str): the delete id to be queried
+
+        Returns:
+            dict: a dict with room deletion status
+        """
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns(f"/rooms/delete_status/{deleteid}", 2),
         )
         data = resp.json()
         if resp.status_code == 200:
