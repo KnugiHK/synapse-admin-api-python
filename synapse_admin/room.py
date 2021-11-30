@@ -636,3 +636,56 @@ class Room(Admin):
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
+
+    def block(self, roomid: str, blocked: bool = True) -> bool:
+        """Block or unblock a room
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#block-or-unblock-a-room
+
+        Args:
+            roomid (str): the room to block or unblock
+            blocked (bool, optional): whether the room should be blocked or unblocked, True to blocked, False to unblocked. Defaults to True.  # noqa: E501
+
+        Returns:
+            bool: whether the room is blocked or not
+        """
+        roomid = self.validate_room(roomid)
+        resp = self.connection.request(
+            "PUT",
+            self.admin_patterns(f"/rooms/{roomid}/block", 1),
+            json={"block": blocked}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["block"]
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def block_status(self, roomid: str) -> bool:
+        """Check if a room is blocked
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#get-block-status
+
+        Args:
+            roomid (str): the room to be queried
+
+        Returns:
+            bool: whether the room is blocked or not
+        """
+        roomid = self.validate_room(roomid)
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns(f"/rooms/{roomid}/block", 1)
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            # TBD: whether return the user_id in the response.
+            return data["block"]
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
