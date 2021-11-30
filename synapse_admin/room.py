@@ -273,7 +273,7 @@ class Room(Admin):
             purge (bool, optional): whether or not to purge all information of the rooom from the database. Defaults to True.
 
         Returns:
-            dict: a dict cotaining kicked_users, failed_tokick_users, local_aliases, new_room_id
+            dict: a dict containing kicked_users, failed_tokick_users, local_aliases, new_room_id
         """
         roomid = self.validate_room(roomid)
         data = {"block": block, "purge": purge}
@@ -537,7 +537,7 @@ class Room(Admin):
             force_purge (bool, optional): equivalent to "force_purge". Defaults to None.
 
         Returns:
-            dict: a dict cotaining kicked_users, failed_tokick_users, local_aliases, new_room_id
+            dict: a dict containing kicked_users, failed_tokick_users, local_aliases, new_room_id
         """
         roomid = self.validate_room(roomid)
         data = {"block": block, "purge": purge}
