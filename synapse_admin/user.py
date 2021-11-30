@@ -823,7 +823,7 @@ class User(Admin):
     def shadow_ban(self, userid: str) -> bool:
         """Shadow ban a user
 
-        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#shadow-banning-users
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#controlling-whether-a-user-is-shadow-banned
 
         Args:
             userid (str): the user you want to shadow ban
@@ -872,6 +872,31 @@ class User(Admin):
             return False
         else:
             raise SynapseException(data["errcode"], data["error"])
+
+    def unshadow_ban(self, userid: str) -> bool:
+        """Un-shadow ban a user
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/user_admin_api.md#controlling-whether-a-user-is-shadow-banned
+
+        Args:
+            userid (str): the user you want to un-shadow ban
+
+        Returns:
+            bool: success or not
+        """
+        userid = self.validate_username(userid)
+        resp = self.connection.request(
+            "DELETE",
+            self.admin_patterns(f"/users/{userid}/shadow_ban", 1)
+        )
+        data = resp.json()
+        if len(data) == 0:
+            return True
+        else:
+            if self.suppress_exception:
+                return False, data
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
 
 class _Device(Admin):
