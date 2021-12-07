@@ -13,3 +13,7 @@ This document describes what need to be changed or added due to the changes made
 3. Add an admin API to un-shadow-ban a user. ([#11347](https://github.com/matrix-org/synapse/issues/11347))
 4. Add an admin API to run background database schema updates. ([#11352](https://github.com/matrix-org/synapse/issues/11352))
 5. Add an admin API for blocking a room. ([#11324](https://github.com/matrix-org/synapse/issues/11324))
+
+### 1.49.0
+1. Add admin API to get some information about federation status with remote servers. ([#11407](https://github.com/matrix-org/synapse/issues/11407))
+2. Extend the "delete room" admin api to work correctly on rooms which have previously been partially deleted. ([#11523](https://github.com/matrix-org/synapse/issues/11523))
