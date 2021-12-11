@@ -472,3 +472,75 @@ class Management(Admin):
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
+
+    def federation_list(
+        self,
+        _from: int = 0,
+        limit: int = 100,
+        orderby: str = None,
+        _dir: str = "f",
+        destination: str = None
+    ) -> Contents:
+        """List infomation of retrying timing for all remote servers
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/federation.md#federation-api
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/federation.md#list-of-destinations
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/federation.md#destination-details-api
+
+        Args:
+            _from (int, optional): equivalent to "from". Defaults to 0.
+            limit (int, optional): equivalent to "limit". Defaults to 100.
+            order_by (int, optional): equivalent to "order_by". Defaults to None. # noqa: E501
+            _dir (str, optional): equivalent to "dir". Defaults to "f".
+            destination (str, optional): show only the specified remote server. Defaults to None (no specification).
+
+        Returns:
+            Contents: list of timing information of current destination
+        """
+        if isinstance(destination, str):
+            return self._federation_list(destination)
+
+        params = {"from": _from, "limit": limit, "dir": _dir}
+        if orderby is not None:
+            params["order_by"] = orderby
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns("/federation/destinations", 1),
+            params=params
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return Contents(
+                data["destinations"],
+                data["total"],
+                data.get("next_token", None)
+            )
+        else:
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def _federation_list(self, destination: str) -> dict:
+        """Query the retry timing details of a specific remote server
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/federation.md#destination-details-api
+
+        Args:
+            destination (str): show only the specified remote server.
+
+        Returns:
+            dict: details of retry timing
+        """
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns(f"/federation/destinations/{destination}", 1)
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data
+        else:
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
