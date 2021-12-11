@@ -161,9 +161,8 @@ def test_management_delete_group():
 
 
 def test_management_background_updates_get():
-    enabled, updates = mgt_handler.background_updates_get()
+    enabled, _ = mgt_handler.background_updates_get()
     assert enabled
-    assert updates == {}
 
 
 def test_management_background_updates_set():
