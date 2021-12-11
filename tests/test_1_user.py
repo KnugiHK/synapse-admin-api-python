@@ -238,6 +238,14 @@ def test_user_pushers():
 
 def test_user_shadow_ban():
     assert user_handler.shadow_ban("test2")
+    assert user_handler.shadow_ban("test2")
+    with pytest.raises(SynapseException):
+        user_handler.shadow_ban("invalid")
+
+
+def test_user_unshadow_ban():
+    assert user_handler.unshadow_ban("test2")
+    assert user_handler.unshadow_ban("test2")
     with pytest.raises(SynapseException):
         user_handler.shadow_ban("invalid")
 
