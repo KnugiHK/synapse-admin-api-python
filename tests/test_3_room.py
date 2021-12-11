@@ -171,3 +171,69 @@ def test_room_event_context():
     events = room_handler.event_context(roomid, evenid)["events_after"]
     assert len(events) > 2
     assert events[0]["room_id"] == roomid
+
+
+def create_room(alias):
+    roomid, _ = room_handler.create(
+        True,
+        alias=alias,
+        name="Testing",
+        members=["test1"],
+        federation=False,
+        leave=True
+    )
+    return roomid
+
+
+def test_room_delete_async():
+    roomid = create_room("testing1")
+    deleted = room_handler.delete_async(
+        roomid,
+        "@admin1:localhost",
+        "Deleted",
+        "A room deleted",
+        True,
+        True
+    )
+    assert isinstance(deleted, str)
+    global shared_variable
+    shared_variable = [deleted, roomid]
+    with pytest.raises(SynapseException):
+        room_handler.get_state("invalid")
+
+
+def test_room_delete_status():
+    assert room_handler.delete_status(roomid=shared_variable[1])
+    assert room_handler.delete_status(deleteid=shared_variable[0])
+    with pytest.raises(ValueError):
+        room_handler.delete_status(
+            roomid=shared_variable[1],
+            deleteid=shared_variable[0]
+        )
+        room_handler.delete_status()
+
+
+def test_room_delete_status_room():
+    result = room_handler.delete_status_room(shared_variable[1])
+    assert len(result) == 1
+    assert result[0]["delete_id"] == shared_variable[0]
+
+
+def test_room_delete_status_id():
+    result = room_handler.delete_status_id(shared_variable[0])
+    assert "status" in result
+
+
+def test_room_block():
+    roomid = create_room("testing2")
+    global shared_variable
+    shared_variable = roomid
+    assert room_handler.block(roomid)
+    assert not room_handler.block(roomid, False)
+    assert room_handler.block(roomid)
+
+
+def test_room_block_status():
+    assert room_handler.block_status(shared_variable)
+    assert not room_handler.block(shared_variable, False)
+    assert not room_handler.block_status(shared_variable)
