@@ -565,7 +565,7 @@ class Room(Admin):
             else:
                 raise SynapseException(data["errcode"], data["error"])
 
-    def delete_status(self, *, roomid: str, deleteid: str) -> dict:
+    def delete_status(self, *, roomid: str = None, deleteid: str = None) -> dict:
         """Query the deletion of room(s)
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/rooms.md#status-of-deleting-rooms
