@@ -33,6 +33,6 @@ setuptools.setup(
     ],
     python_requires='>=3.7',
     install_requires=[
-       'httpx>=0.20.1'
+       'httpx>=0.21.1'
     ]
 )
