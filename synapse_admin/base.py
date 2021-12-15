@@ -76,13 +76,16 @@ class Utility():
             return "false"
 
     @staticmethod
-    def get_current_time() -> int:
+    def get_current_time(offset: int = 0) -> int:
         """Get the current timestamp in millisecond
+
+        Args:
+            offset (int, optional): offset to the current time. Defaults to 0.
 
         Returns:
             int: current timestamp in millisecond
         """
-        return int(datetime.now().timestamp() * 1000)
+        return int((datetime.now().timestamp()) * 1000) + offset
 
     @staticmethod
     def get_password(
