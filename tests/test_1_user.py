@@ -24,7 +24,7 @@ import pytest
 import time
 from synapse_admin import User, Room
 from synapse_admin.client import ClientAPI
-from synapse_admin.base import SynapseException
+from synapse_admin.base import SynapseException, Utility
 from yaml import load, CLoader
 
 
@@ -310,3 +310,90 @@ def test_user_username_available():
     assert user_handler.username_available("test4")
     with pytest.raises(SynapseException):
         user_handler.username_available("invalid@@@#")
+
+
+def test_user_registration_tokens_lists():
+    assert user_handler.registration_tokens.lists() == []
+    for _ in range(2):
+        assert user_handler.registration_tokens.create()
+    assert len(user_handler.registration_tokens.lists()) == 2
+    assert user_handler.registration_tokens.create(
+        expiry_time=Utility.get_current_time(5)
+    )
+    time.sleep(5)
+    assert len(user_handler.registration_tokens.lists(True)) == 2
+    assert len(user_handler.registration_tokens.lists(False)) == 1
+    assert len(user_handler.registration_tokens.lists()) == 3
+
+
+def test_user_registration_tokens_query():
+    for token in user_handler.registration_tokens.lists():
+        result = user_handler.registration_tokens.query(token["token"])
+        assert result == token
+    with pytest.raises(SynapseException):
+        user_handler.registration_tokens.query("invalid")
+
+
+def test_user_registration_tokens_create():
+    result = user_handler.registration_tokens.create("testing", length=10)
+    result2 = user_handler.registration_tokens.create("testing1")
+    result2["token"] = "testing"
+    assert result == result2
+    assert result == {
+        "token": "testing",
+        "uses_allowed": None,
+        "pending": 0,
+        "completed": 0,
+        "expiry_time": None
+    }
+    result = user_handler.registration_tokens.create(
+        uses_allowed=10,
+        length=10
+    )
+    assert len(result["token"]) == 10
+    assert result["uses_allowed"] == 10
+    expiry = Utility.get_current_time(3)
+    result = user_handler.registration_tokens.create(
+        expiry_time=expiry
+    )
+    assert result["expiry_time"] == expiry
+    with pytest.raises(SynapseException):
+        user_handler.registration_tokens.create("testing")
+
+
+def test_user_registration_tokens_update():
+    result = user_handler.registration_tokens.update(
+        "testing",
+        uses_allowed=12
+    )
+    assert result == {
+        "token": "testing",
+        "uses_allowed": 12,
+        "pending": 0,
+        "completed": 0,
+        "expiry_time": None
+    }
+    expiry = Utility.get_current_time(120)
+    result = user_handler.registration_tokens.update(
+        "testing1",
+        expiry_time=expiry
+    )
+    assert result == {
+        "token": "testing1",
+        "uses_allowed": None,
+        "pending": 0,
+        "completed": 0,
+        "expiry_time": expiry
+    }
+    with pytest.raises(SynapseException):
+        user_handler.registration_tokens.update("invalid", 20)
+
+
+def test_user_registration_tokens_delete():
+    total = len(user_handler.registration_tokens.lists())
+    for token in user_handler.registration_tokens.lists():
+        assert user_handler.registration_tokens.delete(token["token"])
+        total -= 1
+        assert total == len(user_handler.registration_tokens.lists())
+    with pytest.raises(SynapseException):
+        user_handler.registration_tokens.delete("invalid")
