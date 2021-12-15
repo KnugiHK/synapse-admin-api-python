@@ -173,3 +173,6 @@ def test_management_background_updates_set():
     assert mgt_handler.background_updates_set(True)
     enabled, _ = mgt_handler.background_updates_get()
     assert enabled
+
+def todo_test_management_federation_list():
+    ...
