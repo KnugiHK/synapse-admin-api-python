@@ -352,7 +352,7 @@ def test_user_registration_tokens_create():
     )
     assert len(result["token"]) == 10
     assert result["uses_allowed"] == 10
-    expiry = Utility.get_current_time(3)
+    expiry = Utility.get_current_time(5)
     result = user_handler.registration_tokens.create(
         expiry_time=expiry
     )
