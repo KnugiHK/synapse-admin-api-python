@@ -73,8 +73,10 @@ If you want to collaborate with us, feel free to Fork this project and open a pu
   * Report any Error.
   * Request new features based on the Synapse Admin API
   * Ask questions if you do not understand something.
+  * More.
 
 * For Pull request
   * Add comments to source code.
   * Add new features based on the Synapse Admin API
   * Correct any Error.
+  * More.
