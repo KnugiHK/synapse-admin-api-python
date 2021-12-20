@@ -318,9 +318,9 @@ def test_user_registration_tokens_lists():
         assert user_handler.registration_tokens.create()
     assert len(user_handler.registration_tokens.lists()) == 2
     assert user_handler.registration_tokens.create(
-        expiry_time=Utility.get_current_time(5)
+        expiry_time=Utility.get_current_time(10)
     )
-    time.sleep(5)
+    time.sleep(10)
     assert len(user_handler.registration_tokens.lists(True)) == 2
     assert len(user_handler.registration_tokens.lists(False)) == 1
     assert len(user_handler.registration_tokens.lists()) == 3
@@ -352,7 +352,7 @@ def test_user_registration_tokens_create():
     )
     assert len(result["token"]) == 10
     assert result["uses_allowed"] == 10
-    expiry = Utility.get_current_time(5)
+    expiry = Utility.get_current_time(10)
     result = user_handler.registration_tokens.create(
         expiry_time=expiry
     )
