@@ -897,6 +897,29 @@ class User(Admin):
                 return False, data
             else:
                 raise SynapseException(data["errcode"], data["error"])
+    
+    def data(self, userid: str) -> dict:
+        """Query the specified user account's data
+
+        Args:
+            userid (str): the user to be queried
+
+        Returns:
+            dict: a dict containing the account data
+        """
+        userid = self.validate_username(userid)
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns(f"/users/{userid}/accountdata", 1)
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return data["account_data"]
+        else:
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
 
 
 class _Device(Admin):
@@ -1037,29 +1060,6 @@ class _Device(Admin):
             return True
         else:
             data = resp.json()
-            if self.suppress_exception:
-                return False, data["errcode"], data["error"]
-            else:
-                raise SynapseException(data["errcode"], data["error"])
-
-    def data(self, userid: str) -> dict:
-        """Query the specified user account's data
-
-        Args:
-            userid (str): the user to be queried
-
-        Returns:
-            dict: a dict containing the account data
-        """
-        userid = self.validate_username(userid)
-        resp = self.connection.request(
-            "GET",
-            self.admin_patterns(f"/users/{userid}/accountdata", 1)
-        )
-        data = resp.json()
-        if resp.status_code == 200:
-            return data["account_data"]
-        else:
             if self.suppress_exception:
                 return False, data["errcode"], data["error"]
             else:
