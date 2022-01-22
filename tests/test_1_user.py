@@ -250,6 +250,12 @@ def test_user_unshadow_ban():
         user_handler.shadow_ban("invalid")
 
 
+def test_user_data():
+    assert user_handler.data("test1")
+    with pytest.raises(SynapseException):
+        user_handler.shadow_ban("invalid")
+
+
 def test_user_device_lists():
     for _ in range(3):
         ClientAPI.admin_login(
