@@ -3,7 +3,7 @@ if sys.version_info < (3, 7):
     print("matrix-synapse-admin requires Python 3.7 or above.")
     sys.exit(1)
 
-__version__ = "0.6.5"
+__version__ = "0.6.7"
 
 from synapse_admin.user import User  # noqa: F401
 from synapse_admin.management import Management  # noqa: F401
