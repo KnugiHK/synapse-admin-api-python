@@ -544,3 +544,72 @@ class Management(Admin):
                 return False, data["errcode"], data["error"]
             else:
                 raise SynapseException(data["errcode"], data["error"])
+
+    def reset_connection(self, destination: str) -> bool:
+        """Reset the connection timeout for a specific destination
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/federation.md#reset-connection-timeout
+
+        Args:
+            destination (str): the remote destination
+
+        Returns:
+            bool: whether or not the connection reset successfully
+        """
+        resp = self.connection.request(
+            "POST",
+            self.admin_patterns(
+                f"/federation/destinations/{destination}/reset_connection",
+                1
+            ),
+            json={}
+        )
+        if resp.status_code == 200:
+            return True
+        else:
+            data = resp.json()
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
+
+    def federation_room(
+        self,
+        destination: str,
+        _from: int = 0,
+        limit: int = 100,
+        _dir: str = "f"
+    ) -> Contents:
+        """Fetch roms federated with remote destination
+
+        https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/federation.md#destination-rooms
+
+        Args:
+            destination (str): the remote destination
+            _from (int, optional): equivalent to "from". Defaults to 0.
+            limit (int, optional): equivalent to "limit". Defaults to 100.
+            _dir (str, optional): equivalent to "dir". Defaults to "f".
+
+        Returns:
+            Contents: A list of federated room
+        """
+        resp = self.connection.request(
+            "GET",
+            self.admin_patterns(
+                f"/federation/destinations/{destination}/rooms",
+                1
+            ),
+            params={"from": _from, "limit": limit, "dir": _dir}
+        )
+        data = resp.json()
+        if resp.status_code == 200:
+            return Contents(
+                data["rooms"],
+                data["total"],
+                data.get("next_token", None)
+            )
+        else:
+            if self.suppress_exception:
+                return False, data["errcode"], data["error"]
+            else:
+                raise SynapseException(data["errcode"], data["error"])
