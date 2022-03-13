@@ -61,6 +61,7 @@ class Media(Admin):
         self.lists = self.list = self.list_media
         self.protect = self.protect_media
         self.unprotect = self.unprotect_media
+        self.delete = self.delete_media
 
     def statistics(
         self,
@@ -295,14 +296,14 @@ class Media(Admin):
 
     def delete_media(
         self,
-        mediaid: str = None,
+        mediaid: Union[str, list] = None,
         *,
         timestamp: int = None,
         size_gt: int = None,
         keep_profiles: bool = None,
         server_name: str = None,
         remote: bool = False
-    ) -> Union[bool, int]:
+    ) -> Union[bool, int, list]:
         """Helper method for deleting both local and remote media
 
         Args:
@@ -314,7 +315,8 @@ class Media(Admin):
             remote (bool, optional): whether to delete remote media cache. Defaults to False. # noqa: E501
 
         Returns:
-            If mediaid is not None return bool: the deletion is success or not
+            If mediaid is not None and is a string return bool: the deletion is success or not
+            If mediaid is not None and is a list return list: media that are deleted successfully
             If remote is False returns Contents: a list of deleted media
             If remote is True returns int: number of deleted media
         """
@@ -327,14 +329,22 @@ class Media(Admin):
         if remote:
             if mediaid:
                 print(
-                    "WARNING! argument mediaid is"
+                    "WARNING! argument mediaid is "
                     "ignored when remote is True"
                 )
             return self.purge_remote_media(Utility.get_current_time())
 
         if mediaid:
-            mediaid = self.extract_media_id(mediaid)
-            return self.delete_local_media(mediaid, server_name)
+            if isinstance(mediaid, str):
+                mediaid = self.extract_media_id(mediaid)
+                return self.delete_local_media(mediaid, server_name)
+            elif isinstance(mediaid, list):
+                deleted = []
+                for medium in mediaid:
+                    mediaid = self.extract_media_id(medium)
+                    if self.delete_local_media(mediaid, server_name):
+                        deleted.append(mediaid)
+                return deleted
 
         if timestamp or size_gt or keep_profiles:
             if timestamp is None:
