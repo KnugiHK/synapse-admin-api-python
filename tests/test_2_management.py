@@ -177,3 +177,11 @@ def test_management_background_updates_set():
 
 def todo_test_management_federation_list():
     ...
+
+def test_management_reset_connection():
+    with pytest.raises(SynapseException):
+        mgt_handler.reset_connection("matrix.org")
+
+def test_management_federation_room():
+    with pytest.raises(SynapseException):
+        mgt_handler.federation_room("matrix.org", _dir="b")
