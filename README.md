@@ -8,7 +8,7 @@
 A Python wrapper for [Matrix Synapse admin API](https://github.com/matrix-org/synapse).
 
 ### Versioning
-This library now supports up to Synapse 1.51.0, any Admin API introduced after 1.51.0 may not be included in this version. However, newer changes to Admin API are planned to be included in this library. For planned update, see [TODO.md](TODO.md). In the future, the version numbering convention will follow the version this library up to, for example, if this library supports up to 1.51.0, then the version number of this library will be 1.51.0. And the minor number will be reserved for bug fixes in this repo.
+This library now supports up to Synapse 1.58.0, any Admin API introduced after 1.58.0 may not be included in this version. However, newer changes to Admin API are planned to be included in this library. For planned update, see [TODO.md](TODO.md). In the future, the version numbering convention will follow the version this library up to, for example, if this library supports up to 1.58.0, then the version number of this library will be 1.58.0. And the minor number will be reserved for bug fixes in this repo.
 
 **Releases older than 0.1.5 only work with HTTP/2**
 
