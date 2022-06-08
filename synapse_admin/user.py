@@ -176,9 +176,9 @@ class User(Admin):
             body["threepids"] = threepids
         if avatar_url:
             body["avatar_url"] = avatar_url
-        if admin:
+        if isinstance(admin, bool):
             body["admin"] = admin
-        if deactivated:
+        if isinstance(deactivated, bool):
             body["deactivated"] = deactivated
         if external_ids:
             body["external_ids"] = external_ids
