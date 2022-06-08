@@ -147,7 +147,8 @@ class User(Admin):
         admin: bool = None,
         deactivated: bool = None,
         external_ids: list = None,
-        user_type: Union[str, None] = ""
+        user_type: Union[str, None] = "",
+        logout: bool = None
     ) -> bool:
         """Create or modify a user
 
@@ -184,6 +185,8 @@ class User(Admin):
             body["external_ids"] = external_ids
         if user_type != "":
             body["user_type"] = user_type
+        if isinstance(logout, bool):
+            body["logout_devices"] = logout
 
         userid = self.validate_username(userid)
         resp = self.connection.request(
