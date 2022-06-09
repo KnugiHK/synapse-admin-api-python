@@ -64,7 +64,7 @@ def test_management_announce():
 def test_management_announce_all():
     announcement = mgt_handler.announce_all("This is a test")
     assert isinstance(announcement, dict)
-    assert len(announcement) == 3
+    assert len(announcement) == 4
 
 
 def test_management_version():

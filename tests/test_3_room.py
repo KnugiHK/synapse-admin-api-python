@@ -45,11 +45,11 @@ shared_variable = None
 
 def test_room_lists():
     rooms = room_handler.lists()
-    assert rooms.total == 5
-    assert len(rooms) == 5
+    assert rooms.total == 6
+    assert len(rooms) == 6
     assert "room_id" in rooms[0]
     rooms = room_handler.lists(limit=1)
-    assert rooms.total == 5
+    assert rooms.total == 6
     assert rooms.next == 1
 
 
