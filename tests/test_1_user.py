@@ -67,7 +67,7 @@ def test_user_create():
 
 
 def test_user_modify():
-    assert user_handler.create("test2", displayname="This is a test")
+    assert user_handler.create("test2", displayname="This is a test", logout=False)
 
 
 def test_user_query():
