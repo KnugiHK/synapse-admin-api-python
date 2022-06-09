@@ -32,6 +32,7 @@ yq e -i '.rc_login.account.per_second = 0.1' homeserver.yaml
 yq e -i '.rc_login.account.burst_count = 20' homeserver.yaml
 yq e -i '.rc_login.failed_attempts.per_second = 0.1' homeserver.yaml
 yq e -i '.rc_login.failed_attempts.burst_count = 20' homeserver.yaml
+echo -e "experimental_features:\n groups_enabled: true" >> homeserver.yaml
 
 
 synctl start
