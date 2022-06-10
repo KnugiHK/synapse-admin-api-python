@@ -30,7 +30,7 @@ jobs:
         mkdir -p synapse_test
         python3 -m venv synapse_test/env
         source synapse_test/env/bin/activate
-        pip install --upgrade pip setuptools wheel flake8 pytest matrix-synapse .
+        pip install --upgrade pip setuptools wheel flake8 pytest matrix-synapse pytest-rerunfailures .
         cd synapse_test
         python -m synapse.app.homeserver \
             --server-name localhost \
@@ -87,4 +87,4 @@ jobs:
     - name: Unit test
       run: |
         source synapse_test/env/bin/activate
-        pytest -v
+        pytest -v --reruns 5
