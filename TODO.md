@@ -20,3 +20,7 @@ This document describes what need to be changed or added due to the changes made
 ### 1.68.0
 1. Add an admin API endpoint to fetch messages within a particular window of time. ([#13672](https://github.com/matrix-org/synapse/issues/13672))
 2. Add an admin API endpoint to find a user based on their external ID in an auth provider. ([#13810](https://github.com/matrix-org/synapse/issues/13810))
+
+### 1.72.0
+1. Add an Admin API endpoint for user lookup based on third-party ID (3PID). Contributed by @ashfame. ([#14405](https://github.com/matrix-org/synapse/issues/14405))
+
