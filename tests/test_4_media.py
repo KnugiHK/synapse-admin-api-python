@@ -244,7 +244,7 @@ def test_media_delete_local_media_by_condition():
     deleted_media = media_id[-1]
     assert query_media(deleted_media).status_code == 200
 
-    delete_time = Utility.get_current_time() + 1000
+    delete_time = Utility.get_current_time(10000)
 
     assert media_handler.delete_local_media_by_condition(
         delete_time,
@@ -257,6 +257,8 @@ def test_media_delete_local_media_by_condition():
         10000000
     ) == []
 
+    media_handler.quarantine_remove(media_id[1])
+    media_handler.quarantine_remove(media_id[3])
     deletion = media_handler.delete_local_media_by_condition(delete_time)
     assert deletion.total == 2
     for media in media_id:
