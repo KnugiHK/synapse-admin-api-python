@@ -27,6 +27,7 @@ from configparser import ConfigParser
 from datetime import datetime
 from getpass import getpass
 from pathlib import Path
+from stat import S_IREAD, S_IWRITE
 from typing import Tuple, Any, Union
 
 
@@ -395,6 +396,35 @@ class Admin():
         }
         with open(self.config_path, 'w') as configfile:
             config.write(configfile)
+
+        if os.name == "nt":
+            import subprocess
+            command = (
+                "icacls <file> /reset && "
+                "icacls <file> /grant <user:permission> && "
+                "icacls <file> /inheritance:d && "
+                "icacls <file> /remove *S-1-1-0 *S-1-5-11 "
+                "*S-1-5-32-544 *S-1-5-32-545 *S-1-5-18"
+            ).split(" ")
+            # Handle space
+            command[7] = f"{os.getlogin()}:rw"
+            command[1] = command[5] = self.config_path
+            command[10] = command[14] = command[1]
+            result = subprocess.run(command, shell=True)
+            if result.returncode != 0:
+                print(
+                    "[WARN] Error occur while setting "
+                    "configurion file's permission."
+                )
+        else:
+            try:
+                os.chmod(self.config_path, S_IREAD ^ S_IWRITE)
+            except PermissionError:
+                print(
+                    "[WARN] Got permission denied while "
+                    "setting configurion file's permission."
+                )
+
         return True
 
     def modify_config(

@@ -23,6 +23,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Development Status :: 4 - Beta",
@@ -33,6 +34,6 @@ setuptools.setup(
     ],
     python_requires='>=3.7',
     install_requires=[
-       'httpx>=0.21.1'
+       'httpx>=0.23.3'
     ]
 )

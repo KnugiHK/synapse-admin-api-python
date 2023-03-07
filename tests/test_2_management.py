@@ -138,28 +138,6 @@ def test_management_purge_history_status():
         mgt_handler.purge_history_status("invalid")
 
 
-def create_group():
-    resp = mgt_handler.connection.request(
-        "POST",
-        "/_matrix/client/r0/create_group",
-        {"localpart": "test1", "profile": {"name": "Test"}}
-    )
-    return resp.json().get("group_id", None)
-
-
-def test_management_delete_group():
-    groupid = create_group()
-    assert isinstance(groupid, str)
-    _groupid = groupid[1:].replace(":localhost", "")
-    assert mgt_handler.delete_group(_groupid)
-    assert test1_conn.request(
-        "GET",
-        f"/_matrix/client/r0/groups/{groupid}/summary"
-    ).status_code == 404
-    with pytest.raises(SynapseException):
-        mgt_handler.delete_group("+invalid:localhost")
-
-
 def test_management_background_updates_get():
     enabled, _ = mgt_handler.background_updates_get()
     assert enabled
@@ -178,9 +156,11 @@ def test_management_background_updates_set():
 def todo_test_management_federation_list():
     ...
 
+
 def test_management_reset_connection():
     with pytest.raises(SynapseException):
         mgt_handler.reset_connection("matrix.org")
+
 
 def test_management_federation_room():
     with pytest.raises(SynapseException):

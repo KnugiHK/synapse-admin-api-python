@@ -377,6 +377,7 @@ class Media(Admin):
         Returns:
             str: the deletion is success or not
         """
+        # TODO: remove quarantine if needed
         if server_name is None:
             server_name = self.server_addr
         mediaid = self.extract_media_id(mediaid)
@@ -430,8 +431,8 @@ class Media(Admin):
         resp = self.connection.request(
             "POST",
             self.admin_patterns(
-                f"/media/{server_name}/delete?before_ts="
-                f"{timestamp}&size_gt={size_gt}{optional_str}", 1
+                f"/media/delete?before_ts={timestamp}"
+                f"&size_gt={size_gt}{optional_str}", 1
             ),
             json={},
         )
