@@ -4,11 +4,12 @@ sudo apt install build-essential python3-dev libffi-dev \
                  sqlite3 libssl-dev libjpeg-dev libxslt1-dev \
                  python3-venv libyaml-dev -y
 
-mkdir -p synapse_test
-pip3 install --upgrade virtualenv
-python3 -m venv synapse_test/env
-source synapse_test/env/bin/activate
-pip install --upgrade pip setuptools wheel flake8 pytest matrix-synapse .
+if [ ! -d synapse_test ]; then
+	mkdir -p synapse_test
+	python3 -m venv synapse_test/env
+	source synapse_test/env/bin/activate
+	pip install --upgrade flake8 pytest matrix-synapse .
+fi
 cd synapse_test
 python -m synapse.app.homeserver \
     --server-name localhost \
@@ -21,18 +22,24 @@ latest_yq=$(wget -qO- https://github.com/mikefarah/yq/releases/latest | egrep -o
 sudo wget -qO /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/$latest_yq/yq_linux_amd64" && sudo chmod +x /usr/bin/yq
 
 # Enable server notices
-sed -i '/#server_notices:/s/^#//' homeserver.yaml
-sed -i '/#  system_mxid_localpart: notices/s/^#//' homeserver.yaml
-sed -i '/#  system_mxid_display_name: "Server Notices"/s/^#//' homeserver.yaml
-sed -i '/#  system_mxid_avatar_url:.*/s/^#//' homeserver.yaml
-sed -i '/#  room_name: "Server Notices"/s/^#//' homeserver.yaml
-yq e -i '.rc_login.address.per_second = 0.1' homeserver.yaml
-yq e -i '.rc_login.address.burst_count = 20' homeserver.yaml
-yq e -i '.rc_login.account.per_second = 0.1' homeserver.yaml
-yq e -i '.rc_login.account.burst_count = 20' homeserver.yaml
-yq e -i '.rc_login.failed_attempts.per_second = 0.1' homeserver.yaml
-yq e -i '.rc_login.failed_attempts.burst_count = 20' homeserver.yaml
-echo -e "experimental_features:\n groups_enabled: true" >> homeserver.yaml
+cat << EOF >> homeserver.yaml
+
+server_notices:
+  system_mxid_localpart: notices
+  system_mxid_display_name: "Server Notices"
+  system_mxid_avatar_url: "mxc://server.com/oumMVlgDnLYFaPVkExemNVVZ"
+  room_name: "Server Notices"
+rc_login:
+  address:
+    per_second: 0.1
+    burst_count: 20
+  account:
+    per_second: 0.1
+    burst_count: 20
+  failed_attempts:
+    per_second: 0.1
+    burst_count: 20
+EOF
 
 
 synctl start
@@ -54,6 +61,7 @@ login2=$(curl -s 'http://localhost:8008/_matrix/client/r0/login' --compressed \
 "initial_device_display_name":"Testing curl"}')
 echo "$login2" | grep -oP '(?<="access_token":").*?(?=")' > admin.token
 if [ ! -s admin.token ] | [ ! -s user.token ]; then
+    echo "Error in retrieving access tokens. Could there be a Synapse instance running?"
     synctl stop
     exit 2
 fi
