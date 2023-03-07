@@ -134,7 +134,7 @@ class Management(Admin):
             raise ValueError("Argument must be a non-empty str or True")
         if announcement is None and attachment is None:
             raise ValueError(
-                "You must at least specify"
+                "You must at least specify "
                 "announcement or attachment"
             )
         userid = self.validate_username(userid)
