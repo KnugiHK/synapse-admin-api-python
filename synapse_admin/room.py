@@ -211,7 +211,8 @@ class Room(Admin):
         members: list = None,
         federation: bool = True,
         leave: bool = False,
-        encrypted: bool = True
+        encrypted: bool = True,
+        room_type: str = None
     ) -> RoomInformation:
         """Create a room and force users to be a member
 
@@ -238,7 +239,8 @@ class Room(Admin):
             alias,
             name,
             federation=federation,
-            encrypted=encrypted
+            encrypted=encrypted,
+            room_type=room_type
         )
         joined = []
         if members is not None:

@@ -66,7 +66,8 @@ class ClientAPI(Admin):
         name: str = None,
         invite: Union[str, list] = None,
         federation: bool = True,
-        encrypted: bool = True
+        encrypted: bool = True,
+        room_type: str = None
     ) -> str:
         """Create a room as a client
 
@@ -77,6 +78,7 @@ class ClientAPI(Admin):
             invite (Union[str, list], optional): list of members. Defaults to None. # noqa: E501
             federation (bool, optional): allow federation. Defaults to True.
             encrypted (bool, optional): create encrypted room or not. Defaults to True
+            room_type: (str, optional): type of room to create
 
         Returns:
             str: created room id
@@ -101,6 +103,8 @@ class ClientAPI(Admin):
                 raise TypeError("Argument invite must be str or list.")
             data["invite"] = validated_invite
         data["creation_content"] = {"m.federate": federation}
+        if room_type is not None:
+            data["creation_content"]["type"] = room_type
         if encrypted:
             data["initial_state"] = [{
                 "type": "m.room.encryption",
