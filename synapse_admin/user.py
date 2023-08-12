@@ -513,7 +513,7 @@ class User(Admin):
         data = {
             "nonce": nonce,
             "username": username,
-            "display_name": displayname,
+            "displayname": displayname,
             "password": password,
             "admin": admin,
             "mac": self._generate_mac(nonce, username, password, shared_secret)

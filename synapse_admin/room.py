@@ -211,7 +211,8 @@ class Room(Admin):
         members: list = None,
         federation: bool = True,
         leave: bool = False,
-        encrypted: bool = True
+        encrypted: bool = True,
+        room_type: str = None
     ) -> RoomInformation:
         """Create a room and force users to be a member
 
@@ -222,6 +223,7 @@ class Room(Admin):
             members (list, optional): a list of user that should be the members of the room. Defaults to None. # noqa: E501
             federation (bool, optional): can the room be federated. Defaults to True.
             leave (bool, optional): whether to leave the room yourself after the creation. Defaults to False.
+            room_type (str, optional): the type of room. Defaults to None.
 
         Returns:
             RoomInformation: roomid: room id, joined: a list of joined users
@@ -238,7 +240,8 @@ class Room(Admin):
             alias,
             name,
             federation=federation,
-            encrypted=encrypted
+            encrypted=encrypted,
+            room_type=room_type
         )
         joined = []
         if members is not None:
