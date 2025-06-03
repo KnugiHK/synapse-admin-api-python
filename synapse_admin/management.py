@@ -39,10 +39,6 @@ class Management(Admin):
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/event_reports.md
     """
 
-    class SynapseVersion(NamedTuple):
-        server: str
-        python: str
-
     def __init__(
         self,
         server_addr=None,
@@ -220,23 +216,20 @@ class Management(Admin):
             )
         return events
 
-    def version(self) -> SynapseVersion:
+    def version(self) -> str:
         """Get the server and python version
 
         https://github.com/matrix-org/synapse/blob/develop/docs/admin_api/version_api.md#version-api
 
         Returns:
-            SynapseVersion: server: server version, python: python version  # noqa: E501
+            str: Synapse version
         """
         resp = self.connection.request(
             "GET",
             self.admin_patterns("/server_version", 1)
         )
         data = resp.json()
-        return Management.SynapseVersion(
-            data["server_version"],
-            data["python_version"]
-        )
+        return data["server_version"]
 
     def purge_history(
         self,
